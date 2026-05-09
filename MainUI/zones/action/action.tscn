@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://5dal5o1fts6i"]
+
+[ext_resource type="Script" uid="uid://ko1jkvu2m3bc" path="res://MainUI/zones/action/action.gd" id="1_8ov6p"]
+[ext_resource type="Texture2D" uid="uid://dm5o4rsbq5ohc" path="res://asset/icon/hex.png" id="2_f6lmb"]
+[ext_resource type="Texture2D" uid="uid://cewcl5c7r5l77" path="res://asset/icon/counter.svg" id="3_e1wb5"]
+
+[node name="Dice" type="Control" unique_id=1860795333]
+layout_mode = 3
+anchor_left = -0.026
+anchor_top = -0.053000003
+anchor_right = 0.026
+anchor_bottom = 0.053000003
+offset_left = -0.048000336
+offset_top = -0.15599823
+offset_right = 0.048000336
+offset_bottom = 0.15599823
+mouse_filter = 2
+script = ExtResource("1_8ov6p")
+
+[node name="Background" type="TextureRect" parent="." unique_id=30403941]
+modulate = Color(1, 0, 0, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_f6lmb")
+expand_mode = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=88860521]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TextureRect" type="TextureRect" parent="CenterContainer" unique_id=2067548794]
+clip_contents = true
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("3_e1wb5")
+expand_mode = 1
+
+[connection signal="tree_entered" from="." to="." method="_on_tree_entered"]
+[connection signal="tree_exited" from="." to="." method="_on_tree_exited"]

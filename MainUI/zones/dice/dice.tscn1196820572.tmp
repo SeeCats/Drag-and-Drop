@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://ch4nevd614kw4"]
+
+[ext_resource type="Texture2D" uid="uid://b52rt1rfng5uy" path="res://icons/slot6.png" id="1_1k1lx"]
+[ext_resource type="Script" uid="uid://cutfn74hkvfds" path="res://MainUI/zones/dice/dice.gd" id="1_ypqjo"]
+
+[node name="Dice" type="Control" unique_id=1860795333]
+layout_mode = 3
+anchors_preset = 0
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+mouse_filter = 2
+script = ExtResource("1_ypqjo")
+max_roll = null
+min_roll = null
+current_roll = null
+element_type = null
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=2067548794]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("1_1k1lx")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="Label" type="Label" parent="TextureRect" unique_id=514982569]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "4"
+horizontal_alignment = 1
+vertical_alignment = 1

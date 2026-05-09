@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://dg0gb4bnwfl2d"]
+
+[ext_resource type="Script" uid="uid://dw36dywx7w10l" path="res://character/character.gd" id="1_yf0e5"]
+[ext_resource type="Script" uid="uid://khaswvo8mpyp" path="res://character/hp.gd" id="2_1l1n4"]
+
+[node name="Character" type="Node" unique_id=1871646998]
+script = ExtResource("1_yf0e5")
+
+[node name="Hp" type="Node" parent="." unique_id=1470980293]
+script = ExtResource("2_1l1n4")
+
+[connection signal="tree_entered" from="." to="." method="_on_tree_entered"]
+[connection signal="tree_exited" from="." to="." method="_on_tree_exited"]

@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://bfoqa2qb7xj0n"]
+
+[ext_resource type="Script" uid="uid://cbjlrdqx801yy" path="res://MainUI/zones/zones.gd" id="1_yxkjg"]
+[ext_resource type="PackedScene" uid="uid://7rlopy3oulw7" path="res://MainUI/zones/zone/zone.tscn" id="2_1xptj"]
+[ext_resource type="PackedScene" uid="uid://ch4nevd614kw4" path="res://MainUI/zones/dice/dice.tscn" id="3_msq07"]
+[ext_resource type="Texture2D" uid="uid://dlx2h8liojkw" path="res://icons/slot8.png" id="4_xjyi0"]
+[ext_resource type="Texture2D" uid="uid://b52rt1rfng5uy" path="res://icons/slot6.png" id="5_hhpox"]
+[ext_resource type="Texture2D" uid="uid://pawwv2t4rryw" path="res://icons/icon.svg" id="6_ktf2o"]
+
+[node name="Zones" type="Control" unique_id=1982564892]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 239.0
+offset_top = 199.0
+offset_right = -673.0
+offset_bottom = -242.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_yxkjg")
+
+[node name="Dice1" parent="." unique_id=1860795333 instance=ExtResource("3_msq07")]
+layout_mode = 0
+texture = ExtResource("4_xjyi0")
+
+[node name="Dice2" parent="." unique_id=104783153 instance=ExtResource("3_msq07")]
+layout_mode = 0
+offset_left = 220.0
+offset_right = 260.0
+texture = ExtResource("5_hhpox")
+
+[node name="Dice3" parent="." unique_id=89289588 instance=ExtResource("3_msq07")]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 187.0
+offset_right = 140.0
+offset_bottom = 227.0
+texture = ExtResource("6_ktf2o")
+
+[node name="Zone1" parent="." unique_id=1937750927 instance=ExtResource("2_1xptj")]
+layout_mode = 0
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+
+[node name="Zone2" parent="." unique_id=1255602710 instance=ExtResource("2_1xptj")]
+layout_mode = 0
+offset_left = 220.0
+offset_top = -20.0
+offset_right = 260.0
+offset_bottom = 20.0
+
+[node name="Zone3" parent="." unique_id=1875013420 instance=ExtResource("2_1xptj")]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 187.0
+offset_right = 140.0
+offset_bottom = 227.0
+
+[connection signal="mouse_entered" from="Zone1" to="." method="_on_zone_1_mouse_entered"]
+[connection signal="mouse_exited" from="Zone1" to="." method="_on_zone_1_mouse_exited"]
+[connection signal="mouse_entered" from="Zone2" to="." method="_on_zone_1_mouse_entered"]
+[connection signal="mouse_exited" from="Zone2" to="." method="_on_zone_1_mouse_exited"]
+[connection signal="mouse_entered" from="Zone3" to="." method="_on_zone_1_mouse_entered"]
+[connection signal="mouse_exited" from="Zone3" to="." method="_on_zone_1_mouse_exited"]

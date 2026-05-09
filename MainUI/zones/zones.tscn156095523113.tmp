@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://bfoqa2qb7xj0n"]
+
+[ext_resource type="Script" uid="uid://cbjlrdqx801yy" path="res://zones/zones.gd" id="1_yxkjg"]
+[ext_resource type="PackedScene" uid="uid://7rlopy3oulw7" path="res://zones/zone/zone.tscn" id="2_1xptj"]
+[ext_resource type="Script" uid="uid://cutfn74hkvfds" path="res://zones/dice/dice.gd" id="3_msq07"]
+[ext_resource type="Texture2D" uid="uid://dlx2h8liojkw" path="res://icons/slot8.png" id="4_xjyi0"]
+
+[node name="Zones" type="Control" unique_id=1982564892]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_yxkjg")
+
+[node name="Zone1" parent="." unique_id=1937750927 instance=ExtResource("2_1xptj")]
+layout_mode = 0
+offset_left = 773.0
+offset_top = 107.0
+offset_right = 813.0
+offset_bottom = 147.0
+
+[node name="Zone2" parent="." unique_id=1255602710 instance=ExtResource("2_1xptj")]
+layout_mode = 0
+offset_left = 935.0
+offset_top = 108.0
+offset_right = 975.0
+offset_bottom = 148.0
+
+[node name="Zone3" parent="." unique_id=1875013420 instance=ExtResource("2_1xptj")]
+layout_mode = 0
+offset_left = 853.0
+offset_top = 229.0
+offset_right = 893.0
+offset_bottom = 269.0
+
+[node name="Dice1" type="Control" parent="." unique_id=1535743993]
+anchors_preset = 0
+offset_left = 853.0
+offset_top = 229.0
+offset_right = 893.0
+offset_bottom = 269.0
+script = ExtResource("3_msq07")
+texture = ExtResource("4_xjyi0")
+metadata/_custom_type_script = "uid://cutfn74hkvfds"
+
+[connection signal="mouse_entered" from="Zone1" to="." method="_on_zone_1_mouse_entered"]
+[connection signal="mouse_exited" from="Zone1" to="." method="_on_zone_1_mouse_exited"]
+[connection signal="mouse_entered" from="Zone2" to="." method="_on_zone_1_mouse_entered"]
+[connection signal="mouse_exited" from="Zone2" to="." method="_on_zone_1_mouse_exited"]
+[connection signal="mouse_entered" from="Zone3" to="." method="_on_zone_1_mouse_entered"]
+[connection signal="mouse_exited" from="Zone3" to="." method="_on_zone_1_mouse_exited"]
