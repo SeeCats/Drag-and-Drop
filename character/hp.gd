@@ -3,7 +3,7 @@ class_name Hp
 
 var max_hp :int = 40:
 	set(new_value):
-		max_value = max_hp
+		max_value = new_value
 		label.max_value = max_hp
 var current_hp = 40 :
 	set(new_value):
@@ -11,11 +11,12 @@ var current_hp = 40 :
 		value = current_hp
 		label.current_value = current_hp
 var hp_regen = 0
+@export var round_start_priority : int = 50
 @onready var label: Label = $Label
 
 
 func _ready():
-	GlobalSignal.round_started.connect(round_start)
+	add_to_group("round_participants")
 	max_value = max_hp
 	label.max_value = max_hp
 	value = current_hp

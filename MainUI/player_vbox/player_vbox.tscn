@@ -1,0 +1,149 @@
+[gd_scene format=3 uid="uid://bbg31ufd2qthy"]
+
+[ext_resource type="Script" uid="uid://byrfeoexwjvdc" path="res://MainUI/player_vbox/player_character.gd" id="1_pn0sx"]
+[ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/monster/hp_bar.tscn" id="2_8dhto"]
+[ext_resource type="Script" uid="uid://cbjlrdqx801yy" path="res://MainUI/player_vbox/swap.gd" id="3_irviu"]
+[ext_resource type="PackedScene" uid="uid://c3isp8krrp02a" path="res://MainUI/player_vbox/zone/zone.tscn" id="4_jo8b4"]
+[ext_resource type="PackedScene" uid="uid://ch4nevd614kw4" path="res://MainUI/player_vbox/dice/dice.tscn" id="5_u56ai"]
+[ext_resource type="Script" uid="uid://33v1lkwvhy0t" path="res://MainUI/player_vbox/rotate.gd" id="6_8nv8j"]
+[ext_resource type="PackedScene" uid="uid://5dal5o1fts6i" path="res://MainUI/player_vbox/action/action.tscn" id="7_6x8qi"]
+[ext_resource type="Texture2D" uid="uid://bvgxlxyhjlqe2" path="res://asset/icon/power.svg" id="8_8ro3w"]
+[ext_resource type="Texture2D" uid="uid://tft74hem5cog" path="res://asset/icon/rep.svg" id="9_874wy"]
+[ext_resource type="Texture2D" uid="uid://cewcl5c7r5l77" path="res://asset/icon/counter.svg" id="10_25hc1"]
+
+[node name="VBoxContainer" type="VBoxContainer" unique_id=1703046513 node_paths=PackedStringArray("hp")]
+custom_minimum_size = Vector2(396, 0)
+offset_right = 8.0
+offset_bottom = 346.0
+script = ExtResource("1_pn0sx")
+hp = NodePath("HpBar")
+
+[node name="HpBar" parent="." unique_id=2040145802 instance=ExtResource("2_8dhto")]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+
+[node name="Swap" type="HBoxContainer" parent="." unique_id=1840335909]
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("3_irviu")
+
+[node name="Zone1" parent="Swap" unique_id=1884046879 instance=ExtResource("4_jo8b4")]
+custom_minimum_size = Vector2(0, 129)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="CenterContainer" type="CenterContainer" parent="Swap/Zone1" unique_id=2109337111]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Dice" parent="Swap/Zone1/CenterContainer" unique_id=1860795333 instance=ExtResource("5_u56ai")]
+custom_minimum_size = Vector2(80, 98)
+layout_mode = 2
+
+[node name="Zone2" parent="Swap" unique_id=614241919 instance=ExtResource("4_jo8b4")]
+custom_minimum_size = Vector2(0, 129)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="CenterContainer" type="CenterContainer" parent="Swap/Zone2" unique_id=440968790]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Dice" parent="Swap/Zone2/CenterContainer" unique_id=816470087 instance=ExtResource("5_u56ai")]
+custom_minimum_size = Vector2(80, 98)
+layout_mode = 2
+element = 1
+
+[node name="Zone3" parent="Swap" unique_id=1763546688 instance=ExtResource("4_jo8b4")]
+custom_minimum_size = Vector2(0, 129)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="CenterContainer" type="CenterContainer" parent="Swap/Zone3" unique_id=39391407]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Dice" parent="Swap/Zone3/CenterContainer" unique_id=1869429055 instance=ExtResource("5_u56ai")]
+custom_minimum_size = Vector2(80, 98)
+layout_mode = 2
+element = 2
+
+[node name="Rotate" type="HBoxContainer" parent="." unique_id=73580082]
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("6_8nv8j")
+
+[node name="Zone1" parent="Rotate" unique_id=551404450 instance=ExtResource("4_jo8b4")]
+custom_minimum_size = Vector2(0, 129)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="CenterContainer" type="CenterContainer" parent="Rotate/Zone1" unique_id=1558939092]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Action1" parent="Rotate/Zone1/CenterContainer" unique_id=894316863 instance=ExtResource("7_6x8qi")]
+layout_mode = 2
+texture = ExtResource("8_8ro3w")
+
+[node name="Zone2" parent="Rotate" unique_id=558359244 instance=ExtResource("4_jo8b4")]
+custom_minimum_size = Vector2(0, 129)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="CenterContainer2" type="CenterContainer" parent="Rotate/Zone2" unique_id=1275593175]
+custom_minimum_size = Vector2(0, 129)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Action2" parent="Rotate/Zone2/CenterContainer2" unique_id=1072055062 instance=ExtResource("7_6x8qi")]
+layout_mode = 2
+element_type = 1
+texture = ExtResource("9_874wy")
+
+[node name="Zone3" parent="Rotate" unique_id=1303852701 instance=ExtResource("4_jo8b4")]
+custom_minimum_size = Vector2(0, 129)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="CenterContainer2" type="CenterContainer" parent="Rotate/Zone3" unique_id=987098310]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Action3" parent="Rotate/Zone3/CenterContainer2" unique_id=1084177306 instance=ExtResource("7_6x8qi")]
+layout_mode = 2
+element_type = 2
+texture = ExtResource("10_25hc1")

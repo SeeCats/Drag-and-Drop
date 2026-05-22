@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://c0r8nlvy33p64"]
+
+[ext_resource type="Script" uid="uid://khaswvo8mpyp" path="res://character/hp.gd" id="1_o2p2n"]
+[ext_resource type="Script" uid="uid://2s86k4xquayu" path="res://character/monster/slime/hplabel.gd" id="2_rcima"]
+
+[node name="HpBar" type="ProgressBar" unique_id=2040145802]
+show_percentage = false
+script = ExtResource("1_o2p2n")
+
+[node name="Label" type="Label" parent="." unique_id=1395637722]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("2_rcima")

@@ -11,9 +11,8 @@ config_version=5
 [application]
 
 config/name="Drag_Drop"
-run/main_scene="uid://f7h3ifoja42m"
+run/main_scene="uid://bitls8btrq15u"
 config/features=PackedStringArray("4.6", "Forward Plus")
-config/icon="res://icons/icon.svg"
 
 [autoload]
 
@@ -21,6 +20,14 @@ Swatch="*uid://bgh3q4omts4c3"
 GlobalSignal="*uid://b86e44mlrfv7p"
 CurrentRoll="*uid://sg4kmr2eijag"
 Constants="*uid://b7qpkxre5gsqe"
+CombatState="*uid://cslvhtn5efpdp"
+
+[display]
+
+window/size/viewport_width=540
+window/size/viewport_height=1140
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [input]
 
@@ -37,3 +44,5 @@ click={
 [rendering]
 
 rendering_device/driver.windows="d3d12"
+textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)

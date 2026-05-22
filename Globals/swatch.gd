@@ -1,8 +1,15 @@
 extends Node
 
 const RED = Color(Color.RED)
-const BLUE = Color(Color.BLUE)
+
 const GREEN = Color(Color.GREEN)
+const BLUE = Color(Color.BLUE)
 const WHITE = Color(Color.GHOST_WHITE)
+const ELECTRIC_LIME : Color = Color("B0FF00")
 
 const ELEMENT_COLOR = [RED, GREEN, BLUE, WHITE]
+const NEON_COLOR = [
+	Color.MAGENTA,
+	ELECTRIC_LIME,
+	Color.CYAN,
+]
