@@ -17,10 +17,9 @@ texture = ExtResource("2_bshgf")
 [node name="Cube2d" parent="." unique_id=1690143672 instance=ExtResource("3_11kgc")]
 position = Vector2(39, 46)
 scale = Vector2(0.4, 0.4)
-rotation_period = 3.0
-camera_distance = 4.0
-focal_length = 250.0
+rotation_period = 50.0
 halo_color = Color(1, 1, 1, 1)
+focal_length = 250.0
 
 [node name="Label" type="Label" parent="." unique_id=514982569]
 layout_mode = 1

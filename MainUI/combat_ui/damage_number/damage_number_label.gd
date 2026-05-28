@@ -1,4 +1,4 @@
-extends Label
+extends RichTextLabel
 class_name DamageNumber
 
 var vertical_speed :int = 80

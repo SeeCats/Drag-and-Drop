@@ -13,3 +13,8 @@ const NEON_COLOR = [
 	ELECTRIC_LIME,
 	Color.CYAN,
 ]
+const HALF = [
+	Color(1,0,1,0.05),
+	Color(0.2,1,0.2,0.05),
+	Color(0,1,1,0.05)
+]

@@ -9,13 +9,12 @@ class_name Dice
 @export var min_roll : int =1
 @export var current_roll : int :
 	set(new_value):
-		mom = get_parent()
 		current_roll = clamp(new_value, min_roll, max_roll)
 		label.text = str(current_roll)
 @export var texture : Texture
 @export var element : Rollables.Element
 
-var mom
+
 var swapping : bool:
 	set(new_value):
 		print("swapping setter: value = ", new_value, " caller-trace: ", get_stack())
@@ -37,9 +36,8 @@ var initial_halo_width : float = 12
 
 func _ready() -> void:
 	# Tint the cube's halo to match this die's element.
+	cube.fill_color =  Swatch.HALF[element as int ]
 	cube.halo_color = Swatch.NEON_COLOR[element as int]
-	
-	
 	roll()
 
 

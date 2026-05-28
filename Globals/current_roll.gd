@@ -33,6 +33,8 @@ var monster_damage : int
 
 var initial_roll : Array[int]
 var initial_monster_roll : Array[int]
+
+var is_player_winning : String = "Proj Drag Drop"
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 

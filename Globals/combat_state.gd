@@ -65,8 +65,10 @@ func _enter_state(state: State) -> void:
 			_on_check_defeat()
 		State.WIN:
 			print("WIN")
+			_on_win()
 		State.LOSE:
 			print("LOSE")
+			_on_lose()
 
 
 func _exit_state(_state: State) -> void:
@@ -137,3 +139,16 @@ func _on_check_defeat() -> void:
 	#     transition_to(State.ROUND_START)
 	await get_tree().create_timer(1).timeout
 	transition_to(State.ROUND_START)
+
+
+func _on_win() ->void:
+	await get_tree().create_timer(1).timeout
+	CurrentRoll.is_player_winning = "WIN"
+	get_tree().change_scene_to_file("res://MainUI/main_menu/main_menu.tscn")
+	pass
+
+func _on_lose() ->void:
+	await get_tree().create_timer(1).timeout
+	CurrentRoll.is_player_winning = "LOSE"
+	get_tree().change_scene_to_file("res://MainUI/main_menu/main_menu.tscn")
+	pass

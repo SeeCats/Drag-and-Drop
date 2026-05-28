@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Drag_Drop"
-run/main_scene="uid://bitls8btrq15u"
+run/main_scene="uid://bbyh1ypsqsrir"
 config/features=PackedStringArray("4.6", "Forward Plus")
 
 [autoload]
@@ -21,6 +21,7 @@ GlobalSignal="*uid://b86e44mlrfv7p"
 CurrentRoll="*uid://sg4kmr2eijag"
 Constants="*uid://b7qpkxre5gsqe"
 CombatState="*uid://cslvhtn5efpdp"
+View="*uid://bc2mq0tvlf8lx"
 
 [display]
 
