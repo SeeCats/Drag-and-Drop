@@ -21,8 +21,8 @@ class_name Cube
 @export var euler_offset : Vector3 = Vector3(45, 45, 45)
 var rotation_true : bool = true
 
-# Camera state lives on the View autoload — all cubes share one vanishing point.
-# Tune View.camera_position / camera_distance / focal_length, not per-cube.
+# Camera: each cube uses its own camera_distance and focal_length (exported below).
+# A shared-camera variant via the View autoload was tried but reverted — see _project().
 
 # ---- Shape ---------------------------------------------------------------------------------------
 # Swap this .tres to render a different wireframe. Setter rebuilds the Line2Ds /
@@ -191,7 +191,7 @@ func _process(delta: float) -> void:
 # future second attempt at a shared-camera effect.)
 #
 # Math:
-#   depth  = View.camera_distance - corner.z   # distance in front of pinhole
+#   depth  = camera_distance - corner.z         # distance in front of pinhole
 #   return = (corner.x, -corner.y) * focal_length / depth   # flip Y: world-up → screen-down
 func _project(corner: Vector3) -> Vector2:
 	var depth : float = camera_distance - corner.z

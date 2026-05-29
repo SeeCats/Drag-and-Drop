@@ -8,7 +8,6 @@ func _ready() -> void:
 	pass
 
 
-# Called when the node enters the scene tree for the first time.
 func pop_show():
 	var start_y = position.y
 	var t = create_tween()
@@ -27,13 +26,13 @@ func pop_show():
 	queue_free()
 
 func pop_show_number(number: int):
-	text = str(number)
+	text = "[halo color=neon_green][center]%s[/center][/halo]" % str(number)
 	pop_show()
 
 func pop_show_miss():
-	text = "MISS"
+	text = "[halo color=white][center]MISS[/center][/halo]"
 	pop_show()
 
 func pop_show_block(number: int):
-	text = "BLOCKED %d" % [number] 
+	text = "[halo color=neon_blue][center]BLOCKED %d[/center][/halo]" % number
 	pop_show()

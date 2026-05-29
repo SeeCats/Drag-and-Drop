@@ -17,5 +17,4 @@ offset_left = 37.0
 offset_top = 4.0
 offset_right = 117.0
 offset_bottom = 64.0
-text = "40
-"
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)

@@ -18,3 +18,14 @@ const HALF = [
 	Color(0.2,1,0.2,0.05),
 	Color(0,1,1,0.05)
 ]
+
+static func from_name(key: String) -> Color:
+	match key:
+		"red":        return RED
+		"green":      return GREEN
+		"blue":       return BLUE
+		"white":      return WHITE
+		"neon_red":   return NEON_COLOR[0]
+		"neon_green": return NEON_COLOR[1]
+		"neon_blue":  return NEON_COLOR[2]
+		_:            return Color(key)  # fallback: treat as hex

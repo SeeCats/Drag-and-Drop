@@ -1,18 +1,24 @@
 [gd_scene format=3 uid="uid://csqkckvs7iwb7"]
 
 [ext_resource type="Script" uid="uid://fml4d6bbqqsk" path="res://MainUI/combat_ui/damage_number/damage_number_label.gd" id="1_b6nsf"]
+[ext_resource type="Script" uid="uid://baj1dn1eivrap" path="res://MainUI/combat_ui/damage_number/halo_effect.gd" id="2_halo"]
 
-[node name="RichTextLabel" type="RichTextLabel" unique_id=1607587097]
+[sub_resource type="RichTextEffect" id="HaloEffect_1"]
+script = ExtResource("2_halo")
+
+[node name="DamageNumberLabel" type="RichTextLabel" unique_id=1607587097]
 offset_left = -11.0
 offset_top = -257.0
 offset_right = 29.0
 offset_bottom = -217.0
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 8
 theme_override_font_sizes/normal_font_size = 40
 theme_override_font_sizes/bold_font_size = 40
 theme_override_font_sizes/bold_italics_font_size = 40
 theme_override_font_sizes/italics_font_size = 40
 theme_override_font_sizes/mono_font_size = 40
 bbcode_enabled = true
-text = "40
-"
+text = "[halo color=neon_green][center]40[/center][/halo]"
+custom_effects = [SubResource("HaloEffect_1")]
 script = ExtResource("1_b6nsf")

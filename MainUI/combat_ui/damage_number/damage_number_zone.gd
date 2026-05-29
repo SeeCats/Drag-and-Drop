@@ -7,6 +7,7 @@ extends Control
 
 
 func _ready() -> void:
+	print(self, " in tree")
 	for i in 4:
 		show_damage_number()
 		await get_tree().create_timer(0.3).timeout
@@ -15,7 +16,7 @@ func show_damage_number():
 	var new_damage_number = damage_number.duplicate()
 	new_damage_number.global_position = get_random_global_position()
 	add_child(new_damage_number)
-	new_damage_number.pop_show_number(3)
+	new_damage_number.pop_show_number(8)
 	
 func get_random_global_position():
 	var random_position : Vector2 = Vector2(0,0)
