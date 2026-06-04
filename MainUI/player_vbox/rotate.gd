@@ -28,21 +28,27 @@ func _ready() -> void:
 	pass # Replace with function body.
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta: float) -> void:
+func _input(event: InputEvent) -> void:
+	if not event is InputEventMouseButton or event.button_index != MOUSE_BUTTON_LEFT:
+		return
 	swap_started = [zone1.swap_started, zone2.swap_started, zone3.swap_started]
-	swap_ended = [zone1.swap_ended, zone3.swap_ended, zone3.swap_ended]
 	mouse_is_inside = [zone1.is_inside, zone2.is_inside, zone3.is_inside]
-	if Input.is_action_pressed("click") && mouse_is_inside.has(true) && !swap_started.has(true):
-		zone_list[mouse_is_inside.find(true)].swap_started_true()
+
+	if event.pressed and mouse_is_inside.has(true) and not swap_started.has(true):
+		var idx = mouse_is_inside.find(true)
+		zone_list[idx].swap_started_true()
 		swap_started = [zone1.swap_started, zone2.swap_started, zone3.swap_started]
-		
-	if Input.is_action_just_released("click") && swap_started.has(true) && mouse_is_inside.has(true) && ! (swap_started.find(true) == mouse_is_inside.find(true)) :
-		zone_list[mouse_is_inside.find(true)].swap_ended_true()
+		get_viewport().set_input_as_handled()
+
+	if not event.pressed:
 		swap_ended = [zone1.swap_ended, zone2.swap_ended, zone3.swap_ended]
-		print("rotate started",swap_started)
-		print("rotate ended", swap_ended)
-		rotate()
+		if swap_started.has(true) and mouse_is_inside.has(true) and not (swap_started.find(true) == mouse_is_inside.find(true)):
+			zone_list[mouse_is_inside.find(true)].swap_ended_true()
+			swap_ended = [zone1.swap_ended, zone2.swap_ended, zone3.swap_ended]
+			rotate()
+			get_viewport().set_input_as_handled()
+		else:
+			false_zone_list()
 
 
 # Called when rotating the position of actions
