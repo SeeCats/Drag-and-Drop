@@ -64,13 +64,33 @@ func anti_operator():
 	)
 
 
+var attack_stagger : float = 0.3  # delay between each hit/miss pop
+
 func player_attack():
-	var player_number_of_attack = current_roll_list[1]
-	player_damage = current_roll_list[0]
-	for i in player_number_of_attack:
+	var hits = current_roll_list[RollIndex.MULT]          # surviving hits
+	var misses = initial_roll[RollIndex.MULT] - hits      # hits lost to anti
+	player_damage = current_roll_list[RollIndex.BASE]
+	for i in misses:
+		GlobalSignal.player_missed.emit()
+		await get_tree().create_timer(attack_stagger).timeout
+	for i in hits:
 		GlobalSignal.player_attacked.emit()
+		await get_tree().create_timer(attack_stagger).timeout
 	GlobalSignal.player_attack_finished.emit()
 	
+
+func monster_attack():
+	var hits = current_monster_roll_list[RollIndex.MULT]          # surviving hits
+	var misses = initial_monster_roll[RollIndex.MULT] - hits      # hits lost to anti
+	monster_damage = current_monster_roll_list[RollIndex.BASE]
+	for i in misses:
+		GlobalSignal.monster_missed.emit()
+		await get_tree().create_timer(attack_stagger).timeout
+	for i in hits:
+		GlobalSignal.monster_attacked.emit()
+		await get_tree().create_timer(attack_stagger).timeout
+	GlobalSignal.monster_atack_finished.emit()
+
 
 func monster_damage_operator():
 	monster_damage = current_monster_roll_list[RollIndex.BASE] * current_monster_roll_list[RollIndex.MULT]

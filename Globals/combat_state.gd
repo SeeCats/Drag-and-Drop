@@ -99,7 +99,7 @@ func _on_turn_resolving() -> void:
 func _on_player_attack() -> void:
 	# Emits player_attacked N times → monster.monster_hit() takes damage per emit.
 	await get_tree().create_timer(1).timeout
-	CurrentRoll.player_attack()
+	await CurrentRoll.player_attack()
 	if _is_monster_dead():
 		transition_to(State.WIN)
 		return
@@ -109,8 +109,7 @@ func _on_player_attack() -> void:
 func _on_monster_attack() -> void:
 	# Computes monster_damage and emits monster_attacked → player.player_hit() takes damage.
 	await get_tree().create_timer(1).timeout
-	CurrentRoll.monster_damage_operator()
-	GlobalSignal.monster_attacked.emit()
+	await CurrentRoll.monster_attack()
 	if _is_player_dead():
 		transition_to(State.LOSE)
 		return

@@ -22,7 +22,7 @@ func _ready() -> void:
 	# Announce as soon as monster_attacked fires — at that point the FSM has
 	# computed damage but hasn't yet cascaded into CHECK_DEFEAT / ROUND_START
 	# (which would reset current_monster_roll_list to next round's values).
-	GlobalSignal.monster_attacked.connect(_announce_attack)
+	GlobalSignal.monster_atack_finished.connect(_announce_attack)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:

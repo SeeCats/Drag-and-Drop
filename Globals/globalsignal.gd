@@ -20,6 +20,10 @@ signal monster_attacked
 @warning_ignore("unused_signal")
 signal player_attack_finished
 @warning_ignore("unused_signal")
+signal player_missed
+@warning_ignore("unused_signal")
+signal monster_missed
+@warning_ignore("unused_signal")
 signal monster_atack_finished
 @warning_ignore("unused_signal")
 signal swap_started(dice: Dice)

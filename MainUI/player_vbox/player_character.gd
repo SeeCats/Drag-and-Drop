@@ -22,6 +22,7 @@ func _ready() -> void:
 	super()
 	GlobalSignal.updated_roll.connect(update_player_dice)
 	GlobalSignal.monster_attacked.connect(player_hit)
+	GlobalSignal.monster_atack_finished.connect(announce_damage_taken)
 	rotate.actions_rotated.connect(update_action)
 	swap.dice_swapped.connect(update_dice_roll)
 
@@ -34,15 +35,18 @@ func update_player_dice():
 func _exit_tree() -> void:
 	GlobalSignal.updated_roll.disconnect(update_player_dice)
 	GlobalSignal.monster_attacked.disconnect(player_hit)
+	GlobalSignal.monster_atack_finished.disconnect(announce_damage_taken)
 
 func player_hit():
-	hp.current_hp -= CurrentRoll.monster_damage
+	hp.current_hp -= CurrentRoll.monster_damage  # per monster hit
+	# Defeat handled by CombatState (CHECK_DEFEAT).
+
+func announce_damage_taken():  # once, after all monster hits
 	var base_string = get_reduced_roll(RollIndex.BASE)
 	var mult_string = get_reduced_roll(RollIndex.MULT)
 	var announcement = "player took %s x %s damage"% [base_string, mult_string]
 	print(announcement)
 	GlobalSignal.announced.emit(announcement)
-	# Round restart / defeat is now handled by CombatState (CHECK_DEFEAT → ROUND_START / GAME_OVER).
 
 func update_action(new_action_list : Array[Constants.RollIndex]):
 	action_index_list = new_action_list

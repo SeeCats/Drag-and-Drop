@@ -11,12 +11,9 @@ offset_right = 454.0
 offset_bottom = 339.0
 script = ExtResource("1_wn3ir")
 
-[node name="DamageNumber" parent="." unique_id=1607587097 instance=ExtResource("2_wn3ir")]
+[node name="DamageNumberLabel" parent="." unique_id=1607587097 instance=ExtResource("2_wn3ir")]
 layout_mode = 0
-offset_left = 37.0
-offset_top = 4.0
-offset_right = 117.0
-offset_bottom = 64.0
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-text = "40
-"
+offset_left = 140.0
+offset_top = -152.0
+offset_right = 491.0
+offset_bottom = 35.0
