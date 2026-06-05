@@ -1,5 +1,11 @@
 Explain current plan before implementing a change and ask for permission. When explaining bring up the reasoning for each decision step by step. When adding comments to code keep it as short as possible. Prioritize using existing code structure. Make explanations short and concise.
 
+Do NOT run git commands. This sandbox can't write to `.git` safely (it has corrupted HEAD before). Edit code files only; the user drives all git operations (commit, branch, push) in GitHub Desktop.
+
+# Session history
+
+Maintain `HISTORY.md` (same folder). At the end of any session that changes code or makes a design decision, prepend a new dated entry (newest on top): what changed, why, and any open threads. Keep it concise — narrative trail only; code-level detail stays here in `CLAUDE.md`.
+
 # Architecture (Godot 4.6, project root: DragAndDrop/)
 
 Turn-based combat game. Dice carry a roll value + element; player swaps/rotates dice to set up an attack, then ends turn to resolve combat against a monster.
