@@ -4,6 +4,25 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-06-06
+
+### Effect system — ADR + architecture study
+- Wrote `docs/adr/ADR-001-effect-system-architecture.md`: chose the **event pipeline / Chain of Responsibility** model (behaviors become mutable `Event`s dispatched through ordered `Effect`s; each may read/modify/cancel). Stays **synchronous** — callers need an immediate answer, so not a queue.
+- Installed the **engineering** plugin; used its `architecture` skill to produce the ADR.
+
+### Study pass — Game Programming Patterns
+- Read **Event Queue** and **Command** chapters; notes saved to `docs/study-notes/game-programming-patterns.md` (phone-readable via GitHub).
+- Takeaways: Command (reify an action) → Chain of Responsibility (our pipeline) → Event Queue (skipped, decouples in time). `execute(actor)` ≈ our `handle(event, host)`.
+- Decided GDScript types: `Effect` = `Resource`, `Event` = `RefCounted`, `EffectPipeline` = `Node`.
+- Rule of thumb: one op/no state → `Callable`; multiple ops or state → class/Resource (so `Effect` is a Resource).
+- Reinforced: many signal listeners = fine; many uncoordinated writers to shared state (`CurrentRoll`) = bad → funnel writes through the pipeline.
+
+### Housekeeping
+- Added rule to `CLAUDE.md`: **do not run git commands** (sandbox can't write `.git` safely; user drives git in GitHub Desktop).
+- Effect-system work belongs on branch `feature/effect-system` (scaffold not started yet).
+
+---
+
 ## 2026-06-05
 
 ### Damage-number null bug — fixed
