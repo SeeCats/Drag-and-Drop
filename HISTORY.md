@@ -4,6 +4,16 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-06-08
+
+### Study pass 2 — Component & Type Object
+- Skimmed **Component** (it's Godot's node system; validates pipeline-as-node) and read **Type Object** (relics/statuses as `Resource`s). Notes appended to `docs/study-notes/game-programming-patterns.md`.
+- Key insight: Type Object makes type-specific *data* easy but *behavior* hard → resolved by each relic being an `Effect` subclass that overrides `handle()` (Type Object + per-type behavior via scripted Resource). `Pattern` = pure Type Object; `Effect` = Type Object + behavior.
+- Framing locked in: **relic ≈ Type Object** (invariant identity), **status ≈ State** (temporal, has duration). Relic families/tiers → single inheritance via `@export var parent`.
+- Added the `CurrentRoll` write-site list to `ADR-001` (sites to migrate; `anti_operator()` = primary transform seam).
+
+---
+
 ## 2026-06-06
 
 ### Effect system — ADR + architecture study

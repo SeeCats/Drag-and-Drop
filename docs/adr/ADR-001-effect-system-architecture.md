@@ -97,3 +97,19 @@ The design sits at the intersection of three patterns from *Game Programming Pat
 Framing that falls out of this:
 - **PRE phase = command, POST phase = event.** A PRE event effects may modify/cancel is really a *request* (command); a POST notification is a true *event* ("it happened, react").
 - **Flyweight / `duplicate()`:** stateful effects (duration, stacks) must be duplicated per instance; purely stateless ones could be shared.
+
+## Current `CurrentRoll` write sites (to migrate)
+
+These are the only places another node currently *writes* `CurrentRoll`. When the pipeline lands, relic/anti behavior should funnel through here (especially `anti_operator`) instead of new code poking `CurrentRoll` directly. Snapshot as of 2026-06-06:
+
+Direct field writes:
+- `PlayerCharacter` — `player_character.gd:30–33` (`update_player_dice`): sets `base`, `mult`, `anti`, `anti_type` (via setters → also writes `current_roll_list[0..3]`).
+- `Monster` — `monster.gd:37–40` (`update_roll`): sets `current_monster_roll_list[BASE/MULT/ANTI/ANTI_TYPE]` from the pattern.
+- `CombatState` — `combat_state.gd:145,151` (`_on_win`/`_on_lose`): sets `is_player_winning`.
+
+Method calls that mutate `CurrentRoll` internally (all driven by `CombatState`):
+- `anti_operator()` (`combat_state.gd:95`) — rewrites `current_roll_list` / `current_monster_roll_list`, snapshots `initial_roll` / `initial_monster_roll`. **Primary transform seam for effects.**
+- `player_attack()` (`:102`) — sets `player_damage`.
+- `monster_attack()` (`:112`) — sets `monster_damage`.
+
+Everything else touching `CurrentRoll` is read-only.

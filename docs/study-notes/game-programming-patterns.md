@@ -4,15 +4,17 @@ Notes from reading Robert Nystrom's *Game Programming Patterns* (free at https:/
 
 ---
 
-## How the three patterns relate (the big picture)
+## How the patterns relate (the big picture)
 
-They're one idea at three settings:
+The five patterns behind the effect system, and what each one is in our code:
 
-1. **Command** — reify an action into an object you can store/pass/run later.
-2. **Chain of Responsibility** — route that action object through an ordered list of handlers, each free to act on it or pass it along.
-3. **Event Queue** — add a buffer so the action is processed *later* (decouple in time).
+1. **Command** — reify an action into an object you can store/pass/run later → our `Event`.
+2. **Chain of Responsibility** — route that action through an ordered list of handlers, each free to act or pass it on → our `EffectPipeline`.
+3. **Event Queue** — add a buffer so the action is processed *later* (decouple in time) → deliberately skipped (callers need an answer now).
+4. **Component** — build an entity from composable parts instead of one giant class → Godot nodes; `EffectPipeline`/`Hp` as nodes on a Character.
+5. **Type Object** — define "kinds" as data instead of subclasses → relics/statuses as `Effect` `Resource`s (and `Pattern`).
 
-Our effect system = **Command + Chain of Responsibility, stayed synchronous** (we skip the queue). The `Event` is the reified action; the `EffectPipeline` is the chain.
+Our effect system = **Command + Chain of Responsibility, stayed synchronous**; effects authored as **Type Objects**, attached as a **Component** (node) on each Character.
 
 ---
 
@@ -56,6 +58,39 @@ Our effect system = **Command + Chain of Responsibility, stayed synchronous** (w
 
 ---
 
+## Component (https://gameprogrammingpatterns.com/component.html)
+
+**Intent:** let one entity span multiple domains without coupling them. Split each domain (input, physics, graphics…) into its own component; the entity becomes a thin container of components. Composition over inheritance (avoids the "deadly diamond"; à la carte vs fixed combos).
+
+**For us:** mostly confirmation — **this IS Godot's node system.** A Character with `Hp`, `Cube`, and (soon) `EffectPipeline` nodes is the Component pattern. Validates "pipeline as a node on the Character."
+
+**The useful part — how components communicate (we use all three):**
+- *Shared container state* — read/write the entity's shared fields (≈ `CurrentRoll`). Decoupled but **order-dependent** + shared-mutable-state hazard → why effect **priority** matters.
+- *Direct references* — fast but tightly couples the pair. Use sparingly.
+- *Messages* — container rebroadcasts to components (GoF **Mediator**) ≈ our `EffectPipeline` / `GlobalSignal`. Can be queued → Event Queue.
+
+**Strategy vs Component:** a Strategy is *stateless* behavior; a Component *holds state/identity* — same axis as stateless `Callable` vs stateful `Effect` Resource.
+
+---
+
+## Type Object (https://gameprogrammingpatterns.com/type-object.html)
+
+**Intent:** create new "classes" flexibly by making ONE class whose **instances** each represent a different type. The "type" becomes data, not code. (This is the pattern our relics-as-`Resource` is built on.)
+
+**The shift:** instead of `Dragon`/`Troll` subclasses, have one `Monster` + one `Breed`; each monster holds a *reference* to a `Breed` (shared data: health, attack). Add new kinds by instantiating `Breed` with new values / loading from data — no recompile. `Pattern` already does this; `Effect` is the same idea for relics.
+
+**The crucial caveat — data is easy, behavior is hard:** Type Object replaces an overridden method with a *member variable*. Great for type-specific *data* (a number, a string), hard for type-specific *behavior* ("skip highest die", "block swap"). Nystrom's workarounds: a fixed menu of behaviors selected by data (≈ function pointers / vtables), or full data-driven scripting (Interpreter/Bytecode).
+**Our resolution:** GDScript `Resource`s carry a script, so each relic is a small **`Effect` subclass overriding `handle()`** — Type Object (authored `.tres`, no recompile) *plus* real per-type behavior, using the engine's own dispatch. So: `Pattern` = pure Type Object (data only); `Effect` = Type Object + behavior.
+
+**Inheritance between type objects (relic families/tiers):** give a type a `parent` and inherit non-overridden fields. *Copy-down* (copy at creation) = fast, frozen; *dynamic* (walk to parent each read) = live-updatable, slower. In Godot: `@export var parent: Effect` + pick the parent `.tres`. Use **single inheritance** (sweet spot); avoid multiple.
+
+**Relic vs status = Type Object vs State:**
+- **Relic ≈ Type Object** — invariant, "what the thing *is*," lasts the whole run.
+- **Status ≈ State** — temporal, "what's true *right now*," added/removed with a duration.
+Both are `Effect` subclasses (one mechanism), but the lens helps reasoning: relic = identity; status = a passing condition.
+
+---
+
 ## GDScript type mapping for our system
 
 | Role | Base type | Why |
@@ -72,6 +107,8 @@ Hierarchy reminder: `RefCounted` = auto-freed value objects (Events) · `Resourc
 
 - [x] Event Queue — read
 - [x] Command — read
+- [x] Component — skimmed (it's Godot's node system)
+- [x] Type Object — read (relics/statuses as `Resource`s)
 - [ ] Observer — https://gameprogrammingpatterns.com/observer.html (what `GlobalSignal` already is)
 - [ ] Chain of Responsibility (GoF, not in this book) — the literal shape of `EffectPipeline.dispatch()`
 - [ ] Reference repo: wyvernshield-triggers — priority-based modifier triggers, closest to our design
