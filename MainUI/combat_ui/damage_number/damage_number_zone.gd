@@ -58,7 +58,18 @@ func _spawn() -> DamageNumberLabel:
 	var n = damage_number.duplicate()
 	n.global_position = get_random_global_position()
 	add_child(n)
+	_clamp_on_screen(n)   # keep the whole pop on-screen
 	return n
+
+func _clamp_on_screen(n: DamageNumberLabel) -> void:
+	var view := get_viewport_rect().size
+	var size := damage_number.size           # settled template size (n's may read 0 for a frame)
+	var travel := float(n.vertical_speed)    # pop slides up/down by this
+	var margin := 28.0                        # absorbs scale-punch overhang + screen shake
+	var p := n.global_position
+	p.x = clampf(p.x, margin, view.x - size.x - margin)
+	p.y = clampf(p.y, margin + travel, view.y - size.y - travel - margin)
+	n.global_position = p
 
 func get_random_global_position():
 	var random_position : Vector2 = Vector2(0,0)

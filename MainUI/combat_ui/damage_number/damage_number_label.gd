@@ -10,6 +10,7 @@ func _ready() -> void:
 
 func pop_show():
 	self.show()
+	_punch()
 	var start_y = position.y
 	var t = create_tween()
 	t.set_parallel(false)   # sequential for the up-then-down chain
@@ -28,6 +29,7 @@ func pop_show():
 
 func pop_show_monster():
 	self.show()
+	_punch()
 	var start_y = position.y
 	var t = create_tween()
 	t.set_parallel(false)   # sequential for the up-then-down chain
@@ -43,6 +45,12 @@ func pop_show_monster():
 
 	await t.finished
 	queue_free()
+
+func _punch() -> void:  # scale-up-then-settle on spawn
+	pivot_offset = size / 2
+	scale = Vector2(1.6, 1.6)
+	create_tween().tween_property(self, "scale", Vector2.ONE, 0.15)\
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func pop_show_number(number: int):
 	text = "[center]%s[/center]" % str(number)
