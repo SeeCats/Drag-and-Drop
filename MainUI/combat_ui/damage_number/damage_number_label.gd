@@ -61,9 +61,9 @@ func pop_show_miss_monster():
 	pop_show_monster()
 
 func pop_show_block(original: int, blocked: int):  # blocked = amount reduced
-	text = "[center]BLOCKED %d - %d[/center]" % [original, blocked]
+	text = "[center]Blocked[/center]\n[center]%d -%d[/center]" % [original, blocked]
 	pop_show()
 
 func pop_show_block_monster(original: int, blocked: int):  # blocked = amount reduced
-	text = "[center]BLOCKED %d - %d[/center]" % [original, blocked]
+	text = "[center]Blocked[/center]\n[center]%d - %d[/center]" % [original, blocked]
 	pop_show_monster()

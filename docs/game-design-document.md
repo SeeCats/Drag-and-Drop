@@ -446,9 +446,15 @@ Consolidated tracker of everything still unresolved, grouped by *what kind of an
 16. **Differentiation — conceptually RESOLVED, pending validation.** Three distinct, honest axes: (a) the combat *knot* — color-coupled defense is a combat fingerprint no genre leader has; (b) touch-native depth (the drag is the deep act); (c) one-handed / portrait, unlocking usage contexts landscape games can't serve. The "why this not that" has real substance. **Contingent on item 1 (base-loop must actually have legs) and item 15 (one-handed/touch promise must survive into the gear & menu screens)** — same unknowns, different hat. Marketing articulation deferred.
 17. **Theme cohesion — RESOLVED (§2).** Bridged: *manipulating space-time **is** how you raid* (tear a portal, board the ship, pull back). The mechanic, the fantasy, and the art budget collapse into one act, and the symmetric combat lets a single portal-raid animation serve both player and monster attacks. Remaining work is execution-only: vary the animation's *reading* by outcome to beat repetition (also serves as combat feedback).
 
+18. **Audience / posture — INTENT SET: snackable-deep (not a contradiction).** "Snackable" (short, interruptible, low-friction, one-touch) and "brain-heavy" (deep per-decision) are *different axes*, not opposites. Depth only breaks snackable when it adds **hidden state to hold in your head** or **arithmetic to do in your head** — both already deleted by full information + deterministic resolution + UI-does-the-math (§3.4, §7.4, §9.2). So depth here is *transparent*, not taxing. Precedent that this quadrant exists: **Into the Breach** (deterministic, perfect-information, short tactical puzzles; shipped on mobile) and, more loosely, Marvel Snap. The open question is therefore **not** "can they coexist" (they can) but the **two risks that decide whether we land it**:
+    - (a) **The onboarding cliff.** Snackable-deep games play easy turn-to-turn but have a steep *first-session* comprehension cost — the color-coupling knot (§3.5) is a lot to load up front. Treat the first ~10 minutes as a *designed artifact*, not a tutorial afterthought (§7.1).
+    - (b) **Intensity density.** Snackable survives only if *most* turns are light with knots as visible, opt-in spikes (§7.4). If tuning drifts so every fight is a max-depth puzzle, it stops being snackable even if no single turn got harder. Watch the **density** of hard turns, not their peak difficulty.
+
+    Both are measurable in playtest (pause-rhythm, §12.1.2). This is the ambitious-but-deliberate landing spot; it depends on the same unknowns as items 1 (base-loop legs) and 15 (gear loop staying tactile).
+
 ### 12.5 Content work queued (drafts I can produce on request)
-18. **Early monster patterns engineered to force color-conflict dilemmas** — the thing that keeps the small loop tense.
-19. **Encounter intensity-pacing map** — which fights are brain-rest vs. spikes, per dungeon.
+19. **Early monster patterns engineered to force color-conflict dilemmas** — the thing that keeps the small loop tense.
+20. **Encounter intensity-pacing map** — which fights are brain-rest vs. spikes, per dungeon.
 
 ---
 

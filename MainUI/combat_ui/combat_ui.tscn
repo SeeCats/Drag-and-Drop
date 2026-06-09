@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://4ay42wpdbnk" path="res://MainUI/combat_ui/announce.gd" id="3_2xf58"]
 [ext_resource type="PackedScene" uid="uid://1x3l20sts0i8" path="res://MainUI/combat_ui/damage_number/damage_number_zone.tscn" id="4_auw21"]
 [ext_resource type="Script" uid="uid://bpvkg6bv4viqw" path="res://MainUI/combat_ui/State.gd" id="6_auw21"]
+[ext_resource type="Script" uid="uid://32p7odq2b053" path="res://MainUI/combat_ui/combat_ui.gd" id="7_combatui"]
 
 [node name="CombatUi" type="Control" unique_id=1252337357]
 layout_mode = 3
@@ -13,6 +14,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("7_combatui")
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="." unique_id=2139079529]
 layout_mode = 1
@@ -49,8 +51,10 @@ script = ExtResource("3_2xf58")
 
 [node name="DamageNumberZone" parent="VBoxContainer2/MarginContainer/Slime" unique_id=1458470042 instance=ExtResource("4_auw21")]
 layout_mode = 0
-offset_top = 0.0
-offset_bottom = 272.0
+offset_left = -2.0
+offset_top = 41.0
+offset_right = 383.0
+offset_bottom = 276.0
 
 [node name="MarginContainer2" type="MarginContainer" parent="VBoxContainer2" unique_id=380349769]
 layout_mode = 2

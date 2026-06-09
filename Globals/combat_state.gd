@@ -31,8 +31,10 @@ var current_state : State = State.INITIAL:
 		state_entered.emit(new_state)
 
 func _ready() -> void:
-	# Kick things off on next frame so listeners have a chance to subscribe.
-	transition_to.call_deferred(State.ROUND_START)
+	# AD HOC: the FSM is now kicked by combat_ui.gd each time combat loads (see
+	# start()), so it restarts correctly after a loss instead of staying stuck.
+	# TODO: proper scene-start / run-reset flow.
+	pass
 
 
 # --- Public API ---
@@ -45,6 +47,13 @@ func transition_to(new_state: State) -> void:
 func end_player_turn() -> void:
 	if current_state == State.PLAYER_PLANNING:
 		transition_to(State.TURN_RESOLVING)
+
+# AD HOC: called by combat_ui.gd whenever the combat scene loads. Resets the
+# persisted autoload FSM (e.g. stuck in LOSE after a defeat) and starts a fresh
+# round. TODO: replace with a thorough scene-start / run-reset flow.
+func start() -> void:
+	current_state = State.INITIAL   # force-exit whatever we were stuck in
+	transition_to(State.ROUND_START)
 
 
 # --- State enter handlers ---

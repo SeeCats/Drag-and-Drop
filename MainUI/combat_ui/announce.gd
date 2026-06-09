@@ -16,6 +16,7 @@ var is_dragging : bool:
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+
 	GlobalSignal.announced.connect(announce)
 	
 func announce(announcement : String):

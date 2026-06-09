@@ -26,7 +26,7 @@ var action_index_list : Array[int]
 var current_min_list = [1,1,1,0]
 # base, mult, anti, anti_type
 var current_monster_roll_list = [0, 0 , 0, 0]
-var current_monster_min_list = [1, 1, 1, 1]
+var current_monster_min_list = [1, 1, 0, 0]
 
 var player_damage :int
 var monster_damage : int
