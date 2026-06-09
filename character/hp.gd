@@ -27,6 +27,7 @@ func _ready():
 	label.current_value = current_hp
 
 
+
 func round_start():
 	current_hp += hp_regen
 	
@@ -44,3 +45,7 @@ func _hit_feedback(target: float) -> void:
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	modulate = Color(2, 2, 2)  # bright flash, eased back to white
 	create_tween().tween_property(self, "modulate", Color.WHITE, 0.2)
+
+
+
+	

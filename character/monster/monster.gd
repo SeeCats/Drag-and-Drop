@@ -1,8 +1,7 @@
 extends Character
 class_name Monster
 
-var monster_name : String = "Slime"
-var monster_pattern_list : Array[Pattern] =[]
+@export var monster_name : String = "Slime"
 var current_round : int:
 	set(new_value):
 		current_round = new_value
@@ -15,6 +14,7 @@ var current_pattern : Pattern
 
 func _ready() -> void:
 	super()
+	hp.label.set("monster_name", monster_name)   # name shows on this monster's HP bar only
 	current_pattern = pattern_list[current_round]
 	update_roll()
 	current_roll.update_text()
@@ -30,8 +30,8 @@ func _process(_delta: float) -> void:
 
 func round_start():
 	super()
-	current_round += 1
-	update_roll()
+	update_roll()          # round uses the current pattern...
+	current_round += 1     # ...then advance for next round
 
 func update_roll():
 	CurrentRoll.current_monster_roll_list[RollIndex.BASE] = current_pattern.base

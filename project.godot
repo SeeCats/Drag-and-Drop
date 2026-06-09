@@ -22,6 +22,7 @@ CurrentRoll="*uid://sg4kmr2eijag"
 Constants="*uid://b7qpkxre5gsqe"
 CombatState="*uid://cslvhtn5efpdp"
 View="*uid://bc2mq0tvlf8lx"
+Encounter="*res://Globals/encounter.gd"
 
 [display]
 
