@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Pattern" format=3 uid="uid://j7tuq25h1jvk"]
+
+[ext_resource type="Script" uid="uid://c8kxp3x8jkr5q" path="res://character/monster/pattern/pattern.gd" id="1_iwfhe"]
+
+[resource]
+script = ExtResource("1_iwfhe")
+base = 2
+mult = 5
+anti = 1
+metadata/_custom_type_script = "uid://c8kxp3x8jkr5q"

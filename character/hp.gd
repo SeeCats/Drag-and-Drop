@@ -1,15 +1,18 @@
 extends ProgressBar
 class_name Hp
 
-var max_hp :int = 40:
+@export var max_hp :int = 20:
 	set(new_value):
+		max_hp = new_value
 		max_value = new_value
-		label.max_value = max_hp
-var current_hp = 40 :
+		if label:                    # null while @export loads before _ready
+			label.max_value = max_hp
+@export var current_hp = 20 :
 	set(new_value):
 		var old = current_hp
 		current_hp = clamp(new_value, 0, max_hp)
-		label.current_value = current_hp
+		if label:                    # null while @export loads before _ready
+			label.current_value = current_hp
 		if is_node_ready() and current_hp < old:
 			_hit_feedback(current_hp)   # damage: tween bar + flash
 		else:

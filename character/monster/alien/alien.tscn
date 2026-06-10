@@ -1,0 +1,118 @@
+[gd_scene format=3 uid="uid://bk4tppfpqqapi"]
+
+[ext_resource type="Script" uid="uid://dejufjfkb86ps" path="res://character/monster/monster.gd" id="1_71bgl"]
+[ext_resource type="Script" uid="uid://c8kxp3x8jkr5q" path="res://character/monster/pattern/pattern.gd" id="2_mh3go"]
+[ext_resource type="Resource" uid="uid://djfv4u5cbm4fi" path="res://character/monster/alien/alien_pattern1.tres" id="3_8xylc"]
+[ext_resource type="Resource" uid="uid://bf4tdcnqt3pfw" path="res://character/monster/alien/alien_pattern2.tres" id="4_05yd3"]
+[ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/monster/hp_bar.tscn" id="5_3xoap"]
+[ext_resource type="Texture2D" uid="uid://7honr2nkyant" path="res://character/monster/alien/u_fg0tkeqgiy-monster-8589461_1920.png" id="6_rsp5e"]
+[ext_resource type="Script" uid="uid://cppy6naubv6ff" path="res://character/monster/alien/blurry_halo.gd" id="7_mkp08"]
+[ext_resource type="Script" uid="uid://q1bjrcfj412x" path="res://character/monster/alien/current_roll.gd" id="8_7s2l1"]
+
+[node name="Alien" type="Control" unique_id=409098004 node_paths=PackedStringArray("hp")]
+layout_mode = 3
+anchor_right = 0.611
+anchor_bottom = 0.296
+offset_right = 0.05999756
+offset_bottom = -0.06488037
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_71bgl")
+monster_name = "Alien"
+pattern_list = Array[ExtResource("2_mh3go")]([ExtResource("3_8xylc"), ExtResource("4_05yd3")])
+hp = NodePath("VBar/HpBar")
+
+[node name="VBar" type="VBoxContainer" parent="." unique_id=1503022876]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HpBar" parent="VBar" unique_id=2040145802 instance=ExtResource("5_3xoap")]
+layout_mode = 2
+size_flags_vertical = 3
+max_hp = 10
+current_hp = 10
+
+[node name="TextureRect" type="TextureRect" parent="VBar" unique_id=674502162]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 5.0
+texture = ExtResource("6_rsp5e")
+expand_mode = 1
+
+[node name="BlurryHalo" type="TextureRect" parent="VBar/TextureRect" unique_id=22034078]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 50.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("6_rsp5e")
+expand_mode = 1
+script = ExtResource("7_mkp08")
+halo_alpha = 2.0
+
+[node name="CurrentRoll" type="HBoxContainer" parent="VBar" unique_id=282824469]
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("8_7s2l1")
+
+[node name="Add" type="Panel" parent="VBar/CurrentRoll" unique_id=1943537006]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CenterContainer" type="CenterContainer" parent="VBar/CurrentRoll/Add" unique_id=1882010781]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="VBar/CurrentRoll/Add/CenterContainer" unique_id=1876277455]
+layout_mode = 2
+theme_override_constants/line_spacing = 0
+horizontal_alignment = 1
+
+[node name="Mult" type="Panel" parent="VBar/CurrentRoll" unique_id=1141947135]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CenterContainer" type="CenterContainer" parent="VBar/CurrentRoll/Mult" unique_id=240258117]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="VBar/CurrentRoll/Mult/CenterContainer" unique_id=1895371075]
+layout_mode = 2
+theme_override_constants/line_spacing = 0
+horizontal_alignment = 1
+
+[node name="Subtract" type="Panel" parent="VBar/CurrentRoll" unique_id=401739619]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CenterContainer" type="CenterContainer" parent="VBar/CurrentRoll/Subtract" unique_id=820614176]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="VBar/CurrentRoll/Subtract/CenterContainer" unique_id=1029998816]
+layout_mode = 2
+theme_override_constants/line_spacing = 0
+horizontal_alignment = 1
