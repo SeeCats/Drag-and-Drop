@@ -63,6 +63,10 @@ offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="CenterContainer" type="CenterContainer" parent="VBoxContainer2" unique_id=1744877064]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+
 [node name="MarginContainer2" type="MarginContainer" parent="VBoxContainer2" unique_id=380349769]
 layout_mode = 2
 theme_override_constants/margin_left = 40

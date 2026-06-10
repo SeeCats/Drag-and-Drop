@@ -151,12 +151,17 @@ func _on_check_defeat() -> void:
 
 func _on_win() ->void:
 	await get_tree().create_timer(1).timeout
+	if Encounter.current_monster_order < Encounter.monster_list.size() - 1:
+		Encounter.current_monster_order += 1                             # advance the gauntlet
+		get_tree().get_first_node_in_group("monster_spawner").respawn()  # swap monster only — player HP persists
+		start()                                                         # begin the next fight
+		return
+	Encounter.current_monster_order = 0          # gauntlet cleared: reset for next run
 	CurrentRoll.is_player_winning = "WIN"
 	get_tree().change_scene_to_file("res://MainUI/main_menu/main_menu.tscn")
-	pass
 
 func _on_lose() ->void:
 	await get_tree().create_timer(1).timeout
+	Encounter.current_monster_order = 0          # reset gauntlet for next run
 	CurrentRoll.is_player_winning = "LOSE"
 	get_tree().change_scene_to_file("res://MainUI/main_menu/main_menu.tscn")
-	pass

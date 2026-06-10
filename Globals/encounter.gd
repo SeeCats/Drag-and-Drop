@@ -17,6 +17,7 @@ var monster_list = [
 	alligator,
 	slime,
 ]
-var next_monster: PackedScene:
+
+var next_monster : PackedScene:
 	get:
 		return monster_list[current_monster_order % monster_list.size()]

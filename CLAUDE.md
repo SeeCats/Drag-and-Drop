@@ -1,4 +1,5 @@
 Explain current plan before implementing a change and ask for permission. When explaining bring up the reasoning for each decision step by step. When adding comments to code keep it as short as possible. Prioritize using existing code structure. Make explanations short and concise.
+Be brutally honest about my ideas/implementation and push back if you can find evidence, or against common wisdom.
 
 Do NOT run git commands. This sandbox can't write to `.git` safely (it has corrupted HEAD before). Edit code files only; the user drives all git operations (commit, branch, push) in GitHub Desktop.
 
@@ -17,9 +18,12 @@ Turn-based combat game. Dice carry a roll value + element; player swaps/rotates 
 - `Constants` (Globals/rollables.gd, `class_name Rollables`) — `enum RollIndex {BASE,MULT,ANTI,ANTI_TYPE}`, `enum Element {RED,GREEN,BLUE,WHITE}`. Most gameplay classes `extends Rollables`, so refer to enums bare (`RollIndex.BASE`) or as `Constants.RollIndex`.
 - `CombatState` (Globals/combat_state.gd) — the FSM driving the round.
 - `View` (Globals/View.gd) — shared camera state for 2D-projected 3D shapes (cubes). Not gameplay.
+- `Encounter` (Globals/encounter.gd) — gauntlet selector: `monster_list` (PackedScenes) + `current_monster_order`; `next_monster` is a getter returning `monster_list[order % size]`. The monster spawner reads `next_monster`.
 
 ## Combat flow (CombatState FSM)
 `INITIAL → ROUND_START → PLAYER_PLANNING → TURN_RESOLVING → PLAYER_ATTACK → MONSTER_ATTACK → CHECK_DEFEAT → (WIN | LOSE | back to ROUND_START)`. Each enter handler waits a 1s timer. `ROUND_START` calls `round_start()` on every node in group `round_participants` (sorted by `round_start_priority`). Player ends planning via `CombatState.end_player_turn()` (called from swap/rotate).
+
+The FSM is **not** self-starting: `combat_ui.gd` calls `CombatState.start()` (reset to INITIAL → ROUND_START) on each combat load — ad-hoc so restarts after a loss work; a proper scene-start/run-reset is a TODO. **WIN**: if the `Encounter` gauntlet has more monsters, advance `current_monster_order`, `respawn()` the monster (player + HP persist), and `start()` a new round; else reset order → WIN menu. **LOSE** resets order → LOSE menu.
 
 ## Roll data (on CurrentRoll)
 - `current_roll_list` / `current_monster_roll_list` = `[base, mult, anti, anti_type]`.
@@ -41,10 +45,12 @@ Both attacks are staggered coroutines (`attack_stagger`, default 0.3s): a miss l
 - `swap_started(Dice)` — `mouse.gd` reparents the dragged die.
 
 ## Scene map
-`combat_ui.tscn` (root, no script) → `VBoxContainer2`:
-- `MarginContainer/Slime` (slime.tscn, `class_name Monster`) + `Anouncement` (announce.gd) + `DamageNumberZone` (damage_number_zone.tscn).
+`combat_ui.tscn` root runs `combat_ui.gd` (kicks the FSM via `start()`, plus juice: screen shake + hit/miss SFX). Under `VBoxContainer2`:
+- `MarginContainer/Slime` — a plain `Control` running `monster_spawner.gd` (no longer a baked slime). On load it instantiates `Encounter.next_monster` as a child filling the slot; `respawn()` swaps it between gauntlet fights. Its children `Anouncement` (announce.gd) and `DamageNumberZone` (damage_number_zone.tscn) are combat UI and persist across monster swaps.
 - `MarginContainer2/Playercontainer` (player_vbox.tscn → `PlayerCharacter`): `Rotate` (rotate.gd) + `Swap` (swap.gd) with `Zone1..3` each holding a `Dice`.
 - `StateLabel` (State.gd) shows current FSM state.
+
+Monsters: one scene per monster at `character/monster/<name>/<name>.tscn` (alien, alligator, ghost, slime, slimeboss), each with `monster.gd` (`class_name Monster`), an exported `pattern_list: Array[Pattern]`, HP, and a sprite. Player and every monster share `character/monster/hp_bar.tscn` (→ `hp.gd` + `slime/hplabel.gd`); the monster sets its own name on its HP label, the player leaves it blank.
 
 Dice (dice.gd, `class_name Dice`): value Label over a spinning wireframe `Cube` (cube_2d.gd). Zones (zone.gd) track hover/swap flags; swap.gd & rotate.gd read those flags in `_input` on left mouse up/down.
 
@@ -55,11 +61,14 @@ The single zone reacts to BOTH sides: player signals → player pop variants (tw
 
 Pop variants on the label, chosen by what `anti_operator()` reduced (each has a `_monster` twin that tweens down via `pop_show_monster()`):
 - `pop_show_number(n)` — no reduction; plain damage.
-- `pop_show_block(original, blocked)` — `base` (damage/hit) was reduced; shows `BLOCKED original - blocked`.
+- `pop_show_block(original, blocked)` — `base` (damage/hit) was reduced; shows two lines: `Blocked` / `original -blocked`.
 - `pop_show_miss()` — for each hit lost to `mult` reduction. e.g. mult 8→5 = 5 damage pops + 3 MISS pops.
 
 ## Quirks / gotchas
 - `Globals/state.gd` is obsolete (flow moved to CombatState) — safe to ignore.
 - RichTextEffect outline pass (`char_fx.outline`) never fires in Godot 4.6 — halo outer ring via shader/effect doesn't work; bitmap-font fallback planned.
-- Two files named `current_roll.gd`: the autoload (Globals/) vs the slime's roll display (character/monster/slime/).
+- Many `current_roll.gd` files: the autoload (`Globals/current_roll.gd`, combat numbers) vs a per-monster roll-display copy in each `character/monster/<name>/` folder. Those folders also carry duplicated display scripts (blurry_halo, glow, etc.) copied when monsters were branched from slime.
 - `damage_number.gd` (combat_ui/) is a near-empty stub, distinct from damage_number_label.gd.
+- `hp.gd`: `max_hp`/`current_hp` are `@export` (set per monster in inspector). Setters guard `if label:` because `@export` assignment fires before `@onready var label`. HP **persists across a gauntlet** — only the monster is freed/respawned between fights; the player node survives.
+- Monster pattern cycling: `round_start()` calls `update_roll()` *before* `current_round += 1`, so round 1 uses `pattern[0]` (no skip).
+- Autoloads `CombatState` and `Encounter` persist across scene reloads, so run-state resets (FSM, gauntlet order) are manual — currently in `combat_ui.gd` `start()` and the win/lose handlers.

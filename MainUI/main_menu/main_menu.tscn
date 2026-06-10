@@ -13,10 +13,10 @@ grow_vertical = 2
 
 [node name="Button" type="Button" parent="." unique_id=788385722]
 layout_mode = 0
-offset_left = 154.0
-offset_top = 341.0
-offset_right = 396.0
-offset_bottom = 379.0
+offset_left = 152.0
+offset_top = 831.0
+offset_right = 394.0
+offset_bottom = 869.0
 text = "new game
 "
 script = ExtResource("1_4mlft")

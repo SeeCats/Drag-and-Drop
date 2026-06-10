@@ -114,14 +114,25 @@ This is the keystone rule. Your **defense type is the color of whichever die cur
 
 Because reducing MULT removes `anti × base` damage while reducing BASE removes `anti × mult`, armor wins against high-mult attackers and evasion wins against high-base attackers — the math backs the intuition. BLUE is the offensive defense: spending your anti to cut the enemy's anti means they mitigate *your* attack less the same turn, which is the bridge to a one-shot.
 
-### 3.4 Damage resolution (deterministic, symmetric)
-Both sides hold the same four numbers: `[base, mult, anti, anti_type]`. Resolution each round:
+### 3.4 Damage resolution (deterministic, symmetric in structure)
+Both sides hold the same four numbers: `[base, mult, anti, anti_type]`, and resolution is symmetric **in structure** — with one deliberate carve-out: **strip (anti_type = ANTI) is player-only; monsters defend via armor or evasion but never strip (§6.1).** Resolution each round:
 
 1. **Player's anti reduces the monster's roll** at the index its color points to (BASE/MULT/ANTI), floored at a minimum of 1 (you can never fully zero a factor).
 2. **Monster's anti reduces the player's roll** the same way, using the monster's own anti and anti_type.
 3. **Both attacks resolve as `base × mult`** against the reduced rolls. Each surviving hit lands as a chunk; hits lost to a MULT reduction display as **MISS** pops, value lost to a BASE reduction displays as **BLOCKED**.
 
 There is **no randomness in resolution** — the only RNG is the dice you roll at the start of the round. Given a roll and a visible monster pattern, the outcome of any arrangement is fully computable.
+
+**Which factor to reduce (the floor matters).** When your anti cuts one of the enemy's factors, the damage you remove is:
+
+> `removed = min(anti, factor − 1) × other_factor`
+
+— the cut you can *actually* make, times the factor you didn't touch. The `factor − 1` is the min-floor (no factor drops below 1), so a large anti is **wasted** against an already-small factor. This produces two regimes, and the optimal target flips between them:
+
+- **Anti large enough to floor a factor → reduce the *bigger* factor.** e.g. enemy `2 × 5`, anti 4: cut the 5 → `2 × 1`, removing **8**; cutting the 2 only removes 5 (three anti wasted on the floor).
+- **Anti too small to floor → reduce the factor with the *bigger partner*** (usually the smaller factor). e.g. enemy `3 × 4`, anti 2: cut the 3 → `1 × 4`, removing **8**; cutting the 4 removes only 6.
+
+Consequence: the best color to land in your ANTI slot depends on the enemy's *current roll* and *your anti value* — a per-turn read off visible numbers, not a fixed archetype lookup. This is emergent depth (discovered in play, not scripted). The live-outcome preview (§9.2) should surface it so players *feel* the floor-math rather than having to compute it.
 
 ### 3.5 The central tension (the knot)
 Three random values, three colored dice, three slots — and they all compete. Your biggest value wants to be BASE (damage); but you also need a value on MULT (or your damage is multiplied by a small number); and the die you spend on ANTI determines *both* your defense value *and*, by its color, your defense mode. You cannot, for example, put RED's value into BASE **and** use RED to make your defense Armor — it is one die. Choosing your defense mode therefore costs you a specific colored value elsewhere. This coupling is the entire design; everything else is content wrapped around it.
@@ -259,21 +270,37 @@ A monster is a `Pattern` resource: `[base, mult, anti, anti_type]`, plus HP. Eac
 
 Design implication: difficulty comes from **pattern shape and timing** (e.g., a big BASE spike every 3rd round you must prepare evasion for) and from **how well your roll can answer it**, not from surprise.
 
+**A monster is a rotation, not a stat-block.** Its identity is the *sequence* of shapes in its `pattern_list`, not any single round's numbers. This matters because of a staleness trap: if a monster's shape never changes (e.g. always low mult), the **read** — "which factor do I counter?" — is solved on turn 1 and the defense color is the same forever (the awkward "GREEN every turn" problem). The knot survives (can you *afford* that color this roll?), but the *read-the-enemy* feeling flatlines. Fix: an interesting monster **rotates which factor it threatens** round to round — base this turn, mult next, a spike on the third — so you must re-read every round, and the one-step lookahead / conveyor planning (below) actually earns its keep (both are pointless against a monster that does the same thing every round). A *static* pattern isn't banned — it's a deliberate **rest fight** (§7.4) where defense is autopilot and only your offense allocation varies with the roll. Rule of thumb: a harder or more interesting monster has a **more demanding rotation**, not bigger fixed numbers.
+
 **One-step lookahead.** The player also sees the monster's **next** pattern, not just the current one. This is what gives the forced single action (§3.2) a second job: your one move each turn should both resolve this round *and* migrate your persistent color/slot layout toward what's coming — turning "forced to act every turn" from a punishment into rolling, conveyor-style planning. Show the next pattern as *what it demands* (a glanceable "incoming: you'll want GREEN" hint), not raw numbers, so players plan by recognition rather than re-analyzing four stats every turn. Show only **one** step ahead — more floods a portrait screen and kills the snap-decision feel.
 
-### 6.2 Enemy archetypes (counter-design)
-The defense the player needs is dictated by the *color* they must land in their ANTI slot:
+**Monsters defend only — strip is a player-only mode.** A monster's `anti_type` is always **BASE (armor)** or **MULT (evasion)**, never **ANTI (strip)**. Monsters reduce your damage or your hit-count; they never strip your anti. Two reasons: it keeps **anti-vs-anti** ordering weirdness out of resolution (`anti_operator()` applies the player's reduction before the monster's, so a mutual strip would be order-dependent and unintuitive), and it makes tearing open the enemy's guard part of the *player's* identity. Min-floors are `[1,1,0,0]` on both sides; the player's anti-floor of 0 is now just defensive cleanliness, since nothing ever strips the player.
 
-| Archetype | Pattern profile | Forces the player to… |
-|-----------|---------|---------------------------|
-| **Brute** | High base, low mult (few big hits) | Put **GREEN** in ANTI (evasion); punishes builds that can't reach a green value |
-| **Swarm** | Low base, high mult (many small hits) | Put **RED** in ANTI (armor); punishes slow setups |
-| **Bulwark** | High anti | Put **BLUE** in ANTI to strip, or out-scale; punishes chip damage |
-| **Spiker** | Cyclic pattern with a periodic burst round | Plan ahead — pre-position before the spike lands |
-| **Glass** | High output, low HP | Race it; rewards a BLUE-strip all-in on a strong roll |
+### 6.2 Threat shapes (the vocabulary of rotations)
+A monster's rotation (§6.1) is built from per-round **threat shapes**. These describe what a *single round* demands — a monster cycles through several of them; it is **not** "a Brute" for the whole fight. Use them as building blocks for sequences, not as labels stamped on whole monsters.
+
+**The defense math (why the color isn't fixed).** Your ANTI prevents either:
+- **RED / armor** (cut enemy base): `min(anti, base−1) × mult`
+- **GREEN / evasion** (cut enemy mult): `base × min(anti, mult−1)`
+
+Pick whichever is larger. The two have *different caps*: armor is capped by the enemy's **base** (can't shave a hit below 1) and scales with mult; evasion is capped by the enemy's **mult** (can't remove below 1 hit) and scales with base. So the best color depends on **your anti magnitude**, with a crossover:
+- **Low anti** (below both caps): cut the *bigger* factor → Heavy (big base) wants GREEN, Flurry (big mult) wants RED.
+- **High anti** (past the caps): armor → `(base−1)×mult`, evasion → `base×(mult−1)`; armor wins iff **base > mult** — so it **inverts**: Heavy wants RED, Flurry wants GREEN.
+
+*Example, enemy base 5 / mult 2:* anti 2 → armor saves 4, evasion saves 5 → **GREEN**; anti 4 → armor saves 8, evasion saves 5 → **RED**. Same enemy, opposite answer, decided by your roll.
+
+| Round shape | What it threatens | Your response |
+|---|---|---|
+| **Heavy** (high base, low mult) | one big hit | small anti → GREEN (negate the hit); large anti → RED (chip the fat base across both hits) |
+| **Flurry** (low base, high mult) | many small hits | small anti → RED (flat cut × every hit); large anti → GREEN (evasion deletes many hits; armor is capped by the tiny base) |
+| **Guarded** (high anti) | mitigates *your* attack | BLUE to strip, or just out-scale it — this is an **offense** problem, not a defense one |
+| **Spike** (a burst round in the cycle) | a sudden lethal jump | pre-position the round *before* it lands, via lookahead (§6.1) |
+| **Fragile** (high output, low HP) | a race | ignore defense; BLUE-strip all-in on a strong roll |
+
+For **both** Heavy and Flurry the correct color is *conditional on your current anti value*, not fixed — and it literally inverts at high anti. That conditionality is the feature: it keeps "read the enemy" a live decision instead of a memorized lookup, and it's exactly what a static monster (§6.1) loses. It also means the defense read stays alive even against a *constant* monster, because the best color flips with whatever anti die your roll hands you. A good rotation then strings these shapes so the player's right answer keeps moving on top of that.
 
 ### 6.3 Elites & bosses
-Elites and bosses differ from normal monsters with **special patterns and stronger, deliberately lopsided stat lines** (e.g., a boss that punishes the player's *most-used* color, forcing adaptation). They gate progress (§7.2) and drop the best rewards.
+Elites and bosses are distinguished by **more demanding rotations** (§6.1) — longer or nastier sequences of threat shapes, tighter spikes, and adaptive tricks (e.g., a boss that punishes the player's *most-used* color, forcing you off autopilot) — **not merely bigger fixed numbers.** A boss that just has huge static stats is a stat check; a boss with a vicious *rotation* is a fight. They gate progress (§7.2) and drop the best rewards.
 
 ---
 
@@ -351,6 +378,18 @@ Risk/reward events all trade something for better loot, but *how* they're struct
   - **Ladder vs. §8.** This is the endgame penalty-for-reward mechanic appearing in the campaign; keep campaign versions mild so the endgame's *stacked* penalties stay distinct.
 
 **Rule of thumb:** prefer costs the player *plays through* (difficulty, build constraints) over costs they *carry* (HP, lasting debuffs); prefer *risked cost / certain reward* over *certain cost / risked reward*; and always make the gamble a fully-informed choice.
+
+### 7.6 Perceived vs. real difficulty (deceptive difficulty — the honest kind)
+**Target: the player judges a fight ~50/50 while actually winning ~90%.** Humans are loss-averse (a loss stings ~2× a win) and bad at probability — we remember losses and forget routine wins — so a *genuinely* even fight feels brutal and a true 85–90% win rate is *remembered* as a coin flip. Designing for high *perceived* tension and low *actual* failure is good craft (Sid Meier's Civilization fudged combat odds in the player's favor for exactly this reason).
+
+**But there are two ways to open that gap, and only one is allowed here.**
+
+- ❌ **Fudge the numbers** (display ≠ reality, secret low-HP buffers, fudged hit chances). Effective in many games, but it carries a **betrayal risk** — when players catch the lie they stop trusting the game's information (the XCOM "95% and I missed" problem). For *this* game it's disqualifying: the whole design rests on full information + deterministic resolution + "a correct read is a *guaranteed* payoff" (§3.4). Fudging saws off that branch, and our players — trained to reason from visible numbers — are the most likely to catch it. **§3.4 stays sacred. Never lie about a number.**
+- ✅ **Present honest-but-intimidating situations.** Never lie; aim the player's misjudgment at the *situation*, not the math. The threat is real and fully visible, but a correct read almost always has an out. The ~90% comes from "a competent line survives," not from a hidden buffer. This is the Into the Breach model (perfect information, boards that look unwinnable and almost always aren't), and it's the model we use.
+
+**The lever is already built in: visible big numbers + the floor-math (§3.4).** A `2 × 8` attack reads as "16 incoming, I'm dead" to a novice and is a trivially gutted threat to anyone who's internalized the system. The deception lives entirely in the gap between novice intuition and the real optimal line — which means it's not a lie, it's a **skill gap**, and closing it *is* the game. The same gap doubles as skill expression and the "feel clever" dopamine (§10.2).
+
+**Caveat — it expires with mastery.** A master eventually perceives the true ~90%, the threats stop scaring them, and the engineered tension evaporates. That's a clock, not a flaw: the campaign is where deceptive difficulty does its work; the **endgame penalty dungeons (§8) are what re-supply *honest, opt-in* tension** once players see through the early illusion.
 
 ---
 
