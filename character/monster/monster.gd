@@ -38,6 +38,7 @@ func update_roll():
 	CurrentRoll.current_monster_roll_list[RollIndex.MULT] = current_pattern.mult
 	CurrentRoll.current_monster_roll_list[RollIndex.ANTI] = current_pattern.anti
 	CurrentRoll.current_monster_roll_list[RollIndex.ANTI_TYPE] = current_pattern.anti_type
+	CurrentRoll.next_pattern = pattern_list[(current_round + 1) % pattern_list.size()]
 	GlobalSignal.updated_roll.emit()
 	
 func monster_hit():

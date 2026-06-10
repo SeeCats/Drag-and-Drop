@@ -11,6 +11,9 @@ extends Rollables
 @onready var dice_list : Array[Dice] = [dice1, dice2, dice3]
 @onready var zone_list = [zone1, zone2, zone3]
 
+@onready var _player := get_parent() as PlayerCharacter
+var _last_preview_tgt := -2
+
 signal dice_swapped(values: Array[int], elements: Array[Constants.Element])
 
 var swap_started : Array[bool] = [false, false, false]
@@ -31,6 +34,28 @@ var dice_roll_list : Array[int]= []
 func _ready() -> void:
 	add_to_group("round_participants")
 	pass # Replace with function body.
+
+
+# Live hover preview: while a die is picked up, push the hypothetical swap.
+func _process(_delta: float) -> void:
+	var started := [zone1.swap_started, zone2.swap_started, zone3.swap_started]
+	if not started.has(true):
+		if _last_preview_tgt != -2:
+			_last_preview_tgt = -2
+			GlobalSignal.preview_clear.emit()
+		return
+	var src: int = started.find(true)
+	var inside := [zone1.is_inside, zone2.is_inside, zone3.is_inside]
+	var tgt: int = inside.find(true)
+	if tgt == src:
+		tgt = -1
+	if tgt == _last_preview_tgt:
+		return
+	_last_preview_tgt = tgt
+	if tgt == -1:
+		GlobalSignal.preview_clear.emit()
+	else:
+		GlobalSignal.preview_set.emit(_player.preview_swap(src, tgt))
 
 
 func _input(event: InputEvent) -> void:

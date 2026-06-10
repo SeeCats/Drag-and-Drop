@@ -12,9 +12,9 @@ var alligator : PackedScene = preload("res://character/monster/alligator/alligat
 
 var current_monster_order : int
 var monster_list = [
-	alien,
-	ghost,
 	alligator,
+	ghost,
+	alien,
 	slime,
 ]
 

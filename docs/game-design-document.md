@@ -299,6 +299,19 @@ Pick whichever is larger. The two have *different caps*: armor is capped by the 
 
 For **both** Heavy and Flurry the correct color is *conditional on your current anti value*, not fixed — and it literally inverts at high anti. That conditionality is the feature: it keeps "read the enemy" a live decision instead of a memorized lookup, and it's exactly what a static monster (§6.1) loses. It also means the defense read stays alive even against a *constant* monster, because the best color flips with whatever anti die your roll hands you. A good rotation then strings these shapes so the player's right answer keeps moving on top of that.
 
+**Planned threat shapes (recorded, not yet buildable — need new structure).** The shapes above are all expressible by the static `[base, mult, anti, anti_type]` `Pattern`. These three need a richer system (persistent state / conditions / status effects — see the effect pipeline, `docs/adr/ADR-001`) and are parked until it exists:
+
+- **Buff self** — the monster spends a round raising its *own* stats (e.g. +base or +mult), threatening a bigger hit a round or two later. *Needs:* monster stats that persist/accumulate across rounds rather than a fixed per-round line. Telegraphs via the lookahead, so the player can race or strip it before it pays off.
+- **Debuff player** — the monster applies a *lasting* malus to the player beyond the single-turn anti — shrink a die, lock a slot, or reduce a stat for N rounds. *Needs:* status effects applied to the player → the effect pipeline / status system (deferred).
+- **All in** — like **Spike**, a telegraphed lethal swing, but **breakable**: if the player deals ≥ X damage that round (or before it resolves), the all-in is interrupted/cancelled. Rewards racing it down. *Needs:* a conditional pattern that checks player damage against a threshold and aborts.
+
+**Monster teaching roles (current roster intent).**
+- **Alligator** — *familiarization*: low, near-identical rounds, so mistaking a turn or two costs little while giving enough turns to learn what's happening.
+- **Ghost** — *teaches the core flow* (the flurry ↔ heavy read). May gain a Guarded round.
+- **Alien** — *teaches that defense has limits*: you'll die if you don't commit to offense soon enough (a race-or-die spike).
+- **Slime** — *the full workout*: rotates flurry → heavy → guard → spike.
+- **Slime Boss** — origin was an early test of the encounter system and how one big multi-hit feels; needs a real rotation (currently placeholder).
+
 ### 6.3 Elites & bosses
 Elites and bosses are distinguished by **more demanding rotations** (§6.1) — longer or nastier sequences of threat shapes, tighter spikes, and adaptive tricks (e.g., a boss that punishes the player's *most-used* color, forcing you off autopilot) — **not merely bigger fixed numbers.** A boss that just has huge static stats is a stat check; a boss with a vicious *rotation* is a fight. They gate progress (§7.2) and drop the best rewards.
 

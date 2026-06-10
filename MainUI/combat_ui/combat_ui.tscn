@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://bpvkg6bv4viqw" path="res://MainUI/combat_ui/State.gd" id="6_auw21"]
 [ext_resource type="Script" uid="uid://32p7odq2b053" path="res://MainUI/combat_ui/combat_ui.gd" id="7_combatui"]
 [ext_resource type="Script" uid="uid://hjlh2e610jjw" path="res://character/monster/monster_spawner.gd" id="8_spawner"]
+[ext_resource type="Script" path="res://MainUI/combat_ui/next_pattern.gd" id="9_nextpat"]
 
 [node name="CombatUi" type="Control" unique_id=1252337357]
 layout_mode = 3
@@ -84,3 +85,13 @@ offset_top = 330.0
 offset_right = 534.0
 offset_bottom = 378.0
 script = ExtResource("6_auw21")
+
+[node name="NextPattern" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 470.0
+offset_right = 520.0
+offset_bottom = 510.0
+horizontal_alignment = 1
+text = "Next:"
+script = ExtResource("9_nextpat")

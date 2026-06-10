@@ -30,3 +30,7 @@ signal swap_started(dice: Dice)
 
 @warning_ignore("unused_signal")
 signal announced(announcement: String)
+@warning_ignore("unused_signal")
+signal preview_set(text: String)    # hover hypothetical readout
+@warning_ignore("unused_signal")
+signal preview_clear                # revert preview to committed arrangement

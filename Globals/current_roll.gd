@@ -27,6 +27,7 @@ var current_min_list = [1,1,0,0]
 # base, mult, anti, anti_type
 var current_monster_roll_list = [0, 0 , 0, 0]
 var current_monster_min_list = [1, 1, 0, 0]
+var next_pattern: Pattern   # upcoming round's pattern (lookahead)
 
 var player_damage :int
 var monster_damage : int
@@ -103,3 +104,27 @@ func _exit_tree() -> void:
 func round_end():
 	await get_tree().create_timer(1).timeout
 	CombatState.transition_to(CombatState.State.ROUND_START)
+
+
+# --- Pure preview resolver (no side effects) -------------------------------
+# Mirrors anti_operator + base*mult on COPIES. The live combat above still
+# resolves the real (mutating) way; this is for the preview UI.
+func compute_outcome(player_roll: Array, monster_roll: Array) -> Dictionary:
+	var p := player_roll.duplicate()
+	var m := monster_roll.duplicate()
+	# player's anti cuts the monster's roll at the player's anti_type
+	var p_at: int = p[RollIndex.ANTI_TYPE]
+	m[p_at] = max(m[p_at] - p[RollIndex.ANTI], current_monster_min_list[p_at])
+	# monster's (now-updated) anti cuts the player's roll at the monster's anti_type
+	var m_at: int = m[RollIndex.ANTI_TYPE]
+	p[m_at] = max(p[m_at] - m[RollIndex.ANTI], current_min_list[m_at])
+	return { "player": _side(p, player_roll), "monster": _side(m, monster_roll) }
+
+func _side(reduced: Array, initial: Array) -> Dictionary:
+	return {
+		"per_hit": reduced[RollIndex.BASE],
+		"hits": reduced[RollIndex.MULT],
+		"total": reduced[RollIndex.BASE] * reduced[RollIndex.MULT],
+		"blocked": initial[RollIndex.BASE] - reduced[RollIndex.BASE],
+		"misses": initial[RollIndex.MULT] - reduced[RollIndex.MULT],
+	}

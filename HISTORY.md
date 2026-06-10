@@ -4,6 +4,29 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-06-10
+
+### Projected-outcome preview (the big one)
+- `CurrentRoll.compute_outcome(player_roll, monster_roll)` — pure, side-effect-free resolver (mirrors anti_operator + base×mult on copies), returns a Dict `{player/monster:{per_hit,hits,total,blocked,misses}}`. Verified it matches live combat. This is the shared seam the effect pipeline will hook later.
+- Stage 1: `announce.gd` became a shared readout — PREVIEW (`Deal X  Take Y` for the current arrangement, recomputed on `updated_roll` via `CONNECT_DEFERRED` to dodge a one-frame lag) vs LOG; a horizontal swipe *started on the label* toggles them (hide gesture removed, by choice).
+- Stage 2: live hover preview. `player_character.preview_rotate` (single value) / `preview_swap` (`Deal X~Y` range over the 6 reroll values — keeps the gamble intact, shows stakes not result). `swap.gd`/`rotate.gd` `_process` polls the hovered zone during a drag and emits `preview_set`/`preview_clear`. Decision recap: swap reroll is unpreviewable-by-design, so only the range is shown.
+
+### Next-pattern lookahead
+- `Pattern` gained `enum Type {HEAVY,FLURRY,GUARDED,SPIKE}` + `@export type` (authored intent beats number-inference; Spike + future types aren't inferable). `CurrentRoll.next_pattern` (Pattern ref) published by `monster.update_roll`; `next_pattern.gd` label shows `Next: <Type>`. **Open: set the Type dropdown on every pattern `.tres` (all default HEAVY).** Halo color hint deferred (will map `next_pattern.type`→color).
+
+### GDD / design
+- §3.2 precise rotate/swap state model. §6.2 **corrected defense math** (caught my error via the user's counterexample): `armor=min(anti,base−1)×mult`, `evasion=base×min(anti,mult−1)`; best color is roll-dependent and **inverts at high anti**; monsters reframed as rotations of threat shapes. Recorded 3 planned pattern types (Buff-self / Debuff-player / All-in — need new structure) + monster teaching roles (alligator=familiarize, ghost=flow, alien=defense-has-limits, slime=full workout, boss=placeholder). §12.18 snackable-deep audience intent.
+- Noted the hidden-defaults gotcha: `pattern.gd` base3/mult4/anti3 silently fill unset `.tres` fields → monsters tankier than they look.
+
+### Fixes
+- `hp.gd` setters guard `if label:` (`@export` fires before `@onready`). Pattern cycling (update_roll before `current_round += 1`). Portrait orientation in project.godot. FSM restart-after-loss via ad-hoc `combat_ui.gd start()`. Damage-number on-screen clamp. Gauntlet win-advance keeps player HP (only the monster respawns). Removed dead `monster_entered` signal + `slimebosss/hplabel.gd`.
+
+### Still open
+- **Effect pipeline (relics/status) deferred** until the un-geared loop is validated by playtest (#1 GDD risk; the preview was the gating item — now cleared). Design in ADR-001. Relics + the 3 planned pattern types all hook `compute_outcome`.
+- Tasks: lazy-load dungeons; proper scene-start/run-reset (replace ad-hoc `start()`); instrumentation for playtest; author real monster rotations + set pattern types.
+
+---
+
 ## 2026-06-08
 
 ### Study pass 2 — Component & Type Object

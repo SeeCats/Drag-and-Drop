@@ -11,6 +11,9 @@ var is_rotating :bool = false
 @onready var action2: Control = $Zone2/CenterContainer2/Action2
 @onready var action_list = [action1, action2, action3]
 
+@onready var _player := get_parent() as PlayerCharacter
+var _last_preview_tgt := -2
+
 
 var action_index_list : Array[Constants.RollIndex] = [
 	RollIndex.BASE,
@@ -26,6 +29,28 @@ signal actions_rotated(new_list: Array[Constants.RollIndex])
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass # Replace with function body.
+
+
+# Live hover preview: while rotating, push the hypothetical (deterministic).
+func _process(_delta: float) -> void:
+	var started := [zone1.swap_started, zone2.swap_started, zone3.swap_started]
+	if not started.has(true):
+		if _last_preview_tgt != -2:
+			_last_preview_tgt = -2
+			GlobalSignal.preview_clear.emit()
+		return
+	var src: int = started.find(true)
+	var inside := [zone1.is_inside, zone2.is_inside, zone3.is_inside]
+	var tgt: int = inside.find(true)
+	if tgt == src:
+		tgt = -1
+	if tgt == _last_preview_tgt:
+		return
+	_last_preview_tgt = tgt
+	if tgt == -1:
+		GlobalSignal.preview_clear.emit()
+	else:
+		GlobalSignal.preview_set.emit(_player.preview_rotate(src, tgt))
 
 
 func _input(event: InputEvent) -> void:

@@ -3,8 +3,10 @@
 [ext_resource type="Script" uid="uid://dejufjfkb86ps" path="res://character/monster/monster.gd" id="1_hjds1"]
 [ext_resource type="Script" uid="uid://c8kxp3x8jkr5q" path="res://character/monster/pattern/pattern.gd" id="2_avnl5"]
 [ext_resource type="Resource" uid="uid://j7tuq25h1jvk" path="res://character/monster/ghost/ghost_pattern1.tres" id="3_lk5do"]
+[ext_resource type="Resource" uid="uid://dat2rvo7rqs3j" path="res://character/monster/ghost/ghost_pattern3.tres" id="4_avnl5"]
 [ext_resource type="Resource" uid="uid://bxj2ms3po86o5" path="res://character/monster/ghost/ghost_pattern2.tres" id="4_h4ps0"]
 [ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/monster/hp_bar.tscn" id="5_u6ape"]
+[ext_resource type="Resource" uid="uid://oumbp81y0wwu" path="res://character/monster/ghost/ghost_pattern4.tres" id="6_lk5do"]
 [ext_resource type="Texture2D" uid="uid://l87msecyhhud" path="res://character/monster/ghost/miiya-halloween-4451903_1920.png" id="6_pfrwx"]
 [ext_resource type="Script" uid="uid://dlql418cfspko" path="res://character/monster/ghost/blurry_halo.gd" id="8_qq44i"]
 [ext_resource type="Script" uid="uid://c8ssh5wchmib5" path="res://character/monster/ghost/current_roll.gd" id="9_ytt8l"]
@@ -19,7 +21,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_hjds1")
 monster_name = "Ghost"
-pattern_list = Array[ExtResource("2_avnl5")]([ExtResource("3_lk5do"), ExtResource("4_h4ps0")])
+pattern_list = Array[ExtResource("2_avnl5")]([ExtResource("3_lk5do"), ExtResource("4_avnl5"), ExtResource("4_h4ps0"), ExtResource("6_lk5do")])
 hp = NodePath("VBar/HpBar")
 
 [node name="VBar" type="VBoxContainer" parent="." unique_id=1503022876]
