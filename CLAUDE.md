@@ -5,11 +5,26 @@ Do NOT run git commands. This sandbox can't write to `.git` safely (it has corru
 
 When you change code, update this `CLAUDE.md` in the same session so its architecture/signals/scene-map/gotchas stay accurate — stale docs here are worse than none.
 
+# Multi-Claude coordination
+
+Four Claudes + the user work this project. Identify your role each session; stay in lane.
+
+- **Fable (diagnosis)** — reviews code/design/UI/playtests; returns verdicts and work orders in chat. Edits only CLAUDE.md/HISTORY.md, on request. Spot-checks other roles' diffs.
+- **Code Claude** — implements code and scenes. Owns the GDD's "as built" annotations + §11. When a code change contradicts design prose, FLAG it in HISTORY.md — don't rewrite.
+- **Design Claude** — owns GDD §1–8 and §10–13 (NOT §9). Doesn't edit code.
+- **UI Claude** — owns `docs/ui-spec.md` and GDD §9. Produces specs with acceptance criteria; Code Claude builds them. Visual color authority = ui-spec, which mirrors `Swatch` (code ground truth).
+
+Shared rules:
+1. Canonical location: every concept is defined in exactly one place; everywhere else cites it — never restate.
+2. One-line HISTORY.md entry per GDD / CLAUDE.md / ui-spec edit.
+3. Fable's work orders: execute, then log what was done AND skipped (with reason) in HISTORY.md.
+4. Code↔doc mismatches: flagged by whoever finds them, fixed by the owning role.
+
 # Session history
 
 Maintain `HISTORY.md` (same folder). At the end of any session that changes code or makes a design decision, prepend a new dated entry (newest on top): what changed, why, and any open threads. Keep it concise — narrative trail only; code-level detail stays here in `CLAUDE.md`.
 
-# Architecture (Godot 4.6, project root: DragAndDrop/)
+# Architecture (Godot 4.6, project root = repo root)
 
 Turn-based combat game. Dice carry a roll value + element; player swaps/rotates dice to set up an attack, then ends turn to resolve combat against a monster.
 
@@ -83,3 +98,4 @@ Pop variants on the label, chosen by what `anti_operator()` reduced (each has a 
 - `hp.gd`: `max_hp`/`current_hp` are `@export` (set per monster in inspector). Setters guard `if label:` because `@export` assignment fires before `@onready var label`. HP **persists across a gauntlet** — only the monster is freed/respawned between fights; the player node survives.
 - Monster pattern cycling: `round_start()` calls `update_roll()` *before* `current_round += 1`, so round 1 uses `pattern[0]` (no skip).
 - Autoloads `CombatState` and `Encounter` persist across scene reloads, so run-state resets (FSM, gauntlet order) are manual — currently in `combat_ui.gd` `start()` and the win/lose handlers.
+- **Don't use `:=` on autoload method calls.** `var o := CurrentRoll.compute_outcome(...)` fails to parse on a cold `.godot/` cache ("Cannot infer the type of 'o'") — GDScript's analyzer doesn't reliably resolve a method's return type through an autoload singleton until the class registry is built. A warm cache hides it, so it can pass on one machine and break after another deletes `.godot/`. Annotate explicitly instead: `var o: Dictionary = CurrentRoll.compute_outcome(...)`. (Fixed at `player_character.gd` preview_rotate/preview_swap and `announce.gd._update_preview`.) When such a script fails to compile, scenes that instance its `class_name` (e.g. `PlayerCharacter`) can hard-crash the editor on scene-restore (null script deref) — open in Recovery Mode to break the loop.

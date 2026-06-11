@@ -73,7 +73,7 @@ func preview_rotate(src: int, tgt: int) -> String:
 	var actions := action_index_list.duplicate()
 	var k := (3 - src - tgt) % 3
 	var t = actions[k]; actions[k] = actions[tgt]; actions[tgt] = actions[src]; actions[src] = t
-	var o := CurrentRoll.compute_outcome(_roll_from(dice_roll_list, element_index_list, actions),
+	var o: Dictionary = CurrentRoll.compute_outcome(_roll_from(dice_roll_list, element_index_list, actions),
 		CurrentRoll.current_monster_roll_list)
 	return "Deal %d    Take %d" % [o.player.total, o.monster.total]
 
@@ -86,7 +86,7 @@ func preview_swap(src: int, tgt: int) -> String:
 		var colors := element_index_list.duplicate()
 		values[tgt] = v;                         colors[tgt] = element_index_list[src]
 		values[src] = dice_roll_list[tgt];       colors[src] = element_index_list[tgt]
-		var o := CurrentRoll.compute_outcome(_roll_from(values, colors, action_index_list),
+		var o: Dictionary = CurrentRoll.compute_outcome(_roll_from(values, colors, action_index_list),
 			CurrentRoll.current_monster_roll_list)
 		deals.append(o.player.total)
 		takes.append(o.monster.total)

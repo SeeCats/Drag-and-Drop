@@ -21,7 +21,7 @@ func _ready() -> void:
 	_update_preview()
 
 func _update_preview() -> void:
-	var o := CurrentRoll.compute_outcome(CurrentRoll.current_roll_list, CurrentRoll.current_monster_roll_list)
+	var o: Dictionary = CurrentRoll.compute_outcome(CurrentRoll.current_roll_list, CurrentRoll.current_monster_roll_list)
 	preview_str = "Deal %d    Take %d" % [o.player.total, o.monster.total]
 	_refresh()
 
