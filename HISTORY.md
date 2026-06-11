@@ -4,6 +4,21 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-06-12 (Code Claude — doc recovery + sim snapshot)
+
+- Independently closed the "missing Design session" thread (same finding as the UI Claude 06-12 entry below): the archived `local_ba9d89fa` folder held only a 1-line transcript — a `Tool permission stream closed before response` crash at first tool call (2026-05-27). No dialogue, no ppt, nothing recoverable from disk; the chat itself lives in the app store (UI archive view), and the sim is reproducible from `tools/balance_sim.py` regardless.
+- **First application of shared rule 5:** committed the raw balance_sim run to `docs/sim-results/2026-06-12-balance_sim.md` (script sha `8b64b2c4…`, seeds summary=7 / sweep=1, deterministic). Numbers match the wave-1 findings + GDD §5.3/§7.7/§7.8. Cross-lane exception (normally Design's to commit), user-approved for tonight.
+
+## 2026-06-12 (continuation of the 06-11 UI Claude session, past midnight KST)
+
+- **All three prototype verdicts PASSED** (deal-on-knob confirmed on the element-fixed build — "passed the tofu test"). Deal-on-knob + thin-strip S2 adopted; 17 acceptance criteria written into ui-spec §8; spec status → VALIDATED.
+- §6 color unification DECIDED: neon family canonical everywhere (origin: QCD-strict RGB primaries → rejected as ugly/illegible, gf's verdict upheld); `ELEMENT_COLOR` retired from UI; WHITE element = reserved dormant slot (far-future all-elements dice), NEON_COLOR needs a defensive 4th entry; monster anti chip = neutral (element colors only on element-bearing things); player-facing text never names colors. **ui-spec status → READY FOR BUILD.**
+- Idea parked **for Design Claude to place in the GDD** (design-history nugget, user request): the game once had a QCD phase — CMY anti-colors were nearly their own mechanic (anti-colored dice/anti-dice territory). Cut because teaching QCD costs more than the "portals ripped out" fiction; the QCD skeleton survives invisibly (3 elements, ANTI slot, complementary neon palette). May have a pulse for a far-future system alongside the dormant WHITE all-elements dice (ui-spec §6).
+- Prototype file user-renamed to `docs/prototype/combat-ui-prototypever3.html` during phone transfers; spec references updated to match.
+- "Missing archive" scare resolved: the empty zip was a session that crashed at first tool call (May 27) — nothing was lost; sim insights are canonized in GDD §5.3/§7.7/§7.8, balance_sim.py in repo, transcripts intact. (Windows note: the packaged Claude app virtualizes `%APPDATA%\Claude` into `AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude` — look there for app data on disk.)
+- CLAUDE.md shared rule 5 added: **sim outputs cited in decisions get committed to `docs/sim-results/`** (dated + script version) in the same session — "insights without their data are claims." Applies from Design Claude's next sim session.
+- Next: hand to Code Claude — build per ui-spec §8 acceptance criteria; work orders bundled: Swatch cleanup (+4th neon entry), tray input controller replacing swap.gd/rotate.gd, F12 screenshot autoload.
+
 ## 2026-06-11
 
 ### Combat UI remake — foundations (UI Claude session, design only, no code)
@@ -24,10 +39,7 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 - Knob gesture simplified (user call): horizontal flick — end point lefter/righter than start = rotate left/right; rotary angle tracking dropped (2 rotations + one move per turn = angle tracking is pure misfire surface). Prototype + ui-spec §5 updated.
 - **Knob flick PASSED the thumb test** (user operated it one-handed while eating with chopsticks — divided attention, no misfires). Row+knob promoted from working direction to DECIDED in ui-spec §5; button fallback retired.
 - Wrap-arc legibility PASSED ("everything shifted around"). Prototype fidelity bug found by user: elements were rerolling with values each round — fixed (elements permanent per dice, values only).
-- **All three prototype verdicts PASSED** (deal-on-knob confirmed on the element-fixed build — "passed the tofu test"). Deal-on-knob + thin-strip S2 adopted; 17 acceptance criteria written into ui-spec §8; spec status → VALIDATED.
-- §6 color unification DECIDED: neon family canonical everywhere (origin: QCD-strict RGB primaries → rejected as ugly/illegible, gf's verdict upheld); `ELEMENT_COLOR` retired from UI; WHITE element = reserved dormant slot (far-future all-elements dice), NEON_COLOR needs a defensive 4th entry; monster anti chip = neutral (element colors only on element-bearing things); player-facing text never names colors. **ui-spec status → READY FOR BUILD.**
-- Idea parked **for Design Claude to place in the GDD** (design-history nugget, user request): the game once had a QCD phase — CMY anti-colors were nearly their own mechanic (anti-colored dice/anti-dice territory). Cut because teaching QCD costs more than the "portals ripped out" fiction; the QCD skeleton survives invisibly (3 elements, ANTI slot, complementary neon palette). May have a pulse for a far-future system alongside the dormant WHITE all-elements dice (ui-spec §6).
-- Next: hand to Code Claude — build per ui-spec §8 acceptance criteria; work orders bundled: Swatch cleanup (+4th neon entry), tray input controller replacing swap.gd/rotate.gd, F12 screenshot autoload.
+- (Later items from this session continue under the 2026-06-12 header above — the session crossed midnight KST.)
 
 ### Playtest wave 1 — analyzed (Fable diagnosis session)
 - 4 subjects (park, one-handed, designer as live tutor). Full findings: `docs/playtest-wave1-findings.md`.

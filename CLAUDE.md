@@ -19,6 +19,7 @@ Shared rules:
 2. One-line HISTORY.md entry per GDD / CLAUDE.md / ui-spec edit.
 3. Fable's work orders: execute, then log what was done AND skipped (with reason) in HISTORY.md.
 4. Code↔doc mismatches: flagged by whoever finds them, fixed by the owning role.
+5. Sim-citation rule: any sim output whose numbers are cited in a GDD/spec decision gets its raw output committed to `docs/sim-results/` (dated file, script version noted) in the same session. Insights without their data are claims.
 
 # Session history
 

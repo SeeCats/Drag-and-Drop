@@ -3,7 +3,7 @@
 Owner: **UI Claude** (per CLAUDE.md coordination block). Code Claude builds against this; Fable spot-checks.
 Canonical-location rule applies: concepts defined here are cited elsewhere, never restated. GDD §9 will be reduced to a pointer at this file once the spec stabilizes.
 
-Status: **READY FOR BUILD** — layout, object model, input mechanic, motion, and color all decided; input validated on-device (`docs/prototype/combat-ui-prototype.html`). Code Claude builds against §8 acceptance criteria; verification per §8 screenshot protocol. Remaining open items are styling-level, non-blocking.
+Status: **READY FOR BUILD** — layout, object model, input mechanic, motion, and color all decided; input validated on-device (`docs/prototype/combat-ui-prototypever3.html` — user-renamed during phone transfers). Code Claude builds against §8 acceptance criteria; verification per §8 screenshot protocol. Remaining open items are styling-level, non-blocking.
 
 ---
 
@@ -68,7 +68,7 @@ Docking rules for future features: per-dimension things (status icons on a stat,
 - **Known design debt — the wrap animation.** On rotate, the end dice must travel to the row's other end. It must visibly arc over the row (not teleport) or rotate reads as chaos. Prototype question #2. The wrap path is animation only — never drawn as standing UI (it costs a band of dead space; learned from mockup).
 - **Tight-grouping rule:** the tray is ONE cluster — HP, dice row, knob touch each other with minimal gaps. Controls and the objects they act on must read as a single unit; spacing between unrelated bands is where slack goes, never inside a control cluster. (S3/S4 merged accordingly, see §3.)
 - **Deal-on-the-knob (proposed, test in prototype):** the projected deal total rendered on/at the knob face — the only interior spot dice never cross; "tune the dial, read the dial." If adopted, take anchors at player HP and S2 shrinks to a thin threshold strip (kill/short-by-N/exact + resolution-number flight path), reclaiming ~60–80px. Cramming rule that governs this: a datum may be squeezed into a gap only if its position encodes a relationship (e.g. product between its factors); never park info on a motion path; one home per datum.
-- **Validation status: ALL THREE PASSED** (2026-06-11, one-handed divided-attention sessions). Knob flick: no misfires. Wrap arc: reads as rotation. Deal-on-knob: confirmed on the element-fixed prototype. Fallback (⟲/⟳ buttons) retired. Deal-on-knob + thin-strip S2 hereby ADOPTED (no longer proposed).
+- **Validation status: ALL THREE PASSED** (2026-06-11, one-handed divided-attention sessions; prototype: `docs/prototype/combat-ui-prototypever3.html`). Knob flick: no misfires. Wrap arc: reads as rotation. Deal-on-knob: confirmed on the element-fixed prototype. Fallback (⟲/⟳ buttons) retired. Deal-on-knob + thin-strip S2 hereby ADOPTED (no longer proposed).
 - Archived candidates (for the record): full circular wheel (matched-angles, two-vertices-up — superseded: row+knob keeps its handle separation while restoring the column spine and ~60px of height); home-screen slide-to-fill (cannot express end-swap); handle bar; direction-split swipe (rejected: undiscoverable). Tap-tap remains viable as a redundant channel.
 
 ## 6. Color
