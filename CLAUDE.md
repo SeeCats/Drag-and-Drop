@@ -3,6 +3,8 @@ Be brutally honest about my ideas/implementation and push back if you can find e
 
 Do NOT run git commands. This sandbox can't write to `.git` safely (it has corrupted HEAD before). Edit code files only; the user drives all git operations (commit, branch, push) in GitHub Desktop.
 
+When you change code, update this `CLAUDE.md` in the same session so its architecture/signals/scene-map/gotchas stay accurate — stale docs here are worse than none.
+
 # Session history
 
 Maintain `HISTORY.md` (same folder). At the end of any session that changes code or makes a design decision, prepend a new dated entry (newest on top): what changed, why, and any open threads. Keep it concise — narrative trail only; code-level detail stays here in `CLAUDE.md`.
@@ -28,8 +30,10 @@ The FSM is **not** self-starting: `combat_ui.gd` calls `CombatState.start()` (re
 ## Roll data (on CurrentRoll)
 - `current_roll_list` / `current_monster_roll_list` = `[base, mult, anti, anti_type]`.
 - Player: damage per hit = base (`current_roll_list[0]`), number of hits = mult (`current_roll_list[1]`).
-- `anti_operator()` applies anti reductions. `player_attack()` / `monster_attack()` set damage per hit = base (`monster_damage_operator()` is the old base*mult total, now unused).
+- `anti_operator()` applies anti reductions. `player_attack()` / `monster_attack()` set damage per hit = base. `monster_damage_operator()` (old base*mult total) and its only caller `monster_turn_end()` are both dead now.
 - `initial_roll` / `initial_monster_roll` snapshot pre-anti values (used by `get_reduced_roll` for announcements).
+- `compute_outcome(player_roll, monster_roll)` — **pure** resolver (no side effects): mirrors `anti_operator` + base×mult on copies, returns `{player/monster:{per_hit,hits,total,blocked,misses}}`. The shared seam the preview UI uses and the effect pipeline will hook. Live combat still resolves the mutating way above.
+- `next_pattern` (a `Pattern`) — the upcoming round's pattern, published by `monster.update_roll`; drives the lookahead label/halo.
 
 Both attacks are staggered coroutines (`attack_stagger`, default 0.3s): a miss loop then a hit loop, awaited by the FSM. Player and monster mirror each other.
 
@@ -41,18 +45,25 @@ Both attacks are staggered coroutines (`attack_stagger`, default 0.3s): a miss l
 - `monster_missed` — once per monster hit lost to anti.
 - `monster_atack_finished` (note the typo) — fires once after the monster loops; `monster.gd:_announce_attack()` and `player_character.gd:announce_damage_taken()` log here so announcements fire once, not per hit.
 - `updated_roll` — dice/roll changed; player_character, slime current_roll, etc. refresh.
-- `announced(String)` — `announce.gd` appends to combat log label.
+- `announced(String)` — `announce.gd` appends to combat log.
 - `swap_started(Dice)` — `mouse.gd` reparents the dragged die.
+- `preview_set(String)` / `preview_clear` — hover preview: `swap.gd`/`rotate.gd` emit a hypothetical readout while dragging; `announce.gd` shows it, reverts on clear.
+
+## Preview UI
+- `announce.gd` (on `Anouncement`) is a dual readout: PREVIEW (`Deal X  Take Y` from `compute_outcome`, recomputed on `updated_roll` via `CONNECT_DEFERRED` so the player roll refreshes first) vs LOG (combat log). A horizontal swipe *started on the label* toggles modes.
+- Hover preview: `player_character.preview_rotate(src,tgt)` (single value) / `preview_swap(src,tgt)` (`Deal X~Y` range over the 6 reroll values — swap reroll is unpreviewable by design, so it shows stakes not result). `swap.gd`/`rotate.gd` `_process` polls the hovered zone during a drag and emits `preview_set`/`preview_clear`.
+- `Pattern` (character/monster/pattern/pattern.gd) is a Resource: `type` (`enum Type {HEAVY,FLURRY,GUARDED,SPIKE}` — authored role) + `base/mult/anti/anti_type`. `next_pattern.gd` (on `NextPattern` label) shows the next roll as `Base: N  Mult: N  Block/Miss: N` (Block if `anti_type==BASE`, else Miss). Role/type is meant to be conveyed by a halo color (deferred).
 
 ## Scene map
 `combat_ui.tscn` root runs `combat_ui.gd` (kicks the FSM via `start()`, plus juice: screen shake + hit/miss SFX). Under `VBoxContainer2`:
 - `MarginContainer/Slime` — a plain `Control` running `monster_spawner.gd` (no longer a baked slime). On load it instantiates `Encounter.next_monster` as a child filling the slot; `respawn()` swaps it between gauntlet fights. Its children `Anouncement` (announce.gd) and `DamageNumberZone` (damage_number_zone.tscn) are combat UI and persist across monster swaps.
 - `MarginContainer2/Playercontainer` (player_vbox.tscn → `PlayerCharacter`): `Rotate` (rotate.gd) + `Swap` (swap.gd) with `Zone1..3` each holding a `Dice`.
 - `StateLabel` (State.gd) shows current FSM state.
+Also under the root: `NextPattern` (next_pattern.gd) — lookahead label for the monster's next roll (see Preview UI). `Anouncement` (under Slime) is the shared preview/log readout, not just the log.
 
 Monsters: one scene per monster at `character/monster/<name>/<name>.tscn` (alien, alligator, ghost, slime, slimeboss), each with `monster.gd` (`class_name Monster`), an exported `pattern_list: Array[Pattern]`, HP, and a sprite. Player and every monster share `character/monster/hp_bar.tscn` (→ `hp.gd` + `slime/hplabel.gd`); the monster sets its own name on its HP label, the player leaves it blank.
 
-Dice (dice.gd, `class_name Dice`): value Label over a spinning wireframe `Cube` (cube_2d.gd). Zones (zone.gd) track hover/swap flags; swap.gd & rotate.gd read those flags in `_input` on left mouse up/down.
+Dice (dice.gd, `class_name Dice`): value Label over a spinning wireframe `Cube` (cube_2d.gd). Zones (zone.gd) track hover/swap flags; swap.gd & rotate.gd read those flags in `_input` on left mouse up/down. Both `_input` handlers early-return unless `CombatState.current_state == PLAYER_PLANNING`, so dice can't be picked up or committed outside the planning phase.
 
 ## Damage numbers
 `damage_number_zone.gd` lives only on the `DamageNumberZone` node (instanced under Slime); it has a `DamageNumber` child (damage_number_rich_text_label.tscn, `class_name DamageNumber`). `show_damage_number()` duplicates the child and pops it. Type ref uses `preload` alias + null guards.

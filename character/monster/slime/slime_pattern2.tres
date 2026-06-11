@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_kekps")
+type = 1
 mult = 5
 anti_type = 1
 metadata/_custom_type_script = "uid://c8kxp3x8jkr5q"

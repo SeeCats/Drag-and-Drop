@@ -54,6 +54,8 @@ func _process(_delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if CombatState.current_state != CombatState.State.PLAYER_PLANNING:
+		return   # only rotate during planning
 	if not event is InputEventMouseButton or event.button_index != MOUSE_BUTTON_LEFT:
 		return
 	swap_started = [zone1.swap_started, zone2.swap_started, zone3.swap_started]

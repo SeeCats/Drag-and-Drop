@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_r30q6")
+type = 3
 base = 6
 mult = 6
 anti = 0

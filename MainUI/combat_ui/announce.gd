@@ -25,8 +25,8 @@ func _update_preview() -> void:
 	preview_str = "Deal %d    Take %d" % [o.player.total, o.monster.total]
 	_refresh()
 
-func _on_preview_set(text: String) -> void:
-	preview_str = text
+func _on_preview_set(preview: String) -> void:
+	preview_str = preview
 	_refresh()
 
 func announce(announcement : String) -> void:

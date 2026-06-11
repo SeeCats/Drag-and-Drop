@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://bpvkg6bv4viqw" path="res://MainUI/combat_ui/State.gd" id="6_auw21"]
 [ext_resource type="Script" uid="uid://32p7odq2b053" path="res://MainUI/combat_ui/combat_ui.gd" id="7_combatui"]
 [ext_resource type="Script" uid="uid://hjlh2e610jjw" path="res://character/monster/monster_spawner.gd" id="8_spawner"]
-[ext_resource type="Script" path="res://MainUI/combat_ui/next_pattern.gd" id="9_nextpat"]
+[ext_resource type="Script" uid="uid://co7aydpejfw4y" path="res://MainUI/combat_ui/next_pattern.gd" id="9_nextpat"]
 
 [node name="CombatUi" type="Control" unique_id=1252337357]
 layout_mode = 3
@@ -35,7 +35,7 @@ theme_override_constants/margin_right = 40
 theme_override_constants/margin_bottom = 0
 
 [node name="Slime" type="Control" parent="VBoxContainer2/MarginContainer" unique_id=409098004]
-custom_minimum_size = Vector2(100, 400)
+custom_minimum_size = Vector2(100, 500)
 layout_mode = 2
 script = ExtResource("8_spawner")
 
@@ -65,7 +65,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="CenterContainer" type="CenterContainer" parent="VBoxContainer2" unique_id=1744877064]
-custom_minimum_size = Vector2(200, 200)
+custom_minimum_size = Vector2(200, 100)
 layout_mode = 2
 
 [node name="MarginContainer2" type="MarginContainer" parent="VBoxContainer2" unique_id=380349769]
@@ -86,12 +86,12 @@ offset_right = 534.0
 offset_bottom = 378.0
 script = ExtResource("6_auw21")
 
-[node name="NextPattern" type="Label" parent="."]
+[node name="NextPattern" type="Label" parent="." unique_id=614381400]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 470.0
-offset_right = 520.0
-offset_bottom = 510.0
-horizontal_alignment = 1
+offset_left = 22.0
+offset_top = 391.0
+offset_right = 522.0
+offset_bottom = 431.0
 text = "Next:"
+horizontal_alignment = 1
 script = ExtResource("9_nextpat")

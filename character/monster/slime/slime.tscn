@@ -3,7 +3,10 @@
 [ext_resource type="Script" uid="uid://dejufjfkb86ps" path="res://character/monster/monster.gd" id="1_d0eh7"]
 [ext_resource type="Script" uid="uid://c8kxp3x8jkr5q" path="res://character/monster/pattern/pattern.gd" id="2_3jb3s"]
 [ext_resource type="Resource" uid="uid://dxf61klyp1cp" path="res://character/monster/slime/slime_pattern1.tres" id="3_qa4hc"]
+[ext_resource type="Resource" uid="uid://k8e2s6vd017f" path="res://character/monster/slime/slime_patternb.tres" id="4_jxgeq"]
 [ext_resource type="Resource" uid="uid://csklla27ja7el" path="res://character/monster/slime/slime_pattern2.tres" id="4_yrb4l"]
+[ext_resource type="Resource" uid="uid://ccvql6ovo0s7j" path="res://character/monster/slime/slime_pattern3.tres" id="5_80xjw"]
+[ext_resource type="Resource" uid="uid://diw3oeyqf4hoq" path="res://character/monster/slime/slime_pattern4.tres" id="6_jxgeq"]
 [ext_resource type="Texture2D" uid="uid://bkesy1modryic" path="res://asset/icon/edurs34-minecraft-8036149.png" id="6_kr13b"]
 [ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/monster/hp_bar.tscn" id="6_r0b23"]
 [ext_resource type="Script" uid="uid://bqfts427ymh43" path="res://character/monster/slime/current_roll.gd" id="9_hekce"]
@@ -18,7 +21,7 @@ offset_bottom = -0.06488037
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_d0eh7")
-pattern_list = Array[ExtResource("2_3jb3s")]([ExtResource("3_qa4hc"), ExtResource("4_yrb4l")])
+pattern_list = Array[ExtResource("2_3jb3s")]([ExtResource("3_qa4hc"), ExtResource("4_jxgeq"), ExtResource("4_yrb4l"), ExtResource("5_80xjw"), ExtResource("6_jxgeq")])
 hp = NodePath("VBar/HpBar")
 
 [node name="VBar" type="VBoxContainer" parent="." unique_id=1503022876]
@@ -32,6 +35,8 @@ grow_vertical = 2
 [node name="HpBar" parent="VBar" unique_id=2040145802 instance=ExtResource("6_r0b23")]
 layout_mode = 2
 size_flags_vertical = 3
+max_hp = 25
+current_hp = 25
 
 [node name="TextureRect" type="TextureRect" parent="VBar" unique_id=674502162]
 layout_mode = 2

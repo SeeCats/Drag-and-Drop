@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_xvr5j")
+type = 1
 base = 1
 mult = 3
 anti = 2

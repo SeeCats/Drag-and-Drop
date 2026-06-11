@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_iwfhe")
+type = 1
 base = 2
 mult = 5
 anti = 1

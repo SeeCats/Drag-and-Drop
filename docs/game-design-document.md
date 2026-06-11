@@ -135,7 +135,7 @@ There is **no randomness in resolution** — the only RNG is the dice you roll a
 Consequence: the best color to land in your ANTI slot depends on the enemy's *current roll* and *your anti value* — a per-turn read off visible numbers, not a fixed archetype lookup. This is emergent depth (discovered in play, not scripted). The live-outcome preview (§9.2) should surface it so players *feel* the floor-math rather than having to compute it.
 
 ### 3.5 The central tension (the knot)
-Three random values, three colored dice, three slots — and they all compete. Your biggest value wants to be BASE (damage); but you also need a value on MULT (or your damage is multiplied by a small number); and the die you spend on ANTI determines *both* your defense value *and*, by its color, your defense mode. You cannot, for example, put RED's value into BASE **and** use RED to make your defense Armor — it is one die. Choosing your defense mode therefore costs you a specific colored value elsewhere. This coupling is the entire design; everything else is content wrapped around it.
+Three random values, three colored dice, three slots — and they all compete. Your biggest value wants to be BASE (damage); but you also need a value on MULT (or your damage is multiplied by a small number); and the die you spend on ANTI determines *both* your defense value *and*, by its color, your defense mode. You cannot, for example, put RED's value into BASE **and** use RED to make your defense Armor — it is one die. Choosing your defense mode therefore costs you a specific colored value elsewhere. This coupling is the **core** of the design — most content is wrapped around it. (It isn't *every* turn, though: the monster's anti can switch the round into other decision modes — strip-or-survive, or a pure race — see §6.2.)
 
 ### 3.6 Worked example (real model)
 Monster pattern this round: `base 5, mult 2, anti 1, anti_type = BASE` (HP 12). You can see all of it.
@@ -255,6 +255,29 @@ Before designing the gear *UI* (pillar 7), decide what gear is allowed to *chang
 - Legendary / drop odds (ties into §7.5 risk events).
 - Relic synergy hooks (gear that buffs other gear / a color / a build tag).
 
+### 5.3 Measured relic power (sim — `tools/balance_sim.py`)
+Concrete data on how hard different relic archetypes swing the math, so rarity/tiering can be set deliberately. All vs. the current gauntlet, un-geared baseline **76% win / 53% "one-more-round" tension**, optimal-ish 1-ply AI. Two metrics: **win%** and **lethal-margin%** (of wins, the boss's next hit ≥ your finishing HP — the "barely survived" feel).
+
+| Relic | win% (`+1 / +2 / +3`) | tension — lethal-margin% | character |
+|---|---|---|---|
+| *baseline (no relic)* | 76 | 53 | — |
+| **B — re-roll your lowest die** each round | 90 | 49 | variance-cut; holds tension |
+| **A — keep your highest die** (don't re-roll) | 95 | 51 | variance-cut; holds tension; **borderline too strong alone** |
+| A + B together | 98 | 49 | a near win-button |
+| **+N to ANTI only** | 83 / 87 / 89 | 51 / 49 / 51 | **weakest; self-caps ≈88%; tension fully held** |
+| **+N to BASE only** | 90 / 97 / 99 | 45 / 36 / 30 | strong; tension *erodes* as it scales |
+| **+N to ALL stats** (uncapped) | 98 / 100 / 100 | 38 / 16 / 3 | solves it; tension *gutted* |
+| *(reference) one-time last-stand shield (§7.7)* | 88 | 57 ↑ | the gold standard: win **and** tension up |
+
+**Lessons to bank:**
+- **The real tension-killer is ending fights *fast and full*, i.e. *offense* — not defense (this is counter-intuitive).** Pure offense (`+N base`) makes you kill quicker → take less cumulative damage → finish with a fat buffer → tension erodes (53→30 as it scales). Pure defense (`+N anti`) can't do that, because **the anti floor (factor → min 1, never 0) means defense can never fully negate a hit** — you survive *more* but always *barely*, so tension holds at ~51% even at +3.
+- **Floor-capped defense is self-balancing — the safest relic stat.** `+N anti` plateaus around **88% no matter how high you push it** (extra anti is wasted once it floors a factor), and it preserves the knife-edge. Great for common/mid relics; it physically can't trivialize the game.
+- **Offense (`+N base`) is the spicy one** — stronger (→99%) but it eats tension as it scales. **`+N` to ALL stats is the trap** — strongest and most tension-destroying, because `(base+N)×(mult+N)` is *multiplicative* offense that ends fights instantly. Even **+1-to-all nearly solves the un-geared game (98%)** and halves tension. Flat global `+N` should be capstone-rare at most; `+2`/`+3` shouldn't exist without monster scaling.
+- **The dice-quality relics (A, B) raise win% while keeping tension.** A ("keep highest") is the strongest single dice relic (+19 pts) — price it rare, and note it *flattens the swap-reroll gamble* (your best die is always locked). B ("mulligan worst") is the gentler pick — keeps the randomness alive.
+- **The 6-cap barely matters.** Clamping dice at 6 changes `+N`'s win% by <1 point — the power is in *raising the floor* (removing low dice), not exceeding 6. So the cap rule is **not** a balance lever; **rarity is.**
+- **Rarity guide:** floor-capped-defense relics = safe (common-OK); A/B and `+N base` = high rarity; `+N`-to-all and last-stand-class = capstone/boss-drop.
+- *Caveats:* 1-ply AI; relics modelled as always-on; numbers vs. the current (breather) gauntlet.
+
 **Decisions to lock before UI work:**
 1. Which 2–4 surfaces define build identity (the ⭐ items)? Everything else is supporting texture.
 2. How many of these are live at the *base* loop vs. unlocked only by gear (§5.1)?
@@ -298,6 +321,14 @@ Pick whichever is larger. The two have *different caps*: armor is capped by the 
 | **Fragile** (high output, low HP) | a race | ignore defense; BLUE-strip all-in on a strong roll |
 
 For **both** Heavy and Flurry the correct color is *conditional on your current anti value*, not fixed — and it literally inverts at high anti. That conditionality is the feature: it keeps "read the enemy" a live decision instead of a memorized lookup, and it's exactly what a static monster (§6.1) loses. It also means the defense read stays alive even against a *constant* monster, because the best color flips with whatever anti die your roll hands you. A good rotation then strings these shapes so the player's right answer keeps moving on top of that.
+
+**Decision modes — a monster's anti is secretly a mode-selector.** Beyond *which* color, the monster's anti value chooses *which sub-game* the player plays this fight:
+
+- **anti meaningful → the trilemma** (§3.5): your one ANTI die can mitigate base (RED), mitigate hits (GREEN), **or** strip (BLUE) — never more than one.
+- **anti high → strip-or-survive**: BLUE to land your hit clean, or defend and chip slowly (the **Guarded** round).
+- **anti 0 → race mode**: strip is dead and mitigation is moot against a corpse, so the puzzle collapses to "stack your two best on RED/GREEN and gamble a reroll to reach lethal." Still a real decision — *can you close this turn? whiff and you eat the counter undefended* — just a different muscle than the color read (the **Fragile** / Alien role).
+
+Mode-variation is an asset, not a leak: it gives the game texture and rests the "which color" muscle while working the "optimize and gamble" one (§7.4). **Corollary authoring rule: a monster needs anti for the player's BLUE/strip to mean anything** — race monsters correctly have none. Three guardrails keep modes healthy: (1) **situational, never dominant** — if number-stacking beats the color game against *most* monsters, the knot (the differentiator) is being bypassed; **watch this specifically in playtest**; (2) **real downside** — a race is only a decision if whiffing the kill hurts (the Alien's spike does this job); (3) **legible** — "its guard is 0, just race it" should be a *read the player makes*, not a hidden trap; lean on full information and the lookahead.
 
 **Planned threat shapes (recorded, not yet buildable — need new structure).** The shapes above are all expressible by the static `[base, mult, anti, anti_type]` `Pattern`. These three need a richer system (persistent state / conditions / status effects — see the effect pipeline, `docs/adr/ADR-001`) and are parked until it exists:
 
@@ -403,6 +434,33 @@ Risk/reward events all trade something for better loot, but *how* they're struct
 **The lever is already built in: visible big numbers + the floor-math (§3.4).** A `2 × 8` attack reads as "16 incoming, I'm dead" to a novice and is a trivially gutted threat to anyone who's internalized the system. The deception lives entirely in the gap between novice intuition and the real optimal line — which means it's not a lie, it's a **skill gap**, and closing it *is* the game. The same gap doubles as skill expression and the "feel clever" dopamine (§10.2).
 
 **Caveat — it expires with mastery.** A master eventually perceives the true ~90%, the threats stop scaring them, and the engineered tension evaporates. That's a clock, not a flaw: the campaign is where deceptive difficulty does its work; the **endgame penalty dungeons (§8) are what re-supply *honest, opt-in* tension** once players see through the early illusion.
+
+### 7.7 Tuning win-rate vs. tension — tune *shape*, not *level* (sim-backed)
+The central tuning worry: raise the win rate *without* losing the "one more round and I'd have died" feeling. Those two normally trade off — and a Monte-Carlo of the live build (optimal-ish AI, current gauntlet, 20 HP) shows exactly when they do and don't.
+
+**The trap: tuning the *level*.** Raising base HP (or cutting damage across the board) raises win% but *fattens the margin* — players finish with more buffer, fewer near-death wins, the sliver feeling fades. In sim, +6 starting HP took win 66%→83% but dropped the "next-attack-would-have-killed-me" win ratio 62%→53% and halved brink (≤5 HP) wins. **This is the move to avoid.**
+
+**The fix: tune the *shape* of the outcome distribution** — kill the catastrophic tail and add a visible floor, so runs cluster *just above* death instead of shifting up. Because the deaths come from *variance* (a chunk of runs arrive at the boss on fumes), not from the mean. Levers, ranked by fit to the goal:
+
+| Lever | win% (from 66) | near-death-win% | buildable now? |
+|---|---|---|---|
+| +6 base HP (level) | 83 | **53 ↓** | yes — but it's the *wrong* trade |
+| Pre-boss partial heal (top-up entering boss) | 83 | 64 (held) | **yes** — needs only a rest/heal beat |
+| Reduce early-fight *peak* chip (lower variance) | 70 | 62 (held) | **yes** — pure pattern tuning |
+| **One-time "last stand" (survive a lethal hit at 1 HP, once/run)** | 84 | **72 ↑** | **no — needs the relic/effect system (deferred)** |
+
+**The standout is the last-stand / extra-life**, because it raises win% *and sharpens* the brink: it converts deaths into hang-by-a-thread survivals, so you win more *and* end more runs at 1 HP (near-death-win ratio rises to ~72%). It's the legible safety net of §7.6 (you see it, you see it fire — no hidden fudge), in the family of Slay the Spire's Lizard Tail / Hades' Death Defiance.
+
+**Reality check — the last-stand is not buildable for a long while.** It's a relic, and relics need the effect pipeline (`docs/adr/ADR-001`), which is deferred until the core loop is validated. So *near term*, the win-rate-with-tension dial is the two buildable levers: **a pre-boss partial heal/rest beat, and lowering the variance of early-fight chip** (cap the peak-damage rounds, not the average). Those alone moved the sim toward the target without touching the boss. Park the last-stand as the eventual best tool, to add once the relic system exists.
+
+*Caveats:* numbers are directional, not final — the AI is a 1-ply greedy (no lookahead), and the heal/last-stand were modeled as always-on. As an actual relic the last-stand only helps runs that *have* it, which also makes "do I have my safety net this run?" its own tension.
+
+### 7.8 The math is volatile by design — sim before you ship a number
+The combat math is **intentionally volatile**: small inputs produce large outcome swings (a single breather round moved the baseline win rate +11 pts; a `+1` stat swings 7–22 pts). That's the desired *player-facing* property — small levers, big drama, knife-edge margins. But it's louder than any one mechanic, because **four compounding layers stack**: (1) multiplicative damage `base×mult`, (2) factor-reduction with **floors** (cliffs, not slopes), (3) **persistent-HP attrition** (upstream chip decides downstream fights), and (4) a **multi-fight gauntlet** (per-fight effects multiply into the run). Each amplifies the others.
+
+**Working rule: never ship a number — a stat, a monster pattern, a relic — on intuition. Sim it first (`tools/balance_sim.py`).** Designer intuition is unreliable here *by construction*; in building this doc the gut guess was wrong more than once (the 6-cap barely matters; offense erodes tension more than defense). Harness the volatility for the *player's* drama; contain it in *your* tuning by measuring every change. Prefer steering power toward the self-limiting levers (floor-capped defense, last-stand) over the uncapped ones (multiplicative offense), so the swings land on the player's tension, not on your balance.
+
+**The value curve is concave — a `1→2` is worth far more than a `6→7`.** The leverage lives at the *bottom* of the die range, not the top, for three reasons: (1) **relative jump** — `1→2` doubles a factor (and `base×mult` doubles your damage); `6→7` adds ~17%. (2) **Escaping the dead zone** — a `1` is a near-wasted die: `mult=1` deletes the multiply entirely (one hit, no "repeat"), `base=1` is minimum damage, `anti=1` barely mitigates; raising it un-wastes a whole slot, whereas `6→7` just nudges an already-good die. (3) **The anti floor wastes the top** — once your anti can floor a monster factor, more anti does nothing, so high anti values are dead weight. This concavity is the root cause of the §5.3 relic results: floor-raising relics (mulligan-worst, keep-best, `+N`) dominate because they *eliminate low dice*, and the 6-cap is irrelevant because the power was never in exceeding 6. Two surgical levers fall out: **to globally calm variance, shift/compress the die range up** (e.g. 2–6 or 3–6 — kills the swing without touching the ceiling); and **`mult=1` is the single most-punishing roll** — a mult-slot floor of 2 would remove the worst-feel hands while leaving base/anti volatile.
 
 ---
 

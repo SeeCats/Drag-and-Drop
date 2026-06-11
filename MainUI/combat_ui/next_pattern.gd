@@ -1,8 +1,7 @@
 extends Label
 
-# Lookahead hint: shows the ROLE (Type) of the monster's next pattern.
-# Reads CurrentRoll.next_pattern (published by monster.update_roll) — the type
-# is authored on the Pattern resource, not inferred from the numbers.
+# Lookahead hint: shows the monster's next roll. Type/role is conveyed by the
+# halo color instead. anti_type picks the defense label: BASE->Block, MULT->Miss.
 
 func _ready() -> void:
 	GlobalSignal.updated_roll.connect(_update)
@@ -10,4 +9,8 @@ func _ready() -> void:
 
 func _update() -> void:
 	var p: Pattern = CurrentRoll.next_pattern
-	text = "Next: " + (Pattern.Type.keys()[p.type].capitalize() if p else "—")
+	if not p:
+		text = "—"
+		return
+	var defense := "Block" if p.anti_type == Constants.RollIndex.BASE else "Miss"
+	text = "NEXT\nBase: %d  Mult: %d  %s: %d" % [p.base, p.mult, defense, p.anti]

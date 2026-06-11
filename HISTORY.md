@@ -4,6 +4,19 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-06-10 (later)
+
+### Next-pattern label → raw numbers
+- `next_pattern.gd` now shows the upcoming roll as `Base: N  Mult: N  Block/Miss: N` instead of the role name. Defense label from `anti_type`: BASE→Block, MULT→Miss; the N is the unreduced `anti` (threatened, not resolved). Type/role moves to the planned halo color hint (still deferred), so the two channels don't duplicate.
+
+### Gate swap/rotate to PLAYER_PLANNING
+- `swap.gd`/`rotate.gd` `_input` now early-return unless the FSM is in `PLAYER_PLANNING`, so dice can't be moved while combat is resolving/animating. Hover preview is covered transitively (it only fires off a started swap). One-line guard each.
+
+### CLAUDE.md de-stale
+- Synced CLAUDE.md to current code: added `preview_set`/`preview_clear` signals, `compute_outcome` + `next_pattern` on CurrentRoll, a Preview UI section (announce.gd dual readout, hover preview, Pattern/Type + next_pattern label), `NextPattern` in scene map; noted `monster_turn_end`+`monster_damage_operator` both dead. Added a standing rule: update CLAUDE.md in the same session as code changes.
+
+---
+
 ## 2026-06-10
 
 ### Projected-outcome preview (the big one)
