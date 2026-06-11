@@ -4,6 +4,29 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-06-11
+
+### Playtest wave 1 — analyzed (Fable diagnosis session)
+- 4 subjects (park, one-handed, designer as live tutor). Full findings: `docs/playtest-wave1-findings.md`.
+- **Verdict: refine, don't restart.** Core rules validated (clean model, 3 on-ramps, player-discovered heuristics are mathematically correct, emotional core fires — 제발/망겜 from all engaged subjects). Every failure is around the rules, not in them: no teaching gauntlet (3/4 struggled with a live tutor; random play reaches the boss), no staging/confirm (GDD §9.1 unbuilt — contaminated the data), decision UI answers "what does this do" not "which move do I want", swap reads as draw not gamble (EV-positive), kill-skip racing degenerates expert play.
+- Decisions: staged board + tap-dropped-die-to-commit (reroll fires on commit, anti-scumming); threshold legibility ("kill on 4+") before touching swap mechanics; teaching gauntlet = top content priority; kill-skip cured via pattern dramaturgy (kill windows/enrages) before any rule change; wave 2 (middle-profile, no tutoring, telemetry) only after fixes are built. Tripwire for widening the base loop: post-ladder+gear players still collapsing to the two heuristics.
+- Roster expanded to 4 Claudes (Fable diagnosis / Code / Design / UI) — coordination block added to CLAUDE.md. UI Claude owns `docs/ui-spec.md`; GDD §9 ownership moves to UI Claude.
+- Open threads: the checkout Fable reviewed (commit "testingrelicideas") **lacks `compute_outcome`** while announce.gd calls it — per the entry below it exists on other branches; resolve by merging in GitHub Desktop, don't rewrite it. Monster display scripts duplicated ×5 (alien/alligator/ghost/slime/slimebosss). Swap identity fork (gamble vs economy) pending threshold-UI test. balance_sim needs a shield-aware policy + an uncontestable-damage metric.
+
+### Parse-error fix — `:=` inference through autoload (branch `fix-laptop`)
+- Symptom: after deleting `.godot/` to reopen the project on the laptop, GDScript threw `Cannot infer the type of "o"` at `player_character.gd:76`/`:89` and `announce.gd:24`; `combat_state.gd` failed as a cascade (it depends on the `PlayerCharacter` class). A later normal reopen hard-crashed the editor (native null-deref, `0x...0028`) — automatic scene-restore tried to instance a scene whose `PlayerCharacter` script was null from the failed compile.
+- Root cause: `var o := CurrentRoll.compute_outcome(...)` asks the analyzer to infer a type from a method called through an **autoload singleton**. GDScript doesn't reliably propagate return types through autoloads on a **cold** `.godot/` cache, even though `compute_outcome` declares `-> Dictionary`. The desktop "worked" only because its warm cache had the class registry already built — not because the code was robust.
+- Fix: explicit annotation at the 3 sites — `var o: Dictionary = CurrentRoll.compute_outcome(...)`. No inference needed; compiles cold or warm, any machine. Behavior identical. Return type stays Dictionary deliberately (shape still exploratory; adding a key shouldn't touch the signature) — revisit a typed Outcome object only when ADR-001 effects start sharing/mutating it.
+- Done on branch `fix-laptop` (user created it in GitHub Desktop; Claude only edited files). Recovery Mode is the way in if the editor is mid crash-loop.
+- Open thread: committed repo cruft — orphaned `*.tscn…####.tmp` save-temp files (MainUI/, player_vbox/dice/, slime/) and a dead `mainui.tscn` (only `.tmp` copies; references a missing `hex.tscn`). Harmless to open but should be deleted + `*.tmp` added to `.gitignore`.
+- Added a gotcha to `CLAUDE.md`: never `:=` on autoload method calls.
+
+### Iris Xe editor crash on open (graphics, parked low-priority)
+- Godot 4.6 default Forward+ (Vulkan) renderer crashes the editor during init on Intel Iris Xe — hard crash → Recovery Mode prompt. Not corruption, not our code (the exported build ran fine on a real phone). Durable fix if it ever matters: switch `rendering/renderer/rendering_method` to `Compatibility` (fits the mobile target anyway). Plan: test on a better-GPU machine (internet cafe); if smooth, leave it. Settled by GPU, not by code.
+- (Earlier this session I'd parked the `:=`-through-autoload parse error as "suspected version skew, don't fix yet." That diagnosis was wrong — root cause was the cold-cache autoload-inference issue and it's now fixed; see the "Parse-error fix" entry above. The two crashes are independent: GPU/renderer here, analyzer there.)
+
+---
+
 ## 2026-06-10 (later)
 
 ### Next-pattern label → raw numbers
