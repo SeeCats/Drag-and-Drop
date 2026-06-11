@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Combat UI prototype</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; background:#06080a; overflow:hidden; }
+  body { font-family: system-ui, sans-serif; color:#cfd8d4; display:flex; justify-content:center; }
+  #app { position:relative; width:100%; max-width:480px; height:100dvh; background:#0e1216;
+         display:flex; flex-direction:column; touch-action:none; user-select:none; -webkit-user-select:none; overflow:hidden;
+         padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
+
+  #s0 { height:34px; flex:none; background:#131a17; display:flex; align-items:center; padding:0 12px; gap:10px; }
+  #menuBtn { position:relative; width:24px; height:24px; color:#5a7a6c; font-size:18px; line-height:24px; text-align:center; }
+  #menuBtn::after { content:""; position:absolute; left:-20px; top:-20px; width:80px; height:80px; }
+  #phase { font-size:12px; color:#7fae9a; }
+  #nextScan { margin-left:auto; font-size:12px; color:#5a7a6c; }
+
+  #monsterPanel { flex:1; position:relative; background:#0f1712; min-height:170px; }
+  #ringWrap { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+  #ring { border-radius:50%; position:relative; }
+  #ringHole { position:absolute; inset:7px; border-radius:50%; background:#0f1712; }
+  #reticle { position:absolute; inset:18px; border-radius:50%; border:1px solid #3fae6a; }
+  .tick { position:absolute; left:50%; top:50%; width:1px; height:22px; background:#3fae6a; }
+  #sprite { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:46%; height:38%;
+            background:#1d3a2a; border-radius:46% 54% 50% 50%/60% 60% 40% 40%; }
+  #mName { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-size:12px; color:#9fdcb8; }
+  #mHp { position:absolute; right:12px; top:10px; font-size:12px; color:#7fae9a; text-align:right; }
+  #mPop { position:absolute; left:50%; top:30%; transform:translateX(-50%); font-size:26px; font-weight:600; color:#F09595; opacity:0; pointer-events:none; }
+
+  #mChips { flex:none; display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; padding:0 14px 8px; background:#0f1712; }
+  .mchip { background:#13251b; border:1px solid #2e5a40; border-radius:8px; text-align:center; padding:4px 2px; font-size:13px; color:#dff5e8; }
+  .mchip small { color:#7fae9a; font-size:10px; }
+  .mchip.antiChip { background:#241824; border-color:#F25CF2; }
+  .mchip.antiChip small { color:#F25CF2; }
+
+  #strip { flex:none; height:28px; background:#151b22; border-top:1px solid #22302a; border-bottom:1px solid #22302a;
+           display:flex; align-items:center; justify-content:center; gap:10px; font-size:12px; color:#dfe8f5; }
+  #stripTag { font-size:10px; color:#0e1216; background:#7fae9a; padding:0 6px; border-radius:5px; }
+
+  #cluster { flex:none; padding:8px 14px 6px; }
+  #pHp { font-size:12px; color:#7f8a9a; margin-bottom:4px; }
+  #pHpBar { height:6px; background:#262a34; border-radius:3px; overflow:hidden; display:flex; margin-bottom:10px; }
+  #pHpFill { background:#5DCAA5; } #pHpLoss { background:#3a5a4c; }
+
+  #row { position:relative; height:118px; }
+  .slot { position:absolute; top:0; height:118px; border:1px solid #2e3340; border-radius:12px; text-align:center; }
+  .slot .lbl { position:absolute; bottom:18px; left:0; right:0; font-size:10px; color:#7f8a9a; }
+  .slot .sub { position:absolute; bottom:4px; left:0; right:0; font-size:10px; color:#9aa4b4; }
+  .slot.hot { border-color:#dfe8f5; }
+  .die { position:absolute; top:8px; width:72px; height:72px; will-change:transform; }
+  .die .f1,.die .f2 { position:absolute; border-style:solid; }
+  .die .f1 { inset:9px; border-width:2px; }
+  .die .f2 { inset:18px; border-width:1.5px; }
+  .die .num { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+              color:#fff; font-size:22px; font-weight:600; text-shadow:0 0 6px rgba(0,0,0,.8); }
+  .die.tumble .f1 { animation:spin1 1.6s linear infinite; }
+  .die.tumble .f2 { animation:spin2 2.3s linear infinite reverse; }
+  .die.fastTumble .f1 { animation:spin1 .45s linear infinite; }
+  .die.fastTumble .f2 { animation:spin2 .6s linear infinite reverse; }
+  @keyframes spin1 { from{transform:rotate(45deg)} to{transform:rotate(405deg)} }
+  @keyframes spin2 { from{transform:rotate(45deg)} to{transform:rotate(-315deg)} }
+
+  #knobZone { position:relative; height:128px; margin-top:6px; }
+  #knob { position:absolute; left:50%; top:4px; transform:translateX(-50%); width:104px; height:104px;
+          border-radius:50%; background:#1a1f28; border:3px solid #4a5468; text-align:center; }
+  #knobRim { position:absolute; inset:-3px; border-radius:50%; will-change:transform; }
+  #knobRim::before, #knobRim::after { content:""; position:absolute; width:8px; height:8px; border-radius:50%; background:#6a7488;
+          left:50%; margin-left:-4px; }
+  #knobRim::before { top:2px; } #knobRim::after { bottom:2px; }
+  #knobLabel { margin-top:20px; font-size:10px; color:#7f8a9a; pointer-events:none; }
+  #knobDeal { font-size:26px; font-weight:600; color:#fff; line-height:1.1; pointer-events:none; }
+  #knobSub { font-size:10px; color:#7f8a9a; pointer-events:none; }
+  .sideBtn { position:absolute; top:22px; width:64px; height:64px; border-radius:50%; display:flex; align-items:center;
+             justify-content:center; font-size:24px; }
+  .sideBtn::after { content:""; position:absolute; left:-10px; top:-10px; right:-10px; bottom:-10px; }
+  #cancelBtn { left:18px; border:1.5px solid #6a4848; color:#cf8a8a; opacity:.35; }
+  #confirmBtn { right:18px; border:1.5px solid #3e6a52; background:#14241a; color:#7ddca5; }
+  .sideBtn .cap { position:absolute; bottom:-16px; font-size:10px; }
+  #cancelBtn .cap { color:#8a6a6a; } #confirmBtn .cap { color:#5a8a6c; }
+  .armed { opacity:1 !important; box-shadow:0 0 10px rgba(125,220,165,.25); }
+
+  #overlay { position:absolute; inset:0; background:rgba(8,12,10,.92); display:none; flex-direction:column;
+             align-items:center; justify-content:center; gap:12px; z-index:50; }
+  #overlay h1 { font-size:26px; color:#dff5e8; font-weight:600; }
+  #overlay p { font-size:13px; color:#7fae9a; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="s0">
+    <div id="menuBtn">&#9776;</div>
+    <span id="phase">planning · fight 1</span>
+    <span id="nextScan"></span>
+  </div>
+
+  <div id="monsterPanel">
+    <div id="ringWrap"><div id="ring"><div id="ringHole"></div><div id="reticle"></div>
+      <div class="tick" id="t1"></div><div class="tick" id="t2"></div><div class="tick" id="t3"></div>
+    </div></div>
+    <div id="sprite"></div><div id="mName">slime</div>
+    <div id="mHp"></div><div id="mPop"></div>
+  </div>
+
+  <div id="mChips">
+    <div class="mchip"><small>base </small><span id="mc0"></span></div>
+    <div class="mchip"><small>mult </small><span id="mc1"></span></div>
+    <div class="mchip antiChip"><small id="mc2l"></small><span id="mc2"></span></div>
+  </div>
+
+  <div id="strip"><span id="stripTxt"></span><span id="stripTag">exact</span></div>
+
+  <div id="cluster">
+    <div id="pHp"></div>
+    <div id="pHpBar"><div id="pHpFill"></div><div id="pHpLoss"></div></div>
+    <div id="row">
+      <div class="slot" id="slot0"><div class="lbl">base</div><div class="sub" id="sub0"></div></div>
+      <div class="slot" id="slot1"><div class="lbl">mult</div><div class="sub" id="sub1"></div></div>
+      <div class="slot" id="slot2"><div class="lbl">anti</div><div class="sub" id="sub2"></div></div>
+      <div class="die" id="die0"><div class="f1"></div><div class="f2"></div><div class="num"></div></div>
+      <div class="die" id="die1"><div class="f1"></div><div class="f2"></div><div class="num"></div></div>
+      <div class="die" id="die2"><div class="f1"></div><div class="f2"></div><div class="num"></div></div>
+    </div>
+    <div id="knobZone">
+      <div class="sideBtn" id="cancelBtn">&#10005;<span class="cap">cancel</span></div>
+      <div id="knob"><div id="knobRim"></div>
+        <div id="knobLabel">deal</div><div id="knobDeal">0</div><div id="knobSub">exact</div>
+      </div>
+      <div class="sideBtn" id="confirmBtn">&#10003;<span class="cap">confirm</span></div>
+    </div>
+  </div>
+
+  <div id="overlay"><h1 id="ovTitle"></h1><p id="ovSub">tap anywhere to continue</p></div>
+</div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const COL = ["#F25CF2","#33E0FF","#B0FF00"];          // element colors: 0 magenta, 1 cyan, 2 lime
+const COLDIM = ["#a03aa0","#1d8aa0","#6a9a10"];
+const MODE = ["block","pierce","evade"];               // anti mode by element
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+// ---------- game state ----------
+let dice, basePerm, staged, monster, player, fight, busy;
+const PATTERNS = [
+  {base:3, mult:4, anti:2, antiType:"base"},
+  {base:4, mult:2, anti:1, antiType:"mult"},
+  {base:2, mult:5, anti:2, antiType:"mult"},
+];
+let patIdx = 0, round = 0;
+
+function roll(){ return Math.floor(Math.random()*10); }
+function reset(){
+  dice = [ {el:0,val:roll()}, {el:1,val:roll()}, {el:2,val:roll()} ];   // elements are permanent per dice (matches the game); only values reroll
+  basePerm = [0,1,2]; staged = null; busy = false;
+  fight = 1; patIdx = 0; round = 1;
+  monster = { max: 10, hp: 10 };
+  player = { max: 20, hp: 20 };
+  layout(); render();
+}
+
+function effPerm(){
+  if(!staged) return basePerm.slice();
+  if(staged.type==="rotate"){ const p=[]; for(let s=0;s<3;s++) p[(s+staged.r)%3]=basePerm[s]; return p; }
+  const p = basePerm.slice(); [p[staged.a],p[staged.b]]=[p[staged.b],p[staged.a]]; return p;
+}
+function pat(i){ return PATTERNS[(i===undefined?patIdx:i)%PATTERNS.length]; }
+
+// outcome for a permutation; ov = override value for one die id (swap range scan)
+function outcome(perm, ovId, ovVal){
+  const v = id => (id===ovId? ovVal : dice[id].val);
+  const B=v(perm[0]), M=v(perm[1]), A=v(perm[2]), antiEl=dice[perm[2]].el;
+  const m = pat();
+  let mAnti = m.anti, mb = m.base, mm = m.mult, modeTxt="";
+  if(antiEl===1){ const r=Math.min(A,mAnti); mAnti-=r; modeTxt=`pierce −${r} their anti`; }
+  if(antiEl===0){ const r=Math.min(A,Math.max(mb-1,0)); mb-=r; modeTxt=`block −${r}/hit`; }
+  if(antiEl===2){ const r=Math.min(A,Math.max(mm-1,0)); mm-=r; modeTxt=`evade −${r} hits`; }
+  let perHit=B, hits=M, blocked=0, missed=0;
+  if(m.antiType==="base"){ blocked=Math.min(mAnti,B); perHit=B-blocked; }
+  else { missed=Math.min(mAnti,M); hits=M-missed; }
+  const deal = perHit*hits;
+  const kill = deal >= monster.hp;
+  const take = kill ? 0 : mb*mm;
+  return {B,M,A,antiEl,deal,take,kill,perHit,hits,blocked,missed,modeTxt};
+}
+// swap staged → range over the moved die's 10 faces
+function swapRange(){
+  const perm = effPerm(); let lo=null, hi=null, killAt=null;
+  for(let f=0;f<10;f++){
+    const o = outcome(perm, staged.moved, f);
+    if(lo===null||o.deal<lo.deal) lo=o;
+    if(hi===null||o.deal>hi.deal) hi=o;
+    if(o.kill && killAt===null) killAt=f;   // faces scanned ascending; works because deal is monotone in any single die value
+  }
+  return {lo,hi,killAt};
+}
+
+// ---------- layout ----------
+let colX=[0,0,0], colW=0, dieW=72;
+function layout(){
+  const row=$("row"), W=row.clientWidth, gap=10;
+  colW=(W-2*gap)/3;
+  for(let s=0;s<3;s++){
+    colX[s]=s*(colW+gap);
+    const sl=$("slot"+s); sl.style.left=colX[s]+"px"; sl.style.width=colW+"px";
+  }
+  const mp=$("monsterPanel"), d=Math.min(mp.clientHeight-16, 220);
+  const ring=$("ring"); ring.style.width=d+"px"; ring.style.height=d+"px";
+  $("t1").style.transform=`translate(-50%,-50%) rotate(150deg) translateY(-${d*0.30}px)`;
+  $("t2").style.transform=`translate(-50%,-50%) rotate(30deg)  translateY(-${d*0.30}px)`;
+  $("t3").style.transform=`translate(-50%,-50%) rotate(-90deg) translateY(-${d*0.30}px)`;
+  const sp=$("sprite"); sp.style.width=d*0.42+"px"; sp.style.height=d*0.34+"px";   // sprite scales with the ring, not the panel
+}
+window.addEventListener("resize", ()=>{ layout(); render(); });
+
+function dieX(slot){ return colX[slot]+(colW-dieW)/2; }
+
+// ---------- render ----------
+function render(animSlots){
+  const perm = effPerm();
+  // dice
+  for(let s=0;s<3;s++){
+    const id=perm[s], el=$("die"+id), d=dice[id];
+    el.querySelector(".f1").style.borderColor=COL[d.el];
+    el.querySelector(".f2").style.borderColor=COLDIM[d.el];
+    el.querySelector(".num").textContent=d.val;
+    if(!el.dataset.dragging){
+      const x=dieX(s);
+      if(animSlots && el.dataset.slot!==undefined && +el.dataset.slot!==s){
+        const from=dieX(+el.dataset.slot);
+        const jump=Math.abs(+el.dataset.slot - s)===2;     // wrap: end column to end column
+        if(jump){
+          el.animate([{transform:`translateX(${from}px) translateY(0)`},
+                      {transform:`translateX(${(from+x)/2}px) translateY(-86px)`},
+                      {transform:`translateX(${x}px) translateY(0)`}],
+                     {duration:380, easing:"cubic-bezier(.3,.7,.3,1)"});
+        } else {
+          el.animate([{transform:`translateX(${from}px)`},{transform:`translateX(${x}px)`}],
+                     {duration:300, easing:"ease-out"});
+        }
+      }
+      el.style.transform=`translateX(${x}px)`;
+    }
+    el.dataset.slot=s;
+    el.classList.toggle("tumble", !!(staged && staged.type==="swap" && staged.moved===id)); // will-reroll marker
+  }
+  // anti slot tint + subs
+  const o = outcome(perm);
+  const aEl = o.antiEl;
+  $("slot2").style.borderColor=COL[aEl]; $("slot2").style.background=COL[aEl]+"14";
+  $("sub0").textContent = o.blocked? `${o.B}−${o.blocked} → ${o.perHit}/hit` : `${o.perHit}/hit`;
+  $("sub1").textContent = o.missed? `×${o.hits} (${o.missed} miss)` : `×${o.hits} hits`;
+  $("sub2").textContent = o.modeTxt; $("sub2").style.color=COL[aEl];
+  // monster chips + scan
+  const m=pat();
+  $("mc0").textContent=m.base; $("mc1").textContent="×"+m.mult;
+  $("mc2l").textContent="anti "+m.anti+" "; $("mc2").textContent=(m.antiType==="base"?"block":"miss");
+  const n=pat(patIdx+1);
+  $("nextScan").textContent=`next: ${n.base}×${n.mult} · ${n.antiType==="base"?"block":"miss"} ${n.anti}`;
+  $("phase").textContent=(busy?"resolving":"planning")+` · fight ${fight} · round ${round}`;
+  // knob + strip + ring
+  let ringDeal=o.deal;
+  if(staged && staged.type==="swap"){
+    const r=swapRange();
+    $("knobDeal").textContent=`${r.lo.deal}~${r.hi.deal}`; $("knobDeal").style.fontSize="20px";
+    $("knobSub").textContent="reroll gamble";
+    $("stripTxt").innerHTML = r.killAt!==null
+      ? (r.lo.kill ? "always kills — takes nothing" : `kill on <b style="color:#B0FF00">${r.killAt}+</b> (reroll)`)
+      : `can’t kill — short by ≥${monster.hp-r.hi.deal}`;
+    ringDeal=r.lo.deal;
+  } else {
+    $("knobDeal").textContent=o.deal; $("knobDeal").style.fontSize="26px";
+    $("knobSub").textContent="exact";
+    $("stripTxt").innerHTML = o.kill
+      ? `<b style="color:#B0FF00">kills — takes nothing</b>`
+      : `no kill — short by <b style="color:#F09595">${monster.hp-o.deal}</b>`;
+  }
+  // hp readouts
+  const mLeft=Math.max(monster.hp-ringDeal,0);
+  $("mHp").innerHTML=`hp ${monster.hp} → <span style="color:#F09595">${mLeft}</span>`;
+  const surv=mLeft/monster.max*360;
+  $("ring").style.background=`conic-gradient(#3fae6a 0 ${surv}deg, #22382c ${surv}deg 360deg)`;
+  const tk = (staged&&staged.type==="swap") ? swapRange().lo.take : o.take;   // pessimistic, consistent with the ring
+  $("pHp").innerHTML=`you · hp ${player.hp} → <span style="color:#F09595">${Math.max(player.hp-tk,0)}</span> / ${player.max}`;
+  $("pHpFill").style.width=(Math.max(player.hp-tk,0)/player.max*100)+"%";
+  $("pHpLoss").style.width=(Math.min(tk,player.hp)/player.max*100)+"%";
+  // buttons
+  $("cancelBtn").classList.toggle("armed", !!staged);
+  $("confirmBtn").classList.add("armed");
+}
+
+// ---------- knob (rotate): horizontal flick — lefter = rotate left, righter = rotate right ----------
+const knob=$("knob"); let kDrag=null, rimRot=0;
+const FLICK_PX = 18;
+knob.addEventListener("pointerdown", e=>{
+  if(busy) return;
+  knob.setPointerCapture(e.pointerId);
+  kDrag={x0:e.clientX, baseRot:rimRot};
+});
+knob.addEventListener("pointermove", e=>{
+  if(!kDrag) return;
+  $("knobRim").style.transform=`rotate(${kDrag.baseRot + (e.clientX-kDrag.x0)*0.45}deg)`;  // rim follows finger
+});
+function knobEnd(e){
+  if(!kDrag) return;
+  const dx=e.clientX-kDrag.x0;
+  if(Math.abs(dx)>=FLICK_PX){
+    const step = dx>0? 1 : -1;                              // right flick = dice shift right
+    const cur = (staged && staged.type==="rotate")? staged.r : 0;
+    const r = ((cur+step)%3+3)%3;                            // flicks accumulate; flick back = un-stage
+    rimRot = kDrag.baseRot + step*120;
+    setStaged(r===0? null : {type:"rotate", r});
+  } else rimRot = kDrag.baseRot;                             // under threshold: nothing
+  $("knobRim").style.transform=`rotate(${rimRot}deg)`;
+  kDrag=null;
+}
+knob.addEventListener("pointerup", knobEnd); knob.addEventListener("pointercancel", knobEnd);
+
+// ---------- dice drag (swap) ----------
+let drag=null;
+for(let i=0;i<3;i++){
+  const el=$("die"+i);
+  el.addEventListener("pointerdown", e=>{
+    if(busy||kDrag) return;
+    if(staged){ rimRot=0; $("knobRim").style.transform="rotate(0deg)"; setStaged(null); }  // one move per turn: new gesture replaces stage
+    el.setPointerCapture(e.pointerId);
+    const slot=+el.dataset.slot;
+    drag={id:i, slot, x0:e.clientX, y0:e.clientY, moved:false};
+    el.dataset.dragging="1"; el.style.zIndex=10; el.classList.add("fastTumble");
+  });
+  el.addEventListener("pointermove", e=>{
+    if(!drag||drag.id!==i) return;
+    const dx=e.clientX-drag.x0, dy=e.clientY-drag.y0;
+    if(Math.abs(dx)+Math.abs(dy)>6) drag.moved=true;
+    el.style.transform=`translateX(${dieX(drag.slot)+dx}px) translateY(${dy}px) scale(1.12)`;
+    const t=slotAt(e.clientX);
+    for(let s=0;s<3;s++) $("slot"+s).classList.toggle("hot", s===t && t!==drag.slot);
+  });
+  const up=e=>{
+    if(!drag||drag.id!==i) return;
+    const t=slotAt(e.clientX);
+    el.classList.remove("fastTumble");
+    delete el.dataset.dragging; el.style.zIndex=1;
+    for(let s=0;s<3;s++) $("slot"+s).classList.remove("hot");
+    if(drag.moved && t!==null && t!==drag.slot){
+      // stage swap between the two slots; the dragged die is the one that rerolls
+      setStaged({type:"swap", a:drag.slot, b:t, moved:drag.id});
+    } else render(true);
+    drag=null;
+  };
+  el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+}
+function slotAt(clientX){
+  const r=$("row").getBoundingClientRect(), x=clientX-r.left;
+  for(let s=0;s<3;s++) if(x>=colX[s]&&x<=colX[s]+colW) return s;
+  return null;
+}
+
+function setStaged(st){
+  staged=st;
+  render(true);
+}
+
+// ---------- cancel / confirm ----------
+$("cancelBtn").addEventListener("pointerup", ()=>{ if(busy||!staged) return; rimRot=0; $("knobRim").style.transform="rotate(0deg)"; setStaged(null); });
+$("confirmBtn").addEventListener("pointerup", async ()=>{ if(busy) return; await resolveTurn(); });
+
+async function resolveTurn(){
+  busy=true;
+  // commit staged move
+  const wasSwap = staged && staged.type==="swap";
+  basePerm=effPerm();
+  const moved = wasSwap? staged.moved : null;
+  staged=null; rimRot=0; $("knobRim").style.transform="rotate(0deg)";
+  if(wasSwap){
+    const el=$("die"+moved); el.classList.add("fastTumble"); render();
+    await sleep(650);
+    dice[moved].val=Math.floor(Math.random()*10);
+    el.classList.remove("fastTumble");
+  }
+  render();
+  const o=outcome(basePerm);
+  // player attack
+  await sleep(250);
+  pop($("mPop"), "−"+o.deal);
+  monster.hp=Math.max(monster.hp-o.deal,0); render();
+  await sleep(650);
+  if(monster.hp<=0){
+    fight++; monster.max=10+2*(fight-1); monster.hp=monster.max; patIdx++;
+    if(fight>3){ overlay("victory","gauntlet cleared — tap to restart",true); return; }
+  } else {
+    // monster attack
+    player.hp=Math.max(player.hp-o.take,0);
+    if(o.take>0) pop($("mPop"), "you take "+o.take);
+    render();
+    await sleep(650);
+    if(player.hp<=0){ overlay("defeat","tap to restart",true); return; }
+    patIdx++;
+  }
+  // new round: reroll everything (roll reveal)
+  round++;
+  for(const el of [ $("die0"),$("die1"),$("die2") ]) el.classList.add("fastTumble");
+  render(); await sleep(700);
+  for(let i=0;i<3;i++){ dice[i].val=roll(); $("die"+i).classList.remove("fastTumble"); }
+  busy=false; render();
+}
+
+function pop(el, txt){
+  el.textContent=txt;
+  el.animate([{opacity:0, transform:"translateX(-50%) translateY(10px)"},
+              {opacity:1, transform:"translateX(-50%) translateY(-8px)"},
+              {opacity:0, transform:"translateX(-50%) translateY(-26px)"}], {duration:900, easing:"ease-out"});
+}
+function overlay(title, sub, restart){
+  $("ovTitle").textContent=title; $("ovSub").textContent=sub;
+  $("overlay").style.display="flex";
+  $("overlay").addEventListener("pointerup", ()=>{ $("overlay").style.display="none"; if(restart) reset(); }, {once:true});
+}
+$("menuBtn").addEventListener("pointerup", ()=>{           // prototype-only: menu doubles as fullscreen toggle to hide browser chrome
+  if(!document.fullscreenElement){ document.documentElement.requestFullscreen().catch(()=>{}); }
+  else document.exitFullscreen();
+});
+
+reset();
+</script>
+</body>
+</html>

@@ -485,6 +485,7 @@ Players stack penalties (tougher modifiers, stat handicaps, nastier enemy patter
 - **Portrait, one-handed.** All interactive elements live within comfortable thumb reach (bottom ~65% of screen). The enemy and telegraph sit up top for reading; the dice tray and three dimension tracks sit at the bottom for doing.
 - **Primary verbs:** drag a die, drop a die, swap, reorder, confirm. Nothing else is required to play a round.
 - **One commit.** A single confirm resolves the round; an undo is available *before* commit only.
+- **One level deep, everywhere.** No menu ever contains a menu; no screen during play is ever more than one tap away from the combat view, and one tap returns. Anything that needs a second level of navigation is either overbuilt or belongs on the combat screen itself. (This instinct predates the UI remake and quietly drove it; precedent: Clash Royale's UX holds the same line. Combat-screen specifics live in `docs/ui-spec.md`.)
 
 ### 9.2 Readability
 - Color-coded everything: RED/GREEN/BLUE mean the same thing on a die, in the ANTI slot, in the resolve VFX, and on the enemy's visible roll.

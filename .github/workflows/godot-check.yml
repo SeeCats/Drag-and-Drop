@@ -1,0 +1,49 @@
+name: Godot script check
+
+# Cold-cache compile gate. The repo ships no .godot/ (it's gitignored), so every
+# CI run starts from a COLD cache — the exact condition that surfaced the
+# `:=`-through-autoload bug on the laptop and that a warm desktop cache hides.
+#
+# STATUS: untested. This is the vehicle to VALIDATE UI Claude's claim that a
+# headless check catches the autoload-inference bug class. Before trusting it:
+# reintroduce one `var o := CurrentRoll.compute_outcome(...)` line on a branch,
+# push, and confirm THIS workflow goes red. If it stays green, `--import` is
+# warming/resolving the cache before the check and the gate is giving false
+# confidence (see HISTORY 2026-06-11).
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot 4.6 headless
+        run: |
+          # GitHub-hosted runners CAN reach the release-asset CDN (the Cowork
+          # sandbox cannot — that's why this lives in CI, not in-session).
+          curl -sL -o godot.zip \
+            https://github.com/godotengine/godot/releases/download/4.6-stable/Godot_v4.6-stable_linux.x86_64.zip
+          unzip -q godot.zip
+          sudo mv Godot_v4.6-stable_linux.x86_64 /usr/local/bin/godot
+          sudo chmod +x /usr/local/bin/godot
+          godot --headless --version
+
+      - name: Cold import (builds class registry, compiles every script)
+        # project root = repo root, so run from the checkout root.
+        # --import is the closest headless equivalent to the editor's first-open
+        # compile pass. Alternative to try if this misses the bug:
+        #   godot --headless --editor --quit   (forces a full editor compile)
+        run: godot --headless --import 2>&1 | tee import.log
+
+      - name: Fail on script / parse errors
+        run: |
+          if grep -nE "SCRIPT ERROR|Parse Error|Cannot infer|Failed to (load|compile)" import.log; then
+            echo "::error::Godot reported script errors on a cold cache"
+            exit 1
+          fi
+          echo "No script errors on cold cache."
