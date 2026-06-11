@@ -256,7 +256,8 @@ Before designing the gear *UI* (pillar 7), decide what gear is allowed to *chang
 - Relic synergy hooks (gear that buffs other gear / a color / a build tag).
 
 ### 5.3 Measured relic power (sim — `tools/balance_sim.py`)
-Concrete data on how hard different relic archetypes swing the math, so rarity/tiering can be set deliberately. All vs. the current gauntlet, un-geared baseline **76% win / 53% "one-more-round" tension**, optimal-ish 1-ply AI. Two metrics: **win%** and **lethal-margin%** (of wins, the boss's next hit ≥ your finishing HP — the "barely survived" feel).
+Concrete data on how hard different relic archetypes swing the math, so rarity/tiering can be set deliberately. All vs. the **post-breather** gauntlet, un-geared baseline **76% win / 53% "one-more-round" tension**, optimal-ish 1-ply AI. (§7.7 measured the *pre-breather* gauntlet, baseline 66% — don't mix the tables; see §7.8 on the +11pt breather swing.)
+> ⚠️ **Provenance (2026-06-12):** the sim variants behind this table were lost with their session and are not yet in `tools/balance_sim.py` — numbers are directional-unverified until re-implemented and committed per CLAUDE.md rule 5. Two metrics: **win%** and **lethal-margin%** (of wins, the boss's next hit ≥ your finishing HP — the "barely survived" feel).
 
 | Relic | win% (`+1 / +2 / +3`) | tension — lethal-margin% | character |
 |---|---|---|---|
@@ -436,7 +437,7 @@ Risk/reward events all trade something for better loot, but *how* they're struct
 **Caveat — it expires with mastery.** A master eventually perceives the true ~90%, the threats stop scaring them, and the engineered tension evaporates. That's a clock, not a flaw: the campaign is where deceptive difficulty does its work; the **endgame penalty dungeons (§8) are what re-supply *honest, opt-in* tension** once players see through the early illusion.
 
 ### 7.7 Tuning win-rate vs. tension — tune *shape*, not *level* (sim-backed)
-The central tuning worry: raise the win rate *without* losing the "one more round and I'd have died" feeling. Those two normally trade off — and a Monte-Carlo of the live build (optimal-ish AI, current gauntlet, 20 HP) shows exactly when they do and don't.
+The central tuning worry: raise the win rate *without* losing the "one more round and I'd have died" feeling. Those two normally trade off — and a Monte-Carlo of the live build (optimal-ish AI, **pre-breather gauntlet — baseline 66%**; the breather patch later lifted the baseline to 76%, see §7.8 — don't mix with §5.3's tables) shows exactly when they do and don't.
 
 **The trap: tuning the *level*.** Raising base HP (or cutting damage across the board) raises win% but *fattens the margin* — players finish with more buffer, fewer near-death wins, the sliver feeling fades. In sim, +6 starting HP took win 66%→83% but dropped the "next-attack-would-have-killed-me" win ratio 62%→53% and halved brink (≤5 HP) wins. **This is the move to avoid.**
 

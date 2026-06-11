@@ -4,6 +4,13 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-06-12 (Fable — record correction + provenance tags)
+
+- Correction to the entry below: the committed sim run validates the baseline/sweep family of numbers, but `tools/balance_sim.py` contains **no keep-highest / mulligan-worst / +N-relic variants** — the **GDD §5.3 relic table remains irreproducible from the repo**. "Numbers match §5.3" is overclaimed; that code died with the glitched Design session. Work order stands for Code Claude: re-implement the §5.3 variants, re-run, commit per rule 5, confirm or correct the table.
+- Re-added the reconstructed Design-session entry (under 06-11 below) — it was removed during the 06-12 cleanup, leaving the GDD's §5.3/§6.2/§7.6/§7.7/§7.8 additions unlogged again.
+- GDD provenance tags added (cross-lane, user-directed): §5.3 labeled post-breather baseline (76%) + table-unverified warning; §7.7 labeled pre-breather baseline (66%), pointer to §7.8's +11pt breather note.
+- CLAUDE.md shared rule 2 amended (user-directed): **every HISTORY entry names its author** (role) in the heading.
+
 ## 2026-06-12 (Code Claude — doc recovery + sim snapshot)
 
 - Independently closed the "missing Design session" thread (same finding as the UI Claude 06-12 entry below): the archived `local_ba9d89fa` folder held only a 1-line transcript — a `Tool permission stream closed before response` crash at first tool call (2026-05-27). No dialogue, no ppt, nothing recoverable from disk; the chat itself lives in the app store (UI archive view), and the sim is reproducible from `tools/balance_sim.py` regardless.
@@ -20,6 +27,11 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 - Next: hand to Code Claude — build per ui-spec §8 acceptance criteria; work orders bundled: Swatch cleanup (+4th neon entry), tray input controller replacing swap.gd/rotate.gd, F12 screenshot autoload.
 
 ## 2026-06-11
+
+### GDD sim-backed sections (Design Claude session — RECONSTRUCTED by Fable; session glitched and died before logging)
+- Session became unresponsive mid-work; GDD edits landed, HISTORY entry didn't. Logged retroactively from the diff; treat details as best-effort.
+- Added: **§5.3** measured relic power (keep-highest / mulligan-worst / +N relics vs win%+tension), **§6.2** rewritten as "threat shapes — a monster is a rotation, not a stat-block", **§7.6** perceived vs real difficulty (honest-intimidation doctrine; §3.4 sacred — never lie about a number), **§7.7** tune shape-not-level, **§7.8** volatility doctrine (concave value curve; sim before shipping any number).
+- ⚠️ The relic-variant sim code behind §5.3 was never committed and died with the session — the table is **unverified** until re-implemented (see Fable's 06-12 correction above).
 
 ### Combat UI remake — foundations (UI Claude session, design only, no code)
 - Ground-up redesign started; current UI declared legacy. Information hierarchy ranked (T1 outcome/thresholds/alternatives → T2 state → T3 staging → T4 lookahead → T5 resolution feedback).

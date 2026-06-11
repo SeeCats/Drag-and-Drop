@@ -16,7 +16,7 @@ Four Claudes + the user work this project. Identify your role each session; stay
 
 Shared rules:
 1. Canonical location: every concept is defined in exactly one place; everywhere else cites it — never restate.
-2. One-line HISTORY.md entry per GDD / CLAUDE.md / ui-spec edit.
+2. One-line HISTORY.md entry per GDD / CLAUDE.md / ui-spec edit. Every entry heading names its author (which role wrote it).
 3. Fable's work orders: execute, then log what was done AND skipped (with reason) in HISTORY.md.
 4. Code↔doc mismatches: flagged by whoever finds them, fixed by the owning role.
 5. Sim-citation rule: any sim output whose numbers are cited in a GDD/spec decision gets its raw output committed to `docs/sim-results/` (dated file, script version noted) in the same session. Insights without their data are claims.
