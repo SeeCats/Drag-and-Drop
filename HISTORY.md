@@ -4,6 +4,13 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-06-12 (Fable — pre-push coherence pass)
+
+- GDD §3.2 rewritten to the canonical dice-move model (slots = fixed furniture, rotate shifts the dice row, end die wraps; historical label-rotation framing noted as mechanically identical; cites ui-spec §5). Glossary Rotate/Swap entry updated to match. Closes the §3.2↔ui-spec contradiction flagged in the UI-session review.
+- ui-spec §5 internal contradiction fixed: will-reroll marker is the §7 slow tumble, not a text badge (the badge line was stale).
+- Cross-lane edits (GDD = Design's, ui-spec = UI's), user-directed pre-push. Owning roles: review at next session, per shared rule 4.
+- Still open after this pass: §5.3 relic-sim re-implementation (Code Claude, rule-5 commit); compute_outcome branch-merge verification; CI workflow validation (deliberate `:=` regression test); ui-spec knob discoverability = wave-2 criterion.
+
 ## 2026-06-12 (Fable — record correction + provenance tags)
 
 - Correction to the entry below: the committed sim run validates the baseline/sweep family of numbers, but `tools/balance_sim.py` contains **no keep-highest / mulligan-worst / +N-relic variants** — the **GDD §5.3 relic table remains irreproducible from the repo**. "Numbers match §5.3" is overclaimed; that code died with the glitched Design session. Work order stands for Code Claude: re-implement the §5.3 variants, re-run, commit per rule 5, confirm or correct the table.

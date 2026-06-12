@@ -57,7 +57,7 @@ Docking rules for future features: per-dimension things (status icons on a stat,
 
 - **Zones are furniture; dice are the only movable, grabbable objects.** Zones/slots never accept touch input and never move. (Kills the legacy 6-zone hack; `swap.gd`/`rotate.gd` dual zone-rows collapse into one tray input controller.)
 - **Rotate moves the dice**, one column step left or right, slots stationary. Rotating zone meanings under static dice is rejected — it destroys position-as-meaning and breaks the S1/S3 mirror alignment. The variant "zones rotate but snap back to canonical order at round start" is also rejected: combat still resolves on a misaligned board, and the reset adds round-start dice motion that carries no information.
-- **Staging before commit** (per playtest decision): any move is first staged (shown, revertible), then committed explicitly. Swap's reroll fires **on commit only** (anti-scumming). Staged swap shows a "will reroll" badge. Principle: minimize *irreversible* steps, not steps.
+- **Staging before commit** (per playtest decision): any move is first staged (shown, revertible), then committed explicitly. Swap's reroll fires **on commit only** (anti-scumming). The will-reroll marker is the staged die's slow tumble (§7) — no text badge. Principle: minimize *irreversible* steps, not steps.
 - Direction-split gestures (horizontal swipe = rotate) are **rejected**: undiscoverable, misfires while walking.
 
 **DECIDED — row + knob.** Condition met 2026-06-11: knob flick passed a real-thumb test (one-handed use with attention divided — user operated it while eating with chopsticks; no misfires reported).

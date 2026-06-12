@@ -79,13 +79,13 @@ The player has exactly **three dice**. Each die has:
 
 There are **three action slots** — **BASE** (damage per hit), **MULT** (number of hits), **ANTI** (defense). Each round, every die sits in one slot, and the die's *value* feeds that slot. The whole game is deciding which value goes where, using two verbs:
 
-- **Rotate** — cycles which action (BASE/MULT/ANTI) is assigned to which die position. This is how you choose which of your three values becomes damage, hit-count, or defense. Rotate is the *safe* verb: it rearranges what you already have.
+- **Rotate** — shifts the whole dice row one column step (left or right); the action slots stay fixed. This is how you choose which of your three values becomes damage, hit-count, or defense. Rotate is the *safe* verb: it rearranges what you already have, nothing re-rolls.
 - **Swap — exchanges two dice's positions AND re-rolls the die you picked up.** This is a signature mechanic, not a side effect: swap is the *risky* verb. It is the player's only tool to **dig** for a better roll — trade a known value you don't like for a fresh random one, at the cost of disturbing your arrangement. The push-your-luck of "settle for this turn or gamble for a better one" is a core source of tension and must be taught and surfaced explicitly in the UI (e.g., show that a swap will re-roll, and which die). Never let it read as a hidden or accidental behavior.
 
 **State model (precise).** The board is two rows over three **columns** (positions 0–2):
 
-- **Action row** — the labels **BASE / MULT / ANTI**, one per column, each used exactly once.
-- **Dice row** — the three dice, one per column. Each die has a **fixed color** (RED / GREEN / BLUE) and a **value 1–6** re-rolled at the start of every round.
+- **Action row** — the labels **BASE / MULT / ANTI**, one per column, each used exactly once. **Fixed furniture: slot order never changes at runtime** (BASE left, MULT middle, ANTI right — position is meaning; canonical statement in `docs/ui-spec.md` §4–5).
+- **Dice row** — the three dice, one per column. Each die has a **fixed color** (RED / GREEN / BLUE) and a **value 1–6** re-rolled at the start of every round. Dice are the only things that move.
 
 A column's action reads the value of the die sharing that column. So each round resolves to:
 
@@ -94,12 +94,14 @@ A column's action reads the value of the die sharing that column. So each round 
 - `ANTI`  = value of the die in the ANTI column
 - `anti_type` (defense **mode**) = **color of the die in the ANTI column**
 
-The two verbs move two *different* rows:
+Both verbs move dice; the slots never move:
 
-- **Rotate (safe)** — slides the **action row**: cycles which label sits over which column. Dice don't move, nothing re-rolls. Use it to re-pair your existing values/colors with BASE/MULT/ANTI.
-- **Swap (risky)** — slides the **dice row**: exchanges two dice between columns **and re-rolls the die you picked up**. Action labels don't move. Use it to put a different color/value under a label and gamble a fresh roll.
+- **Rotate (safe)** — shifts the **whole dice row** one column step left or right (cyclic — the end die wraps around). Nothing re-rolls. Use it to re-pair your existing values/colors with BASE/MULT/ANTI.
+- **Swap (risky)** — exchanges **two** dice between columns **and re-rolls the die you picked up**. Use it to put a different color/value in a slot and gamble a fresh roll.
 
-Consequence: there are **two ways to change your defense mode** — *rotate* the ANTI label onto a different-colored die (no re-roll), or *swap* a different-colored die under the ANTI label (re-rolls). The defense mode is always just "whichever die currently sits under the ANTI label." (Maps directly to code: rotate cycles `action_index_list`; swap reorders the dice and re-rolls one; `anti_type` = color of the die in the ANTI column.)
+(Both arrangements were historically expressed as "rotate the labels, dice stay" — mechanically identical pairings. The dice-move framing is canonical since the 06-11 UI remake: it preserves position-as-meaning and the monster-mirror alignment. See ui-spec §5.)
+
+Consequence: there are **two ways to change your defense mode** — *rotate* a different-colored die into the ANTI column (no re-roll), or *swap* one in (re-rolls). The defense mode is always just "whichever die currently sits in the ANTI column."
 
 Committing either verb ends the planning phase and resolves the round. This is the "drag and drop": you drag values into the right shape and the act of dropping commits the turn.
 
@@ -575,7 +577,7 @@ Consolidated tracker of everything still unresolved, grouped by *what kind of an
 - **Slot / action** — one of BASE (위력, damage per hit), MULT (반복, number of hits), ANTI (수비, defense); the three things a die's value can feed.
 - **Dice** — three per player, each a fixed color (RED/GREEN/BLUE) with a value 1–6 re-rolled each round.
 - **anti_type** — what your ANTI reduces on the enemy, set by the *color* of the die in the ANTI slot: RED→their base (armor), GREEN→their mult (evasion), BLUE→their anti (strip/setup).
-- **Rotate / Swap** — the two verbs. Rotate reassigns actions across dice; Swap exchanges two dice positions and **re-rolls the picked-up die**.
+- **Rotate / Swap** — the two verbs; both move dice, slots never move (§3.2). Rotate shifts the dice row one column step (no re-roll); Swap exchanges two dice and **re-rolls the picked-up die**.
 - **Pattern** — a monster's `[base, mult, anti, anti_type]`; monsters cycle a fixed, fully-visible list of these.
 - **Act** — a campaign chapter; ~6 total, each with 3 dungeons.
 - **Dungeon** — a 3-floor unit ending in elite + boss; awards one equipment.
