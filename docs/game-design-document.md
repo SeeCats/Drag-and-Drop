@@ -72,7 +72,7 @@ Damage dealt = Power × Repeat
 
 Splitting energy is the entire decision. Pour everything into Power and a single hard hit can be blunted; spread into Repeat and you chip reliably; bank into Defense and you survive a turn you'd otherwise lose. The tension is that energy is finite and the enemy's defense will eat part of whatever you build.
 
-### 3.2 The dice, the slots, and the two verbs (as built)
+### 3.2 The dice, the slots, and the two verbs (canonical — see build-status note below)
 The player has exactly **three dice**. Each die has:
 - a **fixed color** — one RED, one GREEN, one BLUE (the WHITE element exists in the enum but is currently unused by the player; see §3.7);
 - a **value 1–6** that is **re-rolled fresh every round**.
@@ -101,9 +101,11 @@ Both verbs move dice; the slots never move:
 
 (Both arrangements were historically expressed as "rotate the labels, dice stay" — mechanically identical pairings. The dice-move framing is canonical since the 06-11 UI remake: it preserves position-as-meaning and the monster-mirror alignment. See ui-spec §5.)
 
+> **Build status (2026-06-12):** the current Godot build is the **legacy version** — `rotate.gd` still rotates the action labels over stationary dice (pairing-identical outcomes, opposite visual). The canonical dice-move model ships with the ui-spec §8 tray rebuild (Code Claude work order). Until then, this section describes the design, not the running build.
+
 Consequence: there are **two ways to change your defense mode** — *rotate* a different-colored die into the ANTI column (no re-roll), or *swap* one in (re-rolls). The defense mode is always just "whichever die currently sits in the ANTI column."
 
-Committing either verb ends the planning phase and resolves the round. This is the "drag and drop": you drag values into the right shape and the act of dropping commits the turn.
+Each turn you commit exactly one verb: moves are *staged* — shown with live preview, revertible — and the round resolves on Confirm (ui-spec §5). This is the "drag and drop": you drag values into the right shape, then commit.
 
 ### 3.3 The anti-slot color decides your defense mode
 This is the keystone rule. Your **defense type is the color of whichever die currently sits in the ANTI slot**:
@@ -298,7 +300,7 @@ Design implication: difficulty comes from **pattern shape and timing** (e.g., a 
 
 **A monster is a rotation, not a stat-block.** Its identity is the *sequence* of shapes in its `pattern_list`, not any single round's numbers. This matters because of a staleness trap: if a monster's shape never changes (e.g. always low mult), the **read** — "which factor do I counter?" — is solved on turn 1 and the defense color is the same forever (the awkward "GREEN every turn" problem). The knot survives (can you *afford* that color this roll?), but the *read-the-enemy* feeling flatlines. Fix: an interesting monster **rotates which factor it threatens** round to round — base this turn, mult next, a spike on the third — so you must re-read every round, and the one-step lookahead / conveyor planning (below) actually earns its keep (both are pointless against a monster that does the same thing every round). A *static* pattern isn't banned — it's a deliberate **rest fight** (§7.4) where defense is autopilot and only your offense allocation varies with the roll. Rule of thumb: a harder or more interesting monster has a **more demanding rotation**, not bigger fixed numbers.
 
-**One-step lookahead.** The player also sees the monster's **next** pattern, not just the current one. This is what gives the forced single action (§3.2) a second job: your one move each turn should both resolve this round *and* migrate your persistent color/slot layout toward what's coming — turning "forced to act every turn" from a punishment into rolling, conveyor-style planning. Show the next pattern as *what it demands* (a glanceable "incoming: you'll want GREEN" hint), not raw numbers, so players plan by recognition rather than re-analyzing four stats every turn. Show only **one** step ahead — more floods a portrait screen and kills the snap-decision feel.
+**One-step lookahead.** The player also sees the monster's **next** pattern, not just the current one. This is what gives the forced single action (§3.2) a second job: your one move each turn should both resolve this round *and* migrate your persistent color/slot layout toward what's coming — turning "forced to act every turn" from a punishment into rolling, conveyor-style planning. Show the next pattern as *what it demands* (a glanceable "incoming: you'll want **evasion**" hint — mode word + icon, never a color name, per ui-spec §6), not raw numbers, so players plan by recognition rather than re-analyzing four stats every turn. (The hint's final visual form is being settled soon — ui-spec open item 8; icon chip is the working default.) Show only **one** step ahead — more floods a portrait screen and kills the snap-decision feel.
 
 **Monsters defend only — strip is a player-only mode.** A monster's `anti_type` is always **BASE (armor)** or **MULT (evasion)**, never **ANTI (strip)**. Monsters reduce your damage or your hit-count; they never strip your anti. Two reasons: it keeps **anti-vs-anti** ordering weirdness out of resolution (`anti_operator()` applies the player's reduction before the monster's, so a mutual strip would be order-dependent and unintuitive), and it makes tearing open the enemy's guard part of the *player's* identity. Min-floors are `[1,1,0,0]` on both sides; the player's anti-floor of 0 is now just defensive cleanliness, since nothing ever strips the player.
 
@@ -343,7 +345,7 @@ Mode-variation is an asset, not a leak: it gives the game texture and rests the 
 - **Alligator** — *familiarization*: low, near-identical rounds, so mistaking a turn or two costs little while giving enough turns to learn what's happening.
 - **Ghost** — *teaches the core flow* (the flurry ↔ heavy read). May gain a Guarded round.
 - **Alien** — *teaches that defense has limits*: you'll die if you don't commit to offense soon enough (a race-or-die spike).
-- **Slime** — *the full workout*: rotates flurry → heavy → guard → spike.
+- **Slime** — *the full workout*: rotates heavy → breather (telegraphed wind-up) → flurry → guard → spike. (Matches the live `.tres` pattern_list, breather included — see §5.3/§7.8 on why the breather exists.)
 - **Slime Boss** — origin was an early test of the encounter system and how one big multi-hit feels; needs a real rotation (currently placeholder).
 
 ### 6.3 Elites & bosses

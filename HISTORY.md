@@ -4,6 +4,22 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-06-12 (Fable — request-triage doctrine; work order for Design Claude)
+
+- Context: Design worried the UI is "too optimized"; user vetoed (UI removes computation, not choice — veto stands). But the underlying risk is real: players optimize the fun out of games via reasonable-sounding requests. Discussion settled a **request-triage doctrine**, to be rendered into the GDD by Design Claude as a §7.4 extension ("requests we refuse, and why"):
+  - Triage any player/feature request by **what kind of effort it removes**: arithmetic/mechanical → always grant; judgment → always refuse (bright line: UI answers "what would happen?", never "what should I do?" — no rankings, sorts, suggested moves, auto-arrange, win-%; NOTE: manual exploration (knob sweep) is play, an enumerated sorted list of the same outcomes is not — the *ordering* is the danger, not the data); risk → refuse free removal (no reroll previews, no undo-past-reveal, no pity timers; designer-side variance shaping and progression-purchased control stay legal per existing philosophy); rhythm/pacing friction → investigate, never grant directly ("auto-resolve easy fights" = diagnostic that a fight is either a working rest beat (decline) or dead content (fix the fight)).
+  - Watch-list specific to us: deeper lookahead (§5.2.G ⚠️, one step is rationed on purpose) and "just tell me what to do" (purest judgment-removal; easiest to honor by accident through over-helpful onboarding).
+  - Meta-rule: players are excellent reporters of *where* it hurts, unreliable prescribers of *what* to change — take the location, discard the prescription.
+- **Next phase after Design renders this: the UI build** (Code Claude vs ui-spec §8 criteria).
+
+## 2026-06-12 (Fable — contradiction sweep with user, C1)
+
+- **Correction to Code Claude's coherence entry below:** it claims §3.2 was "verified as-built — rotate shifts dice row + wraps." The live `rotate.gd` does the opposite (reparents action labels, cycles `action_index_list`; dice stationary). Pairing-equivalent, but the dice-move build does not exist yet — it ships with the ui-spec §8 tray rebuild. The verification claim was wrong; flagged per rule 4.
+- GDD §3.2 retitled "(canonical)" + build-status note added: current build = legacy label-rotation; section describes the design, not the running build. (User-directed: C1 of the contradiction sweep.)
+- C2 fixed (user-approved wording): §3.2 closing line now reads staged-then-Confirm per ui-spec §5 — "dropping commits" was stale.
+- C3 fixed (user reversed the earlier hold): §6.1 hint example now "you'll want evasion" (mode word + icon, never a color name, cites ui-spec §6), with a note that the hint's visual form is being settled soon (ui-spec open item 8). C4 fixed: §6.2 Slime roster corrected to the live `.tres` order — heavy → breather (wind-up) → flurry → guard → spike. Both cross-lane (Design's §6), user-directed — flagged per the exception-not-rule directive below; Design Claude: review at next session.
+- User directive on process: Fable editing design-lane docs stays an **exception, never a rule** — last-minute diagnosis-side edits are noisy. Each occurrence gets flagged in HISTORY (as these were); do not codify cross-lane editing into CLAUDE.md.
+
 ## 2026-06-12 (UI Claude — GDD coherence pass, my-lane: §9 + ui-spec)
 
 - **GDD §9 consolidated to laws + pointers** (closes Design's 06-12 flag): §9.1 verbs/layout updated to canonical row+knob model, layout specifics now cite ui-spec §1/§3/§5 (stale "bottom ~65%"/"dimension tracks" prose dropped); §9.2 reduced to three citation lines (color → §3.3/§10.1/ui-spec §6; arithmetic-offload → §7.4/§1.2/ui-spec §2 T1; lookahead → §6.1/ui-spec §2 T4); §9.1 depth law + §9.3 accessibility stay canonical in §9.
