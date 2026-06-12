@@ -16,7 +16,7 @@ Depth isn't the problem on mobile — *interfaces built for other inputs are.* Y
 
 ### 1.2 Design pillars
 1. **Comfortable posture.** The entire game is playable one-handed, thumb-only, in portrait. UI lives in the bottom two-thirds of the screen.
-2. **Simple input, deep output.** A round is committed with essentially one touch sequence. That single decision must branch into a wide space of meaningfully different outcomes.
+2. **Simple input, deep output.** A round is committed with essentially one touch sequence. That single decision must branch into a wide space of meaningfully different outcomes. **Corollary — the UI is part of the loop, not a layer on it.** Because the deep act *is* the gesture, presentation is not separable from mechanic here: the UI that offloads arithmetic and renders outcomes (§7.4, §9.2) is a *precondition* of the loop, not polish — a turn that forces mental math is a different, worse game. Build and test the loop and its UI as one object; never ask "is the mechanic fun without the UI carrying it," only "does engagement survive *mastery*" (§5.1, §7.6).
 3. **High strategy.** Reading the enemy and arranging your dimensions correctly is the skill ceiling. There is always a *best* play and it is rarely obvious.
 4. **Instant dopamine.** A correct read pays off immediately and legibly — the screen tells you that you won the exchange before you have to think about it.
 5. **Build freedom.** Drops from monsters let players sculpt their own win condition rather than chase one optimal build.
@@ -233,7 +233,7 @@ Before designing the gear *UI* (pillar 7), decide what gear is allowed to *chang
 - On-kill effects (overkill carries to next monster, heal, salvage).
 - On-block / on-miss / on-evade effects (reward correct defense reads).
 - First-hit / last-hit bonuses (ordering & combo builds).
-- Change the min-floors (`[1,1,1,0]`) — ⚠️ letting a factor hit 0 enables full lockouts.
+- Change the min-floors (defined canonically in §6.1) — ⚠️ letting a factor hit 0 enables full lockouts.
 
 **F. Defense (anti) behavior**
 - New anti modes beyond armor/evasion/strip.
@@ -259,25 +259,25 @@ Before designing the gear *UI* (pillar 7), decide what gear is allowed to *chang
 
 ### 5.3 Measured relic power (sim — `tools/balance_sim.py`)
 Concrete data on how hard different relic archetypes swing the math, so rarity/tiering can be set deliberately. All vs. the **post-breather** gauntlet, un-geared baseline **76% win / 53% "one-more-round" tension**, optimal-ish 1-ply AI. (§7.7 measured the *pre-breather* gauntlet, baseline 66% — don't mix the tables; see §7.8 on the +11pt breather swing.)
-> ⚠️ **Provenance (2026-06-12):** the sim variants behind this table were lost with their session and are not yet in `tools/balance_sim.py` — numbers are directional-unverified until re-implemented and committed per CLAUDE.md rule 5. Two metrics: **win%** and **lethal-margin%** (of wins, the boss's next hit ≥ your finishing HP — the "barely survived" feel).
+> ✅ **Verified (2026-06-12):** the relic variants were re-implemented in `tools/balance_sim.py` (sha `ec45109c…`) and the run committed to `docs/sim-results/2026-06-12-relic-sweep.md` (N=3000, seed=1). The directional table held — every `+N` row within ~1pt — with **one correction (relic A, see lessons)**. Numbers below are the verified sweep values. Two metrics: **win%** and **lethal-margin%** (of wins, the boss's next hit ≥ your finishing HP — the "barely survived" feel). Sweep baseline 74% (N=3000) vs the 76% summary figure above is within MC/seed variance.
 
 | Relic | win% (`+1 / +2 / +3`) | tension — lethal-margin% | character |
 |---|---|---|---|
-| *baseline (no relic)* | 76 | 53 | — |
-| **B — re-roll your lowest die** each round | 90 | 49 | variance-cut; holds tension |
-| **A — keep your highest die** (don't re-roll) | 95 | 51 | variance-cut; holds tension; **borderline too strong alone** |
-| A + B together | 98 | 49 | a near win-button |
-| **+N to ANTI only** | 83 / 87 / 89 | 51 / 49 / 51 | **weakest; self-caps ≈88%; tension fully held** |
-| **+N to BASE only** | 90 / 97 / 99 | 45 / 36 / 30 | strong; tension *erodes* as it scales |
-| **+N to ALL stats** (uncapped) | 98 / 100 / 100 | 38 / 16 / 3 | solves it; tension *gutted* |
-| *(reference) one-time last-stand shield (§7.7)* | 88 | 57 ↑ | the gold standard: win **and** tension up |
+| *baseline (no relic)* | 74 | 52 | — |
+| **B — re-roll your lowest die** each round | 91 | 49 | variance-cut; holds tension |
+| **A — keep your highest die** (reroll the other two) | 92 | 49 | variance-cut; holds tension; **consistently ~1.3pt > B (sign-stable across seeds), a small real edge — not the +19pt standout once guessed** |
+| A + B together | 97 | 46 | a near win-button |
+| **+N to ANTI only** | 83 / 87 / 89 | 52 / 50 / 50 | **weakest; self-caps ≈89%; tension fully held** |
+| **+N to BASE only** | 90 / 97 / 99 | 46 / 35 / 29 | strong; tension *erodes* as it scales |
+| **+N to ALL stats** (uncapped) | 98 / 100 / 100 | 38 / 17 / 3 | solves it; tension *gutted* |
+| *(reference) one-time last-stand shield (§7.7)* | 88 | 59 ↑ | the gold standard: win **and** tension up |
 
 **Lessons to bank:**
 - **The real tension-killer is ending fights *fast and full*, i.e. *offense* — not defense (this is counter-intuitive).** Pure offense (`+N base`) makes you kill quicker → take less cumulative damage → finish with a fat buffer → tension erodes (53→30 as it scales). Pure defense (`+N anti`) can't do that, because **the anti floor (factor → min 1, never 0) means defense can never fully negate a hit** — you survive *more* but always *barely*, so tension holds at ~51% even at +3.
 - **Floor-capped defense is self-balancing — the safest relic stat.** `+N anti` plateaus around **88% no matter how high you push it** (extra anti is wasted once it floors a factor), and it preserves the knife-edge. Great for common/mid relics; it physically can't trivialize the game.
 - **Offense (`+N base`) is the spicy one** — stronger (→99%) but it eats tension as it scales. **`+N` to ALL stats is the trap** — strongest and most tension-destroying, because `(base+N)×(mult+N)` is *multiplicative* offense that ends fights instantly. Even **+1-to-all nearly solves the un-geared game (98%)** and halves tension. Flat global `+N` should be capstone-rare at most; `+2`/`+3` shouldn't exist without monster scaling.
-- **The dice-quality relics (A, B) raise win% while keeping tension.** A ("keep highest") is the strongest single dice relic (+19 pts) — price it rare, and note it *flattens the swap-reroll gamble* (your best die is always locked). B ("mulligan worst") is the gentler pick — keeps the randomness alive.
-- **The 6-cap barely matters.** Clamping dice at 6 changes `+N`'s win% by <1 point — the power is in *raising the floor* (removing low dice), not exceeding 6. So the cap rule is **not** a balance lever; **rarity is.**
+- **The dice-quality relics (A, B) raise win% ~+17/+16pts while keeping tension (~48–49%).** A = keep your highest die and reroll the other two; B = reroll your single lowest. A *flattens the swap-reroll gamble* (best die locked); B keeps the randomness alive. **A is consistently the stronger of the two — but only just:** a 6-seed *paired* sweep (`docs/sim-results/2026-06-12-relic-AB-seedsweep.md`) puts A ahead by **+1.32pt ± 0.24, sign never flips** — a real, sign-stable edge (the gap looked like noise only because absolute win% swings more than the paired difference does). It is *not* a +19pt standout, and not a tie. Pricing call (Design, **decided 2026-06-12 — thread closed**): priced as a **near-pair**, A ≥ B (1.3pt is sub-perceptual; A locks your best die, B keeps variance alive). The sticky/ratcheting-best-die buff for A was **considered and declined** — a small real edge is acceptable flavor.
+- **The 6-cap barely matters (verified).** Clamping dice at 6 changed `+2 base`'s win% by 0.7 point — the power is in *raising the floor* (removing low dice), not exceeding 6. So the cap rule is **not** a balance lever; **rarity is.**
 - **Rarity guide:** floor-capped-defense relics = safe (common-OK); A/B and `+N base` = high rarity; `+N`-to-all and last-stand-class = capstone/boss-drop.
 - *Caveats:* 1-ply AI; relics modelled as always-on; numbers vs. the current (breather) gauntlet.
 
@@ -305,11 +305,11 @@ Design implication: difficulty comes from **pattern shape and timing** (e.g., a 
 ### 6.2 Threat shapes (the vocabulary of rotations)
 A monster's rotation (§6.1) is built from per-round **threat shapes**. These describe what a *single round* demands — a monster cycles through several of them; it is **not** "a Brute" for the whole fight. Use them as building blocks for sequences, not as labels stamped on whole monsters.
 
-**The defense math (why the color isn't fixed).** Your ANTI prevents either:
-- **RED / armor** (cut enemy base): `min(anti, base−1) × mult`
-- **GREEN / evasion** (cut enemy mult): `base × min(anti, mult−1)`
+**The defense math (why the color isn't fixed).** This is the §3.4 floor formula (`removed = min(anti, factor−1) × other_factor`) read from the *defense* side — your ANTI color picks which enemy factor you cut:
+- **RED / armor** cuts enemy base → saves `min(anti, base−1) × mult`
+- **GREEN / evasion** cuts enemy mult → saves `base × min(anti, mult−1)`
 
-Pick whichever is larger. The two have *different caps*: armor is capped by the enemy's **base** (can't shave a hit below 1) and scales with mult; evasion is capped by the enemy's **mult** (can't remove below 1 hit) and scales with base. So the best color depends on **your anti magnitude**, with a crossover:
+Pick whichever is larger. The two have *different caps* (the §3.4 floor, specialized): armor is capped by the enemy's **base** (can't shave a hit below 1) and scales with mult; evasion is capped by the enemy's **mult** (can't remove below 1 hit) and scales with base. So the best color depends on **your anti magnitude**, with a crossover:
 - **Low anti** (below both caps): cut the *bigger* factor → Heavy (big base) wants GREEN, Flurry (big mult) wants RED.
 - **High anti** (past the caps): armor → `(base−1)×mult`, evasion → `base×(mult−1)`; armor wins iff **base > mult** — so it **inverts**: Heavy wants RED, Flurry wants GREEN.
 
@@ -361,11 +361,11 @@ The early campaign is **~6 short acts** designed to teach the system in layers s
 - Completing a dungeon → **choose one equipment** from its pool.
 - **Acts 2, 4, 6** → completing a dungeon also grants an **extra equipment slot**.
 
-Suggested teaching curve:
-1. **Act 1** — Power × Repeat, basic drag-and-drop, Magenta defense.
-2. **Act 2** — Green defense + Swarm enemies; first extra slot.
-3. **Act 3** — Cyan defense + Bulwark enemies; the offense-as-defense gamble.
-4. **Act 4** — Position/order gear; Shifter enemies; extra slot.
+Suggested teaching curve (defense modes named per §3.3; enemies described by the **threat shapes** they lean on, §6.2 — never as fixed whole-monster archetypes):
+1. **Act 1** — Power × Repeat, basic drag-and-drop, armor (RED).
+2. **Act 2** — evasion (GREEN) + Flurry-leaning enemies; first extra slot.
+3. **Act 3** — strip (BLUE) + Guarded-leaning enemies; the offense-as-defense gamble.
+4. **Act 4** — Position/order gear; rotation-heavy enemies (the right answer keeps moving, §6.2); extra slot.
 5. **Act 5** — Multi-color and triggered effects; combo builds.
 6. **Act 6** — Full toolkit, hardest bosses; final extra slot; bridge to endgame.
 
@@ -485,14 +485,17 @@ Players stack penalties (tougher modifiers, stat handicaps, nastier enemy patter
 ## 9. Controls & UX
 
 ### 9.1 Layout
-- **Portrait, one-handed.** All interactive elements live within comfortable thumb reach (bottom ~65% of screen). The enemy and telegraph sit up top for reading; the dice tray and three dimension tracks sit at the bottom for doing.
-- **Primary verbs:** drag a die, drop a die, swap, reorder, confirm. Nothing else is required to play a round.
-- **One commit.** A single confirm resolves the round; an undo is available *before* commit only.
-- **One level deep, everywhere.** No menu ever contains a menu; no screen during play is ever more than one tap away from the combat view, and one tap returns. Anything that needs a second level of navigation is either overbuilt or belongs on the combat screen itself. (This instinct predates the UI remake and quietly drove it; precedent: Clash Royale's UX holds the same line. Combat-screen specifics live in `docs/ui-spec.md`.)
+This section keeps only the laws; the canonical combat-screen layout (canvas, safe insets, thumb line, zone bands, tray cluster) is `docs/ui-spec.md` §1/§3.
+- **Portrait, one-handed.** Enemy + telegraph up top for reading; the tray cluster at the bottom for doing (ui-spec §3).
+- **Primary verbs:** drag a dice onto another = swap; flick the knob = rotate; Confirm/Cancel flank the knob. Nothing else is required to play a round (ui-spec §5).
+- **One commit.** Moves are staged first, committed explicitly; swap's reroll fires on commit. Undo exists *before* commit only. Principle: minimize *irreversible* steps, not steps (ui-spec §5).
+- **One level deep, everywhere.** No menu ever contains a menu; no screen during play is ever more than one tap away from the combat view, and one tap returns. Anything that needs a second level of navigation is either overbuilt or belongs on the combat screen itself. (This instinct predates the UI remake and quietly drove it; precedent: Clash Royale's UX holds the same line.)
 
 ### 9.2 Readability
-- Color-coded everything: RED/GREEN/BLUE mean the same thing on a die, in the ANTI slot, in the resolve VFX, and on the enemy's visible roll.
-- Numbers are always shown live as the player arranges: projected `Power × Repeat`, projected damage after enemy defense, projected incoming after player defense. The player should never have to do mental math to see the outcome of the current arrangement — they should only have to *decide*.
+Pointers only — each rule's canonical home is named (Design's 06-12 flag: this section used to restate them).
+- One element = one hue, everywhere it appears: the rule is §3.3 (defense modes), hue ownership §10.1, palette + exclusivity ui-spec §6 (which adds: player-facing text never names a color).
+- The UI does the arithmetic, the player only decides: doctrine §7.4, pillar corollary §1.2; rendered per ui-spec §2 T1 (exact previews — deal on the knob, take at the player HP line, kill threshold in the strip).
+- The next-pattern lookahead reads recognition-first — *what it demands*, not raw numbers: canonical in §6.1; presentation in ui-spec §2 T4.
 
 ### 9.3 Accessibility
 - Color is never the *only* signal: each anti color also carries an icon (e.g., RED = shield/armor, GREEN = dodge/stutter, BLUE = crack/strip) for colorblind players, since the anti-slot color carries critical meaning.
@@ -525,9 +528,9 @@ Synthwave / darksynth bed that intensifies with combat momentum; distinct, color
 ### 11.1 Prototype scope (vertical slice)
 Smallest build that proves the fun (most of this already exists):
 1. The round loop: 3 dice (RED/GREEN/BLUE), rotate + swap, all three anti-slot defense modes. **(built)**
-2. Three enemy patterns that demand different anti colors (Brute→GREEN, Swarm→RED, Bulwark→BLUE) plus one Spiker with a periodic burst round.
-3. Live projected-outcome UI: show the result of the current arrangement *and* preview the swap-reroll gamble clearly.
-4. The key test: with no equipment, is each turn still a real decision, or is the optimum obvious? If it's obvious, the loop needs more (more dice/slots, or a sharper reroll gamble) **before** building content on top.
+2. Enemy **rounds** that demand different anti reads — a **Heavy** round (low anti → GREEN), a **Flurry** round (low anti → RED), a **Guarded** round (BLUE strip), and a **Spike** burst — strung into rotations, not stamped on whole monsters (§6.2). **(built — roster: alligator / ghost / alien / slime each teaching one read per §6.2; slimeboss still placeholder)**
+3. Live projected-outcome UI: the result of the current arrangement *and* the swap-reroll gamble, surfaced clearly. **(built — `compute_outcome` pure resolver + the announce.gd preview/hover readout + the one-step next-pattern lookahead label)**
+4. The key test: with no equipment, is each turn still a real decision, or is the optimum obvious? If it's obvious, the loop needs more (more dice/slots, or a sharper reroll gamble) **before** building content on top. **(gating question — pending wave-2 playtest)**
 
 ---
 

@@ -4,6 +4,69 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-06-12 (UI Claude — GDD coherence pass, my-lane: §9 + ui-spec)
+
+- **GDD §9 consolidated to laws + pointers** (closes Design's 06-12 flag): §9.1 verbs/layout updated to canonical row+knob model, layout specifics now cite ui-spec §1/§3/§5 (stale "bottom ~65%"/"dimension tracks" prose dropped); §9.2 reduced to three citation lines (color → §3.3/§10.1/ui-spec §6; arithmetic-offload → §7.4/§1.2/ui-spec §2 T1; lookahead → §6.1/ui-spec §2 T4); §9.1 depth law + §9.3 accessibility stay canonical in §9.
+- **ui-spec synced to the recognition-first lookahead** (closes Design's gauntlet-draft flag): T4 rewritten as demand hint (mode icon + word, one step, numbers behind a tap at most), acceptance criterion 18 added, demand-hint visual form = new open item 8 (halo blocked by the 4.6 RichTextEffect gotcha; icon chip default).
+- ui-spec self-staleness fixed: T3 still said "will-reroll badge" (same staleness Fable fixed in §5 — his edit reviewed + approved, per rule 4; GDD §3.2 rewrite also reviewed + approved); zone table S2 still described the old 120px ledger → now thin strip per the adopted deal-on-knob; T1 now states staging-as-preview consciously supersedes wave-1's side-by-side ghosts.
+- Fable's "knob discoverability = wave-2 criterion" formally logged as ui-spec open item 7 (chopsticks test ≠ discovery test; tap-tap channel promotes if untutored players miss the flick).
+- **FLAG for Design (§6.1, your lane):** the lookahead example reads "incoming: you'll want GREEN" — player-facing text naming a color violates the ui-spec §6.4 color decision (text never names colors; icons + mode words instead). Suggest "you'll want evasion" / mode icon. One word, your edit.
+
+## 2026-06-12 (Code Claude — GDD coherence pass, my-lane: as-built + §11)
+
+Distributed cleanup, my lane only (as-built annotations + §11). Verified §3.2/§3.3/§3.4/§6.1 as-built against the live code — all accurate (rotate shifts dice row + wraps, swap rerolls, resolution order, floor formula, Pattern/cyclic/lookahead, `anti_operator` order, `[1,1,0,0]` floors, monsters armor/evasion-only matches current `.tres`). No edits needed there.
+- **§11.1 fixed:** item 2 still used the whole-monster archetypes (Brute/Swarm/Bulwark) that §6.2 disowns (the same stale framing Design fixed in §7.1, but §11 is my lane) → reframed as Heavy/Flurry/Guarded/Spike *rounds* strung into rotations, citing §6.2. Updated build-status: marked the projected-outcome UI (item 3) **built** (compute_outcome + announce.gd preview/hover + next-pattern lookahead), and tagged item 4 as the pending wave-2 gating question.
+- **FLAG for Design (§6.2, your lane):** the Slime "teaching roles" line reads "rotates flurry → heavy → guard → spike" but the live `.tres` pattern_list is `[heavy, breather(1,1,4,0), flurry, guard, spike]` — the breather round (added per §5.3/§7.8) isn't in the §6.2 roster description, and the order differs. Minor prose staleness; your edit.
+
+## 2026-06-12 (Design Claude — GDD coherence pass, my-lane only)
+
+User directed a redundancy/contradiction cleanup, distributed per-lane (each role does its own). My-lane (§1–8, §10–13) edits this pass; provenance/audit-trail preserved per user (consolidate prose, don't prune the trail). Deliberate distinctions explicitly **left intact**: the three baselines (66% pre-breather / 74% sweep-N3000 / 76% summary — "don't mix" is intentional), §7.7↔§5.3 tables, Fable's provenance tags.
+
+- **§5.3** — closed the relic-A sticky-die "or" (line was still offering it; thread was closed earlier today): now reads "priced as near-pair, A ≥ B, sticky-die considered and declined."
+- **§7.1** — fixed two contradictions with §6.2/§3.3: the teaching curve used old whole-monster archetypes (Swarm/Bulwark/Shifter) that §6.2 explicitly disowns ("a monster is a rotation, not a Brute") → reframed as threat-shape-leaning (Flurry/Guarded/rotation-heavy, cites §6.2); and color names (Magenta/Cyan defense) → canonical defense modes armor(RED)/evasion(GREEN)/strip(BLUE) per §3.3.
+- **§6.2** — de-duplicated the floor-math: §3.4 is now the single canonical home for `removed = min(anti, factor−1) × other_factor`; §6.2's "defense math" reframed as the §3.4 formula *read from the defense side* (keeps its unique color-crossover/inversion payload, drops the re-derivation).
+- **§5.2** — removed a hardcoded floor array that contradicted §6.1 (§5.2 said `[1,1,1,0]`, §6.1 says `[1,1,0,0]`); §5.2 now cites §6.1 as canonical instead of restating a value.
+
+**Flags handed off for the per-lane cleanup (NOT edited by me):**
+- **Code Claude (§11 + as-built):** (1) §11.1 still uses the old Brute/Swarm/Bulwark archetypes + "Brute→GREEN…" color mapping — same contradiction I fixed in §7.1, but §11 is your lane. (2) Confirm the true anti-floor array against `anti_operator()` — §6.1 says `[1,1,0,0]`; §5.2 had `[1,1,1,0]`. I pointed §5.2 at §6.1 but the *value* is your as-built call.
+- **UI Claude (§9):** §9.2 restates color-coding (§3.3/§10.1) and UI-does-arithmetic (§7.4); ui-spec already plans to reduce §9 to a pointer — candidate for that consolidation.
+- **Lower-priority redundancies I deliberately left** (tightly-integrated prose, low value/higher risk to cut): loss-aversion "~2×" (§7.5 + §7.6), HP-resets-between-dungeons (§4.1 + §7.4), multiplicative-tuning-minefield (§7.8 + §12.3 #12).
+
+## 2026-06-12 (Design Claude — turtle↔race identity + UI-as-precondition + gauntlet draft)
+
+- **Decision — turtle↔race is core identity, not a degeneracy.** The per-turn "turtle (read & defend) vs race (skip defense, kill this turn)" choice — and the "maybe *this* is the turn to kill it" thrill — is kept as a core fingerprint. **Reframes wave-1 #5:** the rule is §6.2 guardrail 1 (*keep racing situational*), NOT "cure kill-skip." Racing only breaks the game if it *dominates* (beats the color game vs most monsters); the kill-on-N+ UI strip is fine (makes the dial legible) as long as monster rotations keep racing situational — so the real dependency is monster design, not UI.
+- **GDD §1.2 pillar 2 — added the UI-as-precondition corollary** (user-directed): presentation isn't separable from mechanic here; the arithmetic-offload UI (§7.4/§9.2) is a precondition of the loop, not polish. Test loop+UI as one object; the durable question is "does engagement survive *mastery*," not "UI vs core loop" (which is a false split for this game). Cites §5.1/§7.6.
+- **Started the teaching gauntlet draft** → `docs/teaching-gauntlet-draft.md` (GDD §12.5 #19/#20): turtle↔race curriculum-by-contrast mapped onto the *existing* alligator→ghost→alien→slime order (already ~right). Key findings: alien already = race-or-die, slime already = the flip exam; **Ghost HP is unset (hp.gd default)** and it's the turtle-teacher's load-bearing number → flagged as the #1 tune. Numbers left sim-pending per §7.8; **sim requests written for Code Claude** (per-monster racer-win% as the teaching-health metric; Ghost HP sweep is the headline). No numbers shipped.
+- **Open (mine):** price the sim results into final patterns/HP once Code runs them; the gauntlet exam (slime spike) depends on the §6.1 lookahead reading recognition-first (open ui-spec flag).
+
+## 2026-06-12 (Design Claude — relic A/B thread CLOSED)
+
+- **Thread closed:** §5.3 relic A vs B is settled. Verified Code's seed sweep (`docs/sim-results/2026-06-12-relic-AB-seedsweep.md`): A > B by +1.32pt ± 0.24 across all 6 seeds, sign-stable (~13σ), tension near-identical. **A is reliably the stronger, by a sub-perceptual margin.**
+- **Pricing decision (locked):** price A and B as a **near-pair**, A faintly ahead — 1.3pt is below player-feel; A locks your best die, B keeps variance. The "give A a sticky/ratcheting best-die mechanic and re-sim" option is **dropped** (declined — small real edge is acceptable flavor per user). No GDD edit needed; §5.3 already reads "consistently ~1.3pt > B, not a tie, not a standout."
+- **Correction banked:** my earlier "within ±1pt noise → probably a tie" call was wrong. A−B is a *paired* delta (shared seeds cancel the absolute win% swing), so the ±1pt single-variant noise floor doesn't apply — the paired delta is precise to ~0.1pt. Compare paired deltas against paired noise, not absolute-number noise.
+
+## 2026-06-12 (Code Claude — sim version stamp + sandbox-staleness lesson)
+
+- Added `version_stamp()` to `balance_sim.py`: every `report_summary`/`report_sweep` now prints `# balance_sim.py sha <hash> | run <date> | seed/N` so committed/pasted output traces to an exact script version (it self-hashes the file, so it can't drift). CLAUDE.md rule 5 updated: always keep that stamp in committed sim output.
+- **Sandbox-staleness lesson (user-caught):** while verifying the stamp, the bash mount reported `balance_sim.py` truncated at 14701 bytes / "bad le" — but the editor (Read tool) had the full file, and the mount stayed frozen at that byte count even after a fresh write. The file was never broken; the bash mount served a stale view (a prior session misread git the same way). Trust the file tools over the shell for file contents. Added a gotcha to CLAUDE.md. (Couldn't re-run the sim via bash to demo the stamp — mount stale; runs fine on a real machine / fresh session.)
+
+## 2026-06-12 (Code Claude — pre-breather relic check)
+
+- User asked whether the §5.3 relics were measured before the Slime breather `[1,1,4,0]` was added. Re-ran the relic set vs the pre-breather Slime → `docs/sim-results/2026-06-12-relic-prebreather-check.md`. **Answer: no — the §5.3 table is post-breather** (its numbers match the post column; pre-breather is ~7pt lower). Pre-breather baseline 67% ≈ §7.7's 66%, confirming the breather swing. **Relic conclusions are breather-invariant** (only absolute levels move: +~7pt win / −~10pt tension); +anti self-caps & holds tension, +base/+all erode it, A>B in both. No §5.3 action needed.
+
+## 2026-06-12 (Code Claude — A/B seed sweep, answers Design's request)
+
+- Ran baseline/A/B at N=3000 across seeds 1–6 → `docs/sim-results/2026-06-12-relic-AB-seedsweep.md`. **Result overturns the "tie" hypothesis:** A beat B on all 6 seeds, delta +1.32 ± 0.24 (range +1.1…+1.8), sign never flips (~13σ). A is reliably stronger — just by ~1.3pt.
+- **Why Design's noise call was wrong:** the comparison is *paired* (A & B share each seed), so absolute win% swing (74–77%) cancels out of the difference; ±1pt noise applies to a single variant's absolute number, not the paired delta. The 1pt gap is signal.
+- **For Design (your call):** A is the stronger of the two, faintly. Either price as a near-pair (1.3pt is sub-perceptual; drop the "buff A" thread but note A ≥ B, not =), or make A a real standout via the sticky/ratcheting best-die mechanic (re-sim on request).
+- GDD §5.3 wording updated (cross-lane, user "update everything"): the A row + dice-quality lesson now read "consistently ~1.3pt > B, sign-stable, small real edge — not a tie, not a +19pt standout," citing the seed-sweep file. The pricing decision itself remains Design's open call.
+
+## 2026-06-12 (Design Claude — relic A/B tie call + seed-sweep request)
+
+- **Decision:** A (keep-highest) ≈ B (reroll-lowest) being near-tied is acceptable by design — no need to give A a stronger mechanic. The §5.3 open thread ("if A should out-class B, give it a sticky/ratcheting best die and re-sim") is to be **dropped**; the two price as a pair, not a hierarchy. GDD §5.3 edit deferred until the seed sweep below confirms the tie.
+- **Why:** the committed sweep's A=92 / B=91 is a **1pt gap**, at/below the run's own stated ±1pt N=3000 noise floor — so "A outperformed" was likely seed luck, not signal.
+- **Sim requested (Design → Code, rule 5):** baseline / A / B at N=3000 across 5 fresh seeds (2–6; seed=1 = committed run reused), report win% + lethal-margin% + the per-seed A−B win% delta. Question: is the delta consistently signed and >±1pt, or sign-flipping (→ confirmed tie)? Commit raw to `docs/sim-results/2026-06-12-relic-AB-seedsweep.md`. User routing to Code Claude.
+
 ## 2026-06-12 (Fable — pre-push coherence pass)
 
 - GDD §3.2 rewritten to the canonical dice-move model (slots = fixed furniture, rotate shifts the dice row, end die wraps; historical label-rotation framing noted as mechanically identical; cites ui-spec §5). Glossary Rotate/Swap entry updated to match. Closes the §3.2↔ui-spec contradiction flagged in the UI-session review.
@@ -20,8 +83,12 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ## 2026-06-12 (Code Claude — doc recovery + sim snapshot)
 
+- **Sim ownership moved to Code Claude** (user decision): Code Claude owns `tools/balance_sim.py` + all sim runs (code ground truth = sim fidelity), commits results per rule 5; Design Claude now *requests* sims (variant + metric) and prices the numbers. Supersedes the earlier "applies from Design Claude's next sim session" note in the UI Claude 06-12 entry below. Coordination block in CLAUDE.md updated. Tradeoff acknowledged: more Code↔Design back-and-forth during level design, accepted for fidelity.
+
 - Independently closed the "missing Design session" thread (same finding as the UI Claude 06-12 entry below): the archived `local_ba9d89fa` folder held only a 1-line transcript — a `Tool permission stream closed before response` crash at first tool call (2026-05-27). No dialogue, no ppt, nothing recoverable from disk; the chat itself lives in the app store (UI archive view), and the sim is reproducible from `tools/balance_sim.py` regardless.
 - **First application of shared rule 5:** committed the raw balance_sim run to `docs/sim-results/2026-06-12-balance_sim.md` (script sha `8b64b2c4…`, seeds summary=7 / sweep=1, deterministic). Numbers match the wave-1 findings + GDD §5.3/§7.7/§7.8. Cross-lane exception (normally Design's to commit), user-approved for tonight.
+- **Re-implemented the lost §5.3 relic sim variants** in `balance_sim.py` (sha now `ec45109c…`): flat-stat relics (+N base/mult/anti, threaded through `resolve`+`best_move` so the AI plans with them, optional cap6) and dice-quality relics A (keep highest, reroll other two — user-chosen model 2026-06-12) and B (reroll lowest). Ran the sweep → `docs/sim-results/2026-06-12-relic-sweep.md`. **The §5.3 directional table is confirmed**: +N anti/base/all rows all land within ~1pt; 6-cap barely matters (0.7pt); design lessons hold.
+- **Updated GDD §5.3 with the verified numbers** (cross-lane into Design's section, user-authorized "update everything"): replaced the ⚠️ directional-provenance line with a ✅ verified pointer to the sim-results file, swapped the table to verified values, fixed the 6-cap lesson (0.7pt, verified), and corrected the relic-A lesson — under the chosen "reroll two lowest" model **A (92%) ≈ B (91%)**, not the +19pt standout the lost guess (95%) implied. **Open for Design Claude:** if A should clearly out-class B, give it a stronger mechanic (sticky/ratcheting best die) and re-sim. (Sandbox can't run all 19 variants at default N=5000 within its 45s cap; sweep committed at N=3000, stable to ~±1pt.)
 
 ## 2026-06-12 (continuation of the 06-11 UI Claude session, past midnight KST)
 

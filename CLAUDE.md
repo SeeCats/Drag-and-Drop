@@ -10,8 +10,8 @@ When you change code, update this `CLAUDE.md` in the same session so its archite
 Four Claudes + the user work this project. Identify your role each session; stay in lane.
 
 - **Fable (diagnosis)** — reviews code/design/UI/playtests; returns verdicts and work orders in chat. Edits only CLAUDE.md/HISTORY.md, on request. Spot-checks other roles' diffs.
-- **Code Claude** — implements code and scenes. Owns the GDD's "as built" annotations + §11. When a code change contradicts design prose, FLAG it in HISTORY.md — don't rewrite.
-- **Design Claude** — owns GDD §1–8 and §10–13 (NOT §9). Doesn't edit code.
+- **Code Claude** — implements code and scenes. Owns the GDD's "as built" annotations + §11. **Owns the sim (`tools/balance_sim.py`) and all sim runs** — sim fidelity tracks code ground truth (the `KEEP IN SYNC` gauntlet table), so execution lives here; commits raw output to `docs/sim-results/` per rule 5. When a code change contradicts design prose, FLAG it in HISTORY.md — don't rewrite.
+- **Design Claude** — owns GDD §1–8 and §10–13 (NOT §9). Doesn't edit code. **Requests sims** (specifies the variant + metric to test) and consumes/prices the committed numbers; doesn't run the sim itself.
 - **UI Claude** — owns `docs/ui-spec.md` and GDD §9. Produces specs with acceptance criteria; Code Claude builds them. Visual color authority = ui-spec, which mirrors `Swatch` (code ground truth).
 
 Shared rules:
@@ -19,7 +19,7 @@ Shared rules:
 2. One-line HISTORY.md entry per GDD / CLAUDE.md / ui-spec edit. Every entry heading names its author (which role wrote it).
 3. Fable's work orders: execute, then log what was done AND skipped (with reason) in HISTORY.md.
 4. Code↔doc mismatches: flagged by whoever finds them, fixed by the owning role.
-5. Sim-citation rule: any sim output whose numbers are cited in a GDD/spec decision gets its raw output committed to `docs/sim-results/` (dated file, script version noted) in the same session. Insights without their data are claims.
+5. Sim-citation rule: any sim output whose numbers are cited in a GDD/spec decision gets its raw output committed to `docs/sim-results/` (dated file, script version noted) in the same session. Insights without their data are claims. **Always record version info when simming:** `balance_sim.py` self-stamps `# balance_sim.py sha <hash> | run <date> | <seed/N>` in its printed header (`version_stamp()`) — keep that stamp line in any committed or pasted sim output so a result traces to an exact script version.
 
 # Session history
 
@@ -100,3 +100,4 @@ Pop variants on the label, chosen by what `anti_operator()` reduced (each has a 
 - Monster pattern cycling: `round_start()` calls `update_roll()` *before* `current_round += 1`, so round 1 uses `pattern[0]` (no skip).
 - Autoloads `CombatState` and `Encounter` persist across scene reloads, so run-state resets (FSM, gauntlet order) are manual — currently in `combat_ui.gd` `start()` and the win/lose handlers.
 - **Don't use `:=` on autoload method calls.** `var o := CurrentRoll.compute_outcome(...)` fails to parse on a cold `.godot/` cache ("Cannot infer the type of 'o'") — GDScript's analyzer doesn't reliably resolve a method's return type through an autoload singleton until the class registry is built. A warm cache hides it, so it can pass on one machine and break after another deletes `.godot/`. Annotate explicitly instead: `var o: Dictionary = CurrentRoll.compute_outcome(...)`. (Fixed at `player_character.gd` preview_rotate/preview_swap and `announce.gd._update_preview`.) When such a script fails to compile, scenes that instance its `class_name` (e.g. `PlayerCharacter`) can hard-crash the editor on scene-restore (null script deref) — open in Recovery Mode to break the loop.
+- **The bash sandbox mount can serve a STALE / truncated view of a file.** Seen 2026-06-12: `wc`/`cat`/`py_compile` reported `tools/balance_sim.py` truncated mid-line at 14701 bytes while the editor (Read tool) had the full, correct file — and the mount stayed frozen at that byte count even after a fresh write. A prior session misread git the same way. **The Read/Write/Edit file tools are the source of truth for file contents; do NOT trust the shell over them when diagnosing "truncation" or "corruption."** A fresh session (or just re-running later) re-syncs the mount. Note: code *executed* via bash reads the (possibly stale) mount, so if a run fails on "truncation" the file is probably fine — verify with Read, don't rewrite blindly.

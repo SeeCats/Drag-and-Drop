@@ -38,10 +38,15 @@ CAVEATS (don't over-trust exact numbers)
   - The AI is a 1-PLY GREEDY: it always takes an immediately-reachable kill and
     defends sensibly, but it does NOT use the next-pattern lookahead to plan
     multi-turn setups. So win rates are a strong-but-not-perfect *floor*.
-  - No gear/relics modelled. Sweep levers (heal/shield) are modelled as always-on.
+  - Relics are modelled as ALWAYS-ON (see report_sweep). Flat-stat relics
+    (+N base/mult/anti) buff the player's factors every resolve and the AI plans
+    around them; dice-quality relics (A keep-highest / B mulligan-worst) reshape
+    the round's starting hand before the forced move. GDD §5.3 cites these.
 """
 
 import random
+import hashlib
+import datetime
 from statistics import mean
 
 # ---- roll indices: [base, mult, anti, anti_type] ; colours RED=0 GREEN=1 BLUE=2
@@ -73,9 +78,16 @@ def player_roll(color, action, value):
     return pr
 
 
-def resolve(pr, mr, mhp, php):
-    """One round. Returns (monster_hp, player_hp, killed, player_dmg, monster_dmg)."""
+def resolve(pr, mr, mhp, php, relic=None):
+    """One round. Returns (monster_hp, player_hp, killed, player_dmg, monster_dmg).
+    relic: optional always-on flat-stat buff {base_plus,mult_plus,anti_plus,cap6}."""
     pr = pr[:]; mr = mr[:]
+    if relic:                                         # flat-stat relics buff the player's factors
+        pr[0] += relic.get('base_plus', 0)
+        pr[1] += relic.get('mult_plus', 0)
+        pr[2] += relic.get('anti_plus', 0)
+        if relic.get('cap6'):                         # optional 6-cap (table's cap-vs-uncap check)
+            pr[0] = min(pr[0], 6); pr[1] = min(pr[1], 6); pr[2] = min(pr[2], 6)
     mr[pr[3]] = max(mr[pr[3]] - pr[2], MMIN[pr[3]])   # player anti -> monster factor
     pr[mr[3]] = max(pr[mr[3]] - mr[2], PMIN[mr[3]])   # monster anti -> player factor
     pdmg = pr[0] * pr[1]
@@ -98,11 +110,11 @@ def _rot_left(a):  return [a[1], a[2], a[0]]
 def _rot_right(a): return [a[2], a[0], a[1]]
 
 
-def best_move(color, action, value, mr, mhp, php):
+def best_move(color, action, value, mr, mhp, php, relic=None):
     """Pick the forced move (2 rotates + 6 swaps) with the best (expected) score."""
     bm, bv = None, -1e18
     for na in (_rot_left(action), _rot_right(action)):       # rotates: deterministic
-        v = score(resolve(player_roll(color, na, value), mr, mhp, php))
+        v = score(resolve(player_roll(color, na, value), mr, mhp, php, relic))
         if v > bv: bv, bm = v, ('rot', na)
     for i in range(3):                                       # swaps: expected over reroll
         for j in range(3):
@@ -111,7 +123,7 @@ def best_move(color, action, value, mr, mhp, php):
             for r in range(1, 7):
                 c = color[:]; val = value[:]; val[i] = r
                 c[i], c[j] = c[j], c[i]; val[i], val[j] = val[j], val[i]
-                tot += score(resolve(player_roll(c, action, val), mr, mhp, php))
+                tot += score(resolve(player_roll(c, action, val), mr, mhp, php, relic))
             if tot / 6 > bv: bv, bm = tot / 6, ('swap', i, j)
     return bm
 
@@ -131,6 +143,7 @@ def play_run(cfg):
     php = cfg['start_hp']
     color, action = [0, 1, 2], [0, 1, 2]                     # RED/GREEN/BLUE ; BASE/MULT/ANTI
     shield = cfg.get('shield', False)
+    relic = {k: cfg[k] for k in ('base_plus', 'mult_plus', 'anti_plus', 'cap6') if k in cfg} or None
     fights = []
     for name, mhp_max, pats in cfg['gaunt']:
         if name == "Slime" and cfg.get('preslime_floor'):
@@ -141,10 +154,15 @@ def play_run(cfg):
             if rnd > 300:
                 return {'fights': fights, 'status': 'timeout'}
             value = [random.randint(1, 6) for _ in range(3)]
+            if cfg.get('keep_highest'):                      # relic A: keep top die, reroll other two
+                hi = value.index(max(value))
+                value = [v if k == hi else random.randint(1, 6) for k, v in enumerate(value)]
+            if cfg.get('mulligan_worst'):                    # relic B: reroll the single lowest die
+                value[value.index(min(value))] = random.randint(1, 6)
             mr = pats[midx % len(pats)]; midx += 1
-            mv = best_move(color, action, value, mr, mhp, php)
+            mv = best_move(color, action, value, mr, mhp, php, relic)
             color, action, value = apply_move(mv, color, action, value)
-            mhp, php, killed, pdmg, mdmg = resolve(player_roll(color, action, value), mr, mhp, php)
+            mhp, php, killed, pdmg, mdmg = resolve(player_roll(color, action, value), mr, mhp, php, relic)
             if killed:
                 nxt = pats[midx % len(pats)]                 # the round you skipped
                 fights.append({'name': name, 'hp_in': hp_in, 'hp_out': php,
@@ -161,11 +179,22 @@ def play_run(cfg):
 
 
 # ------------------------------------------------------------------- reporting
+def version_stamp():
+    """Self-hash of this script so any committed/pasted output is pinned to a
+    version (rule 5). Captures the GAUNTLET table too, since it lives in-file."""
+    try:
+        h = hashlib.sha256(open(__file__, 'rb').read()).hexdigest()[:12]
+    except Exception:
+        h = 'unknown'
+    return f"# balance_sim.py  sha {h}  |  run {datetime.date.today().isoformat()}"
+
+
 def cfg_baseline():
     return {'start_hp': START_HP, 'gaunt': BASE_GAUNTLET}
 
 
 def report_summary(N=10000, seed=7):
+    print(version_stamp() + f"  |  summary seed={seed} N={N}")
     random.seed(seed)
     order = [g[0] for g in BASE_GAUNTLET]
     reached = {n: 0 for n in order}; cleared = {n: 0 for n in order}
@@ -226,7 +255,22 @@ def report_sweep(N=5000, seed=1):
         "ghost_peak_nerf":   {'start_hp': 20, 'gaunt': ghost_low_variance()},
         "one_time_shield":   {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'shield': True},
         "shield+ghostnerf":  {'start_hp': 20, 'gaunt': ghost_low_variance(), 'shield': True},
+        # --- hypothetical relics (GDD §5.3), always-on, vs post-breather baseline ---
+        "relicB rerollLow":  {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'mulligan_worst': True},
+        "relicA keepHigh":   {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'keep_highest': True},
+        "relicA+B":          {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'keep_highest': True, 'mulligan_worst': True},
+        "+1 anti":           {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'anti_plus': 1},
+        "+2 anti":           {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'anti_plus': 2},
+        "+3 anti":           {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'anti_plus': 3},
+        "+1 base":           {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'base_plus': 1},
+        "+2 base":           {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'base_plus': 2},
+        "+3 base":           {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'base_plus': 3},
+        "+2 base cap6":      {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'base_plus': 2, 'cap6': True},
+        "+1 all":            {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'base_plus': 1, 'mult_plus': 1, 'anti_plus': 1},
+        "+2 all":            {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'base_plus': 2, 'mult_plus': 2, 'anti_plus': 2},
+        "+3 all":            {'start_hp': 20, 'gaunt': BASE_GAUNTLET, 'base_plus': 3, 'mult_plus': 3, 'anti_plus': 3},
     }
+    print(version_stamp() + f"  |  sweep seed={seed} N={N}")
     print(f"\n=== sweep ({N} runs each) ===")
     print(f"{'variant':18s} {'win%':>6s} {'avgHP':>6s} {'<=5HP%':>7s} {'1more-lethal%':>14s}")
     for name, cfg in variants.items():

@@ -22,10 +22,10 @@ Status: **READY FOR BUILD** — layout, object model, input mechanic, motion, an
 
 The UI answers, in priority order: "which of my moves do I want" → "what is the state" → "what is staged" → "what comes next" → "what just happened".
 
-- **T1 — the decision** (always visible while planning): projected outcome of the current arrangement as rendered math (`base × hits = total` after reductions), kill/death thresholds, outcomes of the alternative moves. Previews are exact and labeled as exact.
+- **T1 — the decision** (always visible while planning): projected outcome of the current arrangement — deal on the knob, take at the player HP line, kill/short-by threshold in the strip. Previews are exact and labeled as exact. Alternative-move outcomes are one *reversible* gesture away: staging IS the preview (flick to see a rotate, drag to see a swap's range, cancel freely) — this consciously supersedes the wave-1 "show rotate-left/right side by side" ghost idea.
 - **T2 — the state**: own dice (value + element) inside their slot containers; monster's committed roll mirrored on the same columns; ANTI mode named in words ("Evade −N their hits"); both HP bars with projected post-combat values.
-- **T3 — commitment state**: staged vs committed, "will reroll" badge on staged swaps, undo affordance, current phase.
-- **T4 — lookahead**: monster's next pattern (numbers + threatened defense type); gauntlet progress.
+- **T3 — commitment state**: staged vs committed, staged-reroll marker = the slow tumble (§7, no text badge), undo affordance, current phase.
+- **T4 — lookahead**: the monster's next pattern as a **recognition-first demand hint** — what it demands of the player (mode icon + word, e.g. "incoming: evade"), NOT raw numbers; exactly one step ahead. Canonical rationale: GDD §6.1 (plan by recognition, conveyor planning); the teaching-gauntlet exam (slime spike) depends on this reading. Numbers may exist behind a tap at most. Also: gauntlet progress.
 - **T5 — resolution feedback**: per-hit damage numbers, MISS/Blocked pops, combat log (behind a toggle).
 
 ## 3. Zone map (vertical bands)
@@ -35,9 +35,9 @@ Heights given at 540×1140; S1 is the elastic band.
 | Band | Height | Role | Touch? |
 |---|---|---|---|
 | safe inset | ~40 | — | no |
-| **S0 status** | ~50 | menu button in the LEFT corner (rarest touch gets the hardest reach; mirrored by left-hand toggle), then phase + gauntlet progress; next-pattern at right | menu only |
-| **S1 enemy** | ~340 (elastic) | sprite, HP + damage projection, its roll on the column spine, next-pattern lookahead | no |
-| **S2 relation ledger** | ~120 | deal/take math (T1), exact-tag, kill threshold; resolution numbers fly here | no |
+| **S0 status** | ~50 | menu button in the LEFT corner (rarest touch gets the hardest reach; mirrored by left-hand toggle), then phase + gauntlet progress; next-pattern demand hint at right (T4, recognition-first) | menu only |
+| **S1 enemy** | ~390 (elastic) | sprite in scouter ring, HP + damage projection, its roll chips on the column spine | no |
+| **S2 threshold strip** | ~40 (thin) | kill / short-by-N line + exact tag (T1); resolution numbers fly through here. Deal lives on the knob, take at the player HP line (§5 deal-on-knob ADOPTED — this strip replaced the old ~120px ledger; reclaimed height went to S1) | no |
 | **S3+S4 tray cluster** | ~330 | one tightly-grouped unit, top to bottom: player HP + projection → dice row in slot containers → knob directly beneath, Cancel/Confirm flanking. Future: energy docks here | YES |
 | safe inset | ~25 | — | no |
 
@@ -128,6 +128,7 @@ Acceptance criteria — each maps to a screenshot state; Code Claude's build pas
 15. Layout intact from 16:9 to 21:9; only the monster panel changes height.
 16. Cancel/Confirm hit areas ≥80px (visual circles may be smaller).
 17. Every overlay/screen reachable during combat returns to combat in one tap (GDD §9.1 depth law).
+18. The next-pattern hint is recognition-first: mode icon + word ("incoming: evade"), exactly one step ahead, no raw stat dump, and the text never names a color (§6.4).
 
 ## 9. Open decisions (live list)
 
@@ -137,9 +138,12 @@ Acceptance criteria — each maps to a screenshot state; Code Claude's build pas
 4. ~~Element color unification~~ DECIDED — see §6. (Swatch cleanup + 4th neon entry = Code Claude work order.)
 5. Cancel/Confirm visual size within the cluster (hit areas solved by criterion 16; pure styling).
 6. Research to-do before wave 2: play Slice & Dice (closest relative — portrait dice combat; study its intent display, unlimited pre-commit undo, information density).
+7. **Knob discoverability = wave-2 criterion** (Fable, 06-12): the chopsticks test proves comfort for a *taught* user, not discovery by an untutored one. Wave-2 telemetry must show untutored players find the flick; if not, the tap-tap redundant channel (§5 archive) gets promoted.
+8. Demand-hint visual form (T4): icon chip vs. pattern-type halo. Halo path is blocked by the Godot 4.6 RichTextEffect outline gotcha (CLAUDE.md); icon chip is the safe default.
 
 ## Changelog
 
+- 2026-06-12 — coherence pass (UI Claude): T4 lookahead made recognition-first per GDD §6.1 (criterion 18 added; demand-hint form = open item 8); T3 badge staleness fixed (tumble, matching Fable's §5 fix — reviewed and approved); T1 updated for adopted deal-on-knob (staging-as-preview supersedes ghost previews); zone table S2 → thin strip (adoption consequence, was stale); knob-discoverability wave-2 criterion logged (open item 7); GDD §9 reduced to laws + pointers.
 - 2026-06-11 — §6 DECIDED: neon family canonical (RGB primaries retired from UI; WHITE reserved-dormant, 4th NEON entry required defensively; element colors only on element-bearing things; player text never names colors). Status → READY FOR BUILD.
 - 2026-06-11 — all prototype verdicts passed (knob, wrap, deal-on-knob); deal-on-knob + thin-strip S2 adopted; §8 acceptance criteria written (17 items); status → VALIDATED; sole blocker = §6 color unification.
 - 2026-06-11 — created: canvas, hierarchy, zone map, column spine, object model (fixed zones / moving dice), staging, verification protocol. Input mechanic left open.
