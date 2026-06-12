@@ -4,6 +4,17 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-06-12 (Design Claude — dominance scope clarifier: §6.2 ↔ §7.4)
+
+- Resolved the apparent §6.2↔§7.4 contradiction (§6.2 g1 forbids "dominant"; §7.4 *wants* fights with "an obvious dominant move" as brain rest). The reconciler is **scope**: dominance *within a single fight* = good (the §7.4 rest beat); dominance *across* fights (a line that bypasses the read everywhere) = the §6.2 degeneracy. Canonical statement added to **§6.2 guardrail 1** — "A fight you can autopilot is pacing; a game you can autopilot is a balance failure" — with a tiny cross-cite at the **§7.4** rest-beat line. No new rule, just the scope distinction that was true but unsaid.
+
+## 2026-06-12 (Design Claude — rendered §7.9 optimization doctrine + §7.10 kill-threshold target)
+
+- **Executed Fable's request-triage work order** — but as a dedicated **§7.9 "The optimization line — requests we grant and refuse"** (not a §7.4 extension as specced), per user's "own place" call; §7.4 keeps a one-line pointer to it. Renders the doctrine faithfully: the bright line (UI shows "what would happen," never "what should I do"; *ordering* is the danger, not the data), the four-way effort-triage (arithmetic→grant / judgment→refuse / risk→refuse-free-removal / pacing→investigate), the "kill on N+ is legal" boundary example, and the take-the-location-not-the-prescription meta-rule + watch-list. **Two Design additions:** scoped it explicitly to the *interface/feature axis* and cross-linked §6.2 for the *emergent-dominant-strategy axis* (so the anti-over-optimization stance reads as a complete pair).
+- **Added §7.10 "Kill-threshold legibility (a tuning target)"** (separate concern, user-confirmed — a tuning target, not a refusal doctrine; sits by §7.8). Frames the shown "kill on N+" as the kill *probability* made visible (d6: N=2→83% … N=4→50%); tense band **N∈[2,4]**. Key honesty: **N is not a knob** — it's emergent (`HP_remaining ÷ partner_factor`), so you shape its *distribution* via die range / HP / patterns, not directly. Target = *when a threshold is shown at all, it lands in ~[2,4] for ~95% of race-eligible cases* (no-kill turns correctly show nothing = turtle signal).
+- **Sim queued for Code Claude (§7.10):** across race-eligible decision points, the distribution of N — does compressing the die range (2–6/3–6) + flooring mult at 2 pull ~95% into [2,4]? Don't guess the number (§7.8).
+- Reviewed Fable's cross-lane edits to my §6.1 (hint → "you'll want evasion") and §6.2 (Slime roster → live `.tres` order): both consistent with my gauntlet draft — accepted.
+
 ## 2026-06-12 (Fable — request-triage doctrine; work order for Design Claude)
 
 - Context: Design worried the UI is "too optimized"; user vetoed (UI removes computation, not choice — veto stands). But the underlying risk is real: players optimize the fun out of games via reasonable-sounding requests. Discussion settled a **request-triage doctrine**, to be rendered into the GDD by Design Claude as a §7.4 extension ("requests we refuse, and why"):
