@@ -5,7 +5,7 @@
 [ext_resource type="Resource" uid="uid://j7tuq25h1jvk" path="res://character/monster/ghost/ghost_pattern1.tres" id="3_lk5do"]
 [ext_resource type="Resource" uid="uid://dat2rvo7rqs3j" path="res://character/monster/ghost/ghost_pattern3.tres" id="4_avnl5"]
 [ext_resource type="Resource" uid="uid://bxj2ms3po86o5" path="res://character/monster/ghost/ghost_pattern2.tres" id="4_h4ps0"]
-[ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/monster/hp_bar.tscn" id="5_u6ape"]
+[ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/Hp/hp_bar.tscn" id="5_u6ape"]
 [ext_resource type="Resource" uid="uid://oumbp81y0wwu" path="res://character/monster/ghost/ghost_pattern4.tres" id="6_lk5do"]
 [ext_resource type="Texture2D" uid="uid://l87msecyhhud" path="res://character/monster/ghost/miiya-halloween-4451903_1920.png" id="6_pfrwx"]
 [ext_resource type="Script" uid="uid://dlql418cfspko" path="res://character/monster/ghost/blurry_halo.gd" id="8_qq44i"]

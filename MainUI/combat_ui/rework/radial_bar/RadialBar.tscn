@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://di2ir08il7fcf"]
+
+[ext_resource type="Script" uid="uid://4mhka2atb3xy" path="res://MainUI/combat_ui/rework/radial_bar/radial_bar.gd" id="1_radial"]
+
+[node name="RadialBar" type="Control" unique_id=610998314]
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 120.0
+offset_bottom = 120.0
+script = ExtResource("1_radial")
+thickness = 12.0

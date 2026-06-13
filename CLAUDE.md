@@ -5,21 +5,25 @@ Do NOT run git commands. This sandbox can't write to `.git` safely (it has corru
 
 When you change code, update this `CLAUDE.md` in the same session so its architecture/signals/scene-map/gotchas stay accurate — stale docs here are worse than none.
 
-# Multi-Claude coordination
+# Coordination
 
-Four Claudes + the user work this project. Identify your role each session; stay in lane.
+The user + a few **topic-focused Claude sessions** work this project. Work in your current task's lane; the shared docs (this file, HISTORY.md, `docs/ui-spec.md`, the GDD) are the coordination layer — keep them current so any session can pick up cold. Topic leads (soft, not strict ownership):
 
-- **Fable (diagnosis)** — reviews code/design/UI/playtests; returns verdicts and work orders in chat. Edits only CLAUDE.md/HISTORY.md, on request. Spot-checks other roles' diffs.
-- **Code Claude** — implements code and scenes. Owns the GDD's "as built" annotations + §11. **Owns the sim (`tools/balance_sim.py`) and all sim runs** — sim fidelity tracks code ground truth (the `KEEP IN SYNC` gauntlet table), so execution lives here; commits raw output to `docs/sim-results/` per rule 5. When a code change contradicts design prose, FLAG it in HISTORY.md — don't rewrite.
-- **Design Claude** — owns GDD §1–8 and §10–13 (NOT §9). Doesn't edit code. **Requests sims** (specifies the variant + metric to test) and consumes/prices the committed numbers; doesn't run the sim itself.
-- **UI Claude** — owns `docs/ui-spec.md` and GDD §9. Produces specs with acceptance criteria; Code Claude builds them. Visual color authority = ui-spec, which mirrors `Swatch` (code ground truth).
+- **Code Claude** — code + scenes; the GDD's "as built" annotations + §11; owns `tools/balance_sim.py` and all sim runs (sim fidelity tracks code ground truth — the `KEEP IN SYNC` gauntlet table — so execution lives here; commits raw output to `docs/sim-results/` per rule 4). Also covers ad-hoc diagnosis/review (no dedicated diagnosis role now).
+- **Design Claude** — GDD §1–8 and §10–13 (NOT §9). Doesn't edit code. Requests sims (specifies variant + metric) and prices the committed numbers; doesn't run the sim itself.
+- **UI** — `docs/ui-spec.md` and GDD §9. **UI work currently runs in the Code session** (Fable model suspended indefinitely 2026-06-12; a fresh cold Opus UI session underperformed at understanding/implementing UI, while Opus *with* this session's context handles it). `ui-spec.md` is **Code-maintained, user-directed**; color authority = ui-spec, mirrors `Swatch`. If a capable dedicated UI session returns, it reclaims this lane.
 
 Shared rules:
 1. Canonical location: every concept is defined in exactly one place; everywhere else cites it — never restate.
-2. One-line HISTORY.md entry per GDD / CLAUDE.md / ui-spec edit. Every entry heading names its author (which role wrote it).
-3. Fable's work orders: execute, then log what was done AND skipped (with reason) in HISTORY.md.
-4. Code↔doc mismatches: flagged by whoever finds them, fixed by the owning role.
-5. Sim-citation rule: any sim output whose numbers are cited in a GDD/spec decision gets its raw output committed to `docs/sim-results/` (dated file, script version noted) in the same session. Insights without their data are claims. **Always record version info when simming:** `balance_sim.py` self-stamps `# balance_sim.py sha <hash> | run <date> | <seed/N>` in its printed header (`version_stamp()`) — keep that stamp line in any committed or pasted sim output so a result traces to an exact script version.
+2. One-line HISTORY.md entry per GDD / CLAUDE.md / ui-spec edit. Every entry heading names its author.
+3. **Lane rule:** work in your current task's topic by default. You MAY edit outside it when a change genuinely needs it — but never silently: make the edit and FLAG it (a HISTORY line **and** call it out to the user in chat) so the topic's lead can review. Same for any code↔doc mismatch you spot — flag where you found it.
+4. Sim-citation rule: any sim output whose numbers are cited in a GDD/spec decision gets its raw output committed to `docs/sim-results/` (dated file, script version noted) in the same session. Insights without their data are claims. **Always record version info when simming:** `balance_sim.py` self-stamps `# balance_sim.py sha <hash> | run <date> | <seed/N>` in its printed header (`version_stamp()`) — keep that stamp in any committed or pasted sim output.
+
+# UI work (legibility is make-or-break)
+
+This game lives or dies on legibility (UI-as-precondition, GDD §1.2), so UI is never where we cut corners:
+1. **Exhaustive protos.** Any mockup / prototype / visualization must implement EVERY specified feature, not a representative subset — audit against the full ui-spec §8 acceptance criteria before showing it. A partial proto can't tell us whether the design reads.
+2. **Ask one at a time.** When a UI request is underspecified, ask single, sequential clarifying questions before building — slower is fine.
 
 # Session history
 
@@ -37,6 +41,7 @@ Turn-based combat game. Dice carry a roll value + element; player swaps/rotates 
 - `CombatState` (Globals/combat_state.gd) — the FSM driving the round.
 - `View` (Globals/View.gd) — shared camera state for 2D-projected 3D shapes (cubes). Not gameplay.
 - `Encounter` (Globals/encounter.gd) — gauntlet selector: `monster_list` (PackedScenes) + `current_monster_order`; `next_monster` is a getter returning `monster_list[order % size]`. The monster spawner reads `next_monster`.
+- `Screenshot` (Globals/screenshot.gd) — debug-only: F12 saves the viewport to `screenshots/` (gitignored) for the ui-spec §8 checklist. Not gameplay; editor/debug builds only (res:// is read-only when exported).
 
 ## Combat flow (CombatState FSM)
 `INITIAL → ROUND_START → PLAYER_PLANNING → TURN_RESOLVING → PLAYER_ATTACK → MONSTER_ATTACK → CHECK_DEFEAT → (WIN | LOSE | back to ROUND_START)`. Each enter handler waits a 1s timer. `ROUND_START` calls `round_start()` on every node in group `round_participants` (sorted by `round_start_priority`). Player ends planning via `CombatState.end_player_turn()` (called from swap/rotate).

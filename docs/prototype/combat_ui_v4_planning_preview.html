@@ -1,0 +1,336 @@
+<h2 class="sr-only">Interactive mockup of the combat UI: a portrait mobile screen with a monster scouter ring on top, its committed roll chips below, and a bottom tray of three dice over a rotate knob that doubles as the player HP ring. Drag a die onto another to swap; flick the knob to rotate; confirm to resolve.</h2>
+<div style="background:var(--color-background-secondary); border-radius:var(--border-radius-lg); padding:18px; display:flex; justify-content:center;">
+<div id="app">
+  <canvas id="stars"></canvas>
+  <div id="s0">
+    <div id="menuBtn">&#9776;</div>
+    <span id="phase">planning · fight 1</span>
+    <span id="nextHint"><span class="lab">incoming:</span><span id="hintIcon"></span><span id="hintWord"></span></span>
+  </div>
+  <div id="monsterPanel">
+    <svg id="fanTop"></svg>
+    <div id="ringWrap"><div id="ring"><div id="ringHole"></div><div id="reticle"></div>
+      <div class="tick" id="t1"></div><div class="tick" id="t2"></div><div class="tick" id="t3"></div>
+    </div></div>
+    <div id="sprite"></div><div id="mName">slime</div>
+    <div id="mDock"><div id="mHp"></div><div id="mVerdict"></div><div id="mTag">exact</div></div>
+    <div id="mPop"></div>
+  </div>
+  <div id="mChips">
+    <div class="mchip"><small>base</small><span id="mc0"></span></div>
+    <div class="mchip"><small>mult</small><span id="mc1"></span></div>
+    <div class="mchip antiChip"><small id="mc2l"></small><span id="mc2"></span></div>
+  </div>
+  <div id="cluster">
+    <svg id="fanBot"></svg>
+    <div id="row">
+      <div class="slot" id="slot0"><div class="lbl">BASE</div></div>
+      <div class="slot" id="slot1"><div class="lbl">MULT</div></div>
+      <div class="slot" id="slot2"><div class="lbl">ANTI</div></div>
+      <div class="sub" id="sub0"></div><div class="sub" id="sub1"></div><div class="sub" id="sub2"></div>
+      <div class="die" id="die0"><div class="f1"></div><div class="f2"></div><div class="num"></div></div>
+      <div class="die" id="die1"><div class="f1"></div><div class="f2"></div><div class="num"></div></div>
+      <div class="die" id="die2"><div class="f1"></div><div class="f2"></div><div class="num"></div></div>
+    </div>
+    <div id="knobZone">
+      <div class="sideBtn" id="cancelBtn">&#10005;<span class="cap">cancel</span></div>
+      <div id="knobWrap">
+        <div id="knobRing"></div>
+        <div id="knobFace">
+          <div id="knobRim"><div id="knobNotch"></div></div>
+          <div id="knobLabel">DEAL</div><div id="knobDeal">0</div><div id="knobSub">exact</div>
+        </div>
+      </div>
+      <div id="pHpTxt"></div>
+      <div class="sideBtn" id="confirmBtn">&#10003;<span class="cap">confirm</span></div>
+    </div>
+  </div>
+  <div id="overlay"><h1 id="ovTitle"></h1><p id="ovSub">tap anywhere to continue</p></div>
+</div>
+</div>
+
+<style>
+  #app * { margin:0; padding:0; box-sizing:border-box; }
+  #app { position:relative; width:430px; height:760px; background:#080b0f; border-radius:26px; border:1px solid #1a2128;
+         display:flex; flex-direction:column; touch-action:none; user-select:none; overflow:hidden;
+         font-family:system-ui,sans-serif; color:#cfd8d4; }
+  #stars { position:absolute; inset:0; z-index:0; pointer-events:none; }
+  #app > :not(#stars){ position:relative; z-index:1; }
+  #s0 { height:38px; flex:none; display:flex; align-items:center; padding:0 14px; gap:10px; }
+  #menuBtn { position:relative; width:24px; height:24px; color:#5a7a6c; font-size:18px; line-height:24px; text-align:center; }
+  #phase { font-size:12px; color:#7fae9a; }
+  #nextHint { margin-left:auto; display:flex; align-items:center; gap:6px; font-size:12px; color:#9fb0c4; }
+  #nextHint .lab { color:#5a7a6c; }
+  #nextHint svg { width:15px; height:15px; }
+  #monsterPanel { flex:1; position:relative; min-height:200px; }
+  #ringWrap { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+  #ring { border-radius:50%; position:relative; }
+  #ringHole { position:absolute; inset:9px; border-radius:50%; background:#080b0f; }
+  #reticle { position:absolute; inset:20px; border-radius:50%; border:1px solid #2f7a52; }
+  .tick { position:absolute; left:50%; top:50%; width:1px; height:20px; background:#3fae6a; opacity:.7; }
+  #sprite { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:#1d3a2a; border-radius:46% 54% 50% 50%/60% 60% 40% 40%; }
+  #mName { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-size:12px; color:#9fdcb8; letter-spacing:.5px; }
+  #mDock { position:absolute; right:14px; top:8px; text-align:right; line-height:1.45; }
+  #mHp { font-size:12px; color:#7fae9a; }
+  #mVerdict { font-size:13px; font-weight:600; margin-top:2px; }
+  #mTag { display:inline-block; margin-top:3px; font-size:9px; color:#05070a; background:#7fae9a; padding:0 6px; border-radius:5px; letter-spacing:.5px; }
+  #mPop { position:absolute; left:50%; top:28%; transform:translateX(-50%); font-size:26px; font-weight:600; color:#F09595; opacity:0; pointer-events:none; }
+  #fanTop { position:absolute; inset:0; pointer-events:none; }
+  #mChips { flex:none; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:0 16px 6px; }
+  .mchip { background:#10211a; border:1px solid #2a523b; border-radius:8px; text-align:center; padding:5px 2px; font-size:14px; color:#dff5e8; }
+  .mchip small { display:block; color:#6fa68c; font-size:9px; letter-spacing:.4px; }
+  .mchip.antiChip { background:#171c24; border-color:#46566c; color:#c8d4e4; }
+  .mchip.antiChip small { color:#7f8ba0; }
+  #cluster { flex:none; position:relative; padding:4px 16px 10px; }
+  #fanBot { position:absolute; inset:0; pointer-events:none; }
+  #row { position:relative; height:120px; }
+  .slot { position:absolute; top:0; height:104px; border:1px solid #2a3340; border-radius:14px; }
+  .slot .lbl { position:absolute; bottom:-16px; left:0; right:0; font-size:9px; color:#6f7a8a; text-align:center; letter-spacing:.4px; }
+  .slot.hot { border-color:#dfe8f5; }
+  .sub { position:absolute; bottom:-34px; left:0; font-size:10px; color:#9aa4b4; text-align:center; }
+  .die { position:absolute; top:14px; width:76px; height:76px; will-change:transform; }
+  .die .f1,.die .f2 { position:absolute; border-style:solid; }
+  .die .f1 { inset:9px; border-width:2px; }
+  .die .f2 { inset:19px; border-width:1.5px; }
+  .die .num { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:24px; font-weight:600; text-shadow:0 0 6px rgba(0,0,0,.8); }
+  .die.tumble .f1 { animation:spin1 1.6s linear infinite; }
+  .die.tumble .f2 { animation:spin2 2.3s linear infinite reverse; }
+  .die.fastTumble .f1 { animation:spin1 .45s linear infinite; }
+  .die.fastTumble .f2 { animation:spin2 .6s linear infinite reverse; }
+  @keyframes spin1 { from{transform:rotate(45deg)} to{transform:rotate(405deg)} }
+  @keyframes spin2 { from{transform:rotate(45deg)} to{transform:rotate(-315deg)} }
+  #knobZone { position:relative; height:150px; margin-top:42px; }
+  #knobWrap { position:absolute; left:50%; top:0; transform:translateX(-50%); width:128px; height:128px; border-radius:50%; }
+  #knobRing { position:absolute; inset:0; border-radius:50%; }
+  #knobFace { position:absolute; inset:11px; border-radius:50%; background:#161b24; border:1px solid #39414f; text-align:center; overflow:hidden; }
+  #knobRim { position:absolute; inset:0; border-radius:50%; will-change:transform; }
+  #knobNotch { position:absolute; left:50%; top:5px; width:7px; height:7px; margin-left:-3.5px; border-radius:50%; background:#9fb0c4; box-shadow:0 0 6px rgba(159,176,196,.7); }
+  .grip { position:absolute; left:50%; top:50%; width:2px; height:7px; background:#4a5468; margin-left:-1px; }
+  #knobLabel { margin-top:24px; font-size:9px; color:#6f7a8a; letter-spacing:.5px; pointer-events:none; }
+  #knobDeal { font-size:28px; font-weight:600; color:#fff; line-height:1; pointer-events:none; }
+  #knobSub { font-size:9px; color:#6f7a8a; pointer-events:none; }
+  #pHpTxt { position:absolute; left:0; right:0; top:134px; text-align:center; font-size:11px; color:#7faec0; }
+  .sideBtn { position:absolute; top:34px; width:62px; height:62px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:23px; }
+  #cancelBtn { left:8px; border:1.5px solid #5a4444; color:#cf8a8a; opacity:.3; }
+  #confirmBtn { right:8px; border:1.5px solid #3e6a52; background:#13241a; color:#7ddca5; }
+  .sideBtn .cap { position:absolute; bottom:-15px; font-size:9px; letter-spacing:.4px; }
+  #cancelBtn .cap { color:#7a5a5a; } #confirmBtn .cap { color:#5a8a6c; }
+  .armed { opacity:1 !important; box-shadow:0 0 10px rgba(125,220,165,.22); }
+  #overlay { position:absolute; inset:0; background:rgba(5,8,10,.93); display:none; flex-direction:column; align-items:center; justify-content:center; gap:12px; z-index:50; }
+  #overlay h1 { font-size:26px; color:#dff5e8; font-weight:600; }
+  #overlay p { font-size:13px; color:#7fae9a; }
+</style>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const COL    = ["#F25CF2","#33E0FF","#B0FF00"];
+const COLDIM = ["#a03aa0","#1d8aa0","#6a9a10"];
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const ICON = {
+  block: '<svg viewBox="0 0 24 24" fill="none" stroke="#F25CF2" stroke-width="2"><path d="M12 3l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V6z"/></svg>',
+  evade: '<svg viewBox="0 0 24 24" fill="none" stroke="#B0FF00" stroke-width="2"><path d="M5 12h11M12 6l6 6-6 6"/><path d="M4 6v12" opacity=".5"/></svg>'
+};
+let dice, basePerm, staged, monster, player, fight, busy;
+const PATTERNS = [
+  {base:3, mult:4, anti:2, antiType:"base"},
+  {base:2, mult:5, anti:1, antiType:"mult"},
+  {base:4, mult:3, anti:2, antiType:"base"},
+];
+let patIdx = 0, round = 0;
+function d6(){ return 1+Math.floor(Math.random()*6); }
+function reset(){
+  dice = [ {el:0,val:d6()}, {el:1,val:d6()}, {el:2,val:d6()} ];
+  basePerm = [0,1,2]; staged = null; busy = false;
+  fight = 1; patIdx = 0; round = 1;
+  monster = { max: 14, hp: 14 }; player = { max: 20, hp: 20 };
+  layout(); render();
+}
+function effPerm(){
+  if(!staged) return basePerm.slice();
+  if(staged.type==="rotate"){ const p=[]; for(let s=0;s<3;s++) p[(s+staged.r)%3]=basePerm[s]; return p; }
+  const p = basePerm.slice(); [p[staged.a],p[staged.b]]=[p[staged.b],p[staged.a]]; return p;
+}
+function pat(i){ return PATTERNS[(i===undefined?patIdx:i)%PATTERNS.length]; }
+function outcome(perm, ovId, ovVal){
+  const v = id => (id===ovId? ovVal : dice[id].val);
+  const B=v(perm[0]), M=v(perm[1]), A=v(perm[2]), antiEl=dice[perm[2]].el;
+  const m = pat(); let mAnti=m.anti, mb=m.base, mm=m.mult, modeTxt="";
+  if(antiEl===1){ const r=Math.min(A,mAnti); mAnti-=r; modeTxt=`pierce −${r} their anti`; }
+  if(antiEl===0){ const r=Math.min(A,Math.max(mb-1,0)); mb-=r; modeTxt=`block −${r}/hit`; }
+  if(antiEl===2){ const r=Math.min(A,Math.max(mm-1,0)); mm-=r; modeTxt=`evade −${r} hits`; }
+  let perHit=B, hits=M, blocked=0, missed=0;
+  if(m.antiType==="base"){ blocked=Math.min(mAnti,B); perHit=B-blocked; }
+  else { missed=Math.min(mAnti,M); hits=M-missed; }
+  const deal = perHit*hits; const kill = deal >= monster.hp; const take = kill ? 0 : mb*mm;
+  return {B,M,A,antiEl,deal,take,kill,perHit,hits,blocked,missed,modeTxt};
+}
+function swapRange(){
+  const perm = effPerm(); let lo=null, hi=null, killAt=null;
+  for(let f=1;f<=6;f++){ const o = outcome(perm, staged.moved, f);
+    if(lo===null||o.deal<lo.deal) lo=o; if(hi===null||o.deal>hi.deal) hi=o;
+    if(o.kill && killAt===null) killAt=f; }
+  return {lo,hi,killAt};
+}
+let colX=[0,0,0], colW=0, dieW=76;
+function layout(){
+  const row=$("row"), W=row.clientWidth, gap=12; colW=(W-2*gap)/3;
+  for(let s=0;s<3;s++){ colX[s]=s*(colW+gap);
+    const sl=$("slot"+s); sl.style.left=colX[s]+"px"; sl.style.width=colW+"px";
+    const sb=$("sub"+s); sb.style.left=colX[s]+"px"; sb.style.width=colW+"px"; }
+  const mp=$("monsterPanel"), d=Math.min(mp.clientHeight-20, 230);
+  const ring=$("ring"); ring.style.width=d+"px"; ring.style.height=d+"px";
+  $("t1").style.transform=`translate(-50%,-50%) rotate(150deg) translateY(-${d*0.30}px)`;
+  $("t2").style.transform=`translate(-50%,-50%) rotate(30deg)  translateY(-${d*0.30}px)`;
+  $("t3").style.transform=`translate(-50%,-50%) rotate(-90deg) translateY(-${d*0.30}px)`;
+  const sp=$("sprite"); sp.style.width=d*0.40+"px"; sp.style.height=d*0.32+"px";
+  buildGrips(); sizeStars();
+}
+window.addEventListener("resize", ()=>{ layout(); render(); });
+function dieX(slot){ return colX[slot]+(colW-dieW)/2; }
+function buildGrips(){ const rim=$("knobRim"); if(rim.dataset.built) return; rim.dataset.built="1";
+  for(let i=0;i<12;i++){ const g=document.createElement("div"); g.className="grip";
+    g.style.transform=`translate(-50%,-50%) rotate(${i*30}deg) translateY(-50px)`; rim.appendChild(g); } }
+function rel(el, ax, ay){ const r=el.getBoundingClientRect(); return {x:r.left+r.width*ax, y:r.top+r.height*ay}; }
+function drawFans(){
+  const ringB = rel($("ring"),0.5,0.78);
+  const fanT=$("fanTop"); fanT.innerHTML="";
+  for(let s=0;s<3;s++){ const chip=$("mChips").children[s]; const t=rel(chip,0.5,0.04); line(fanT, ringB, t, "#3fae6a", 0.5); }
+  const knobT = rel($("knobWrap"),0.5,0.06); const fanB=$("fanBot"); fanB.innerHTML="";
+  for(let s=0;s<3;s++){ const sl=$("slot"+s); const b=rel(sl,0.5,1.0); line(fanB, knobT, b, "#3a9a9a", 0.5); }
+}
+function line(svg, a, b, color, op){
+  const cR=svg.getBoundingClientRect();
+  const ln=document.createElementNS("http://www.w3.org/2000/svg","line");
+  ln.setAttribute("x1",a.x-cR.left); ln.setAttribute("y1",a.y-cR.top);
+  ln.setAttribute("x2",b.x-cR.left); ln.setAttribute("y2",b.y-cR.top);
+  ln.setAttribute("stroke",color); ln.setAttribute("stroke-width","1"); ln.setAttribute("opacity",op); svg.appendChild(ln);
+  const dot=document.createElementNS("http://www.w3.org/2000/svg","circle");
+  dot.setAttribute("cx",b.x-cR.left); dot.setAttribute("cy",b.y-cR.top); dot.setAttribute("r","1.6");
+  dot.setAttribute("fill",color); dot.setAttribute("opacity",op); svg.appendChild(dot);
+}
+function render(animSlots){
+  const perm = effPerm();
+  for(let s=0;s<3;s++){
+    const id=perm[s], el=$("die"+id), dd=dice[id];
+    el.querySelector(".f1").style.borderColor=COL[dd.el];
+    el.querySelector(".f2").style.borderColor=COLDIM[dd.el];
+    el.querySelector(".num").textContent=dd.val;
+    if(!el.dataset.dragging){
+      const x=dieX(s);
+      if(animSlots && el.dataset.slot!==undefined && +el.dataset.slot!==s){
+        const from=dieX(+el.dataset.slot); const jump=Math.abs(+el.dataset.slot - s)===2;
+        if(jump){ el.animate([{transform:`translateX(${from}px) translateY(0)`},
+                      {transform:`translateX(${(from+x)/2}px) translateY(-88px)`},
+                      {transform:`translateX(${x}px) translateY(0)`}],{duration:380, easing:"cubic-bezier(.3,.7,.3,1)"});
+        } else { el.animate([{transform:`translateX(${from}px)`},{transform:`translateX(${x}px)`}],{duration:300, easing:"ease-out"}); }
+      }
+      el.style.transform=`translateX(${x}px)`;
+    }
+    el.dataset.slot=s; el.classList.toggle("tumble", !!(staged && staged.type==="swap" && staged.moved===id));
+  }
+  const o = outcome(perm), aEl=o.antiEl;
+  $("slot2").style.borderColor=COL[aEl]; $("slot2").style.background=COL[aEl]+"14";
+  $("sub0").textContent = o.blocked? `${o.B}−${o.blocked} → ${o.perHit}/hit` : `${o.perHit}/hit`;
+  $("sub1").textContent = o.missed? `×${o.hits}  ${o.missed} miss` : `×${o.hits} hits`;
+  $("sub2").textContent = o.modeTxt; $("sub2").style.color=COL[aEl];
+  const m=pat(); $("mc0").textContent=m.base; $("mc1").textContent="×"+m.mult;
+  $("mc2l").textContent=(m.antiType==="base"?"block":"miss")+" "; $("mc2").textContent=m.anti;
+  const n=pat(patIdx+1), demand = n.antiType==="base" ? "block" : "evade";
+  $("hintIcon").innerHTML=ICON[demand]; $("hintWord").textContent=demand;
+  $("phase").textContent=`planning · fight ${fight} · round ${round}`;
+  let ringDeal=o.deal;
+  if(staged && staged.type==="swap"){
+    const r=swapRange();
+    $("knobDeal").textContent=`${r.lo.deal}~${r.hi.deal}`; $("knobDeal").style.fontSize="21px";
+    $("knobSub").textContent="reroll gamble";
+    $("mVerdict").innerHTML = r.killAt!==null
+      ? (r.lo.kill ? '<span style="color:#B0FF00">always kills</span>' : `kill on <span style="color:#B0FF00">${r.killAt}+</span>`)
+      : `<span style="color:#F09595">short ≥${monster.hp-r.hi.deal}</span>`;
+    $("mTag").textContent="range"; ringDeal=r.lo.deal;
+  } else {
+    $("knobDeal").textContent=o.deal; $("knobDeal").style.fontSize="28px"; $("knobSub").textContent="exact";
+    $("mVerdict").innerHTML = o.kill ? '<span style="color:#B0FF00">kills — takes nothing</span>'
+      : `<span style="color:#F09595">no kill · short ${monster.hp-o.deal}</span>`;
+    $("mTag").textContent="exact";
+  }
+  const mLeft=Math.max(monster.hp-ringDeal,0);
+  $("mHp").innerHTML=`hp ${monster.hp} → <span style="color:#F09595">${mLeft}</span>`;
+  const surv=mLeft/monster.max*360;
+  $("ring").style.background=`conic-gradient(#3fae6a 0 ${surv}deg, #1c2c22 ${surv}deg 360deg)`;
+  const tk = (staged&&staged.type==="swap") ? swapRange().lo.take : o.take;
+  const survP=Math.max(player.hp-tk,0);
+  const a1=survP/player.max*360, a2=a1+Math.min(tk,player.hp)/player.max*360;
+  $("knobRing").style.background=`conic-gradient(#3a9a9a 0 ${a1}deg, #2a4d4d ${a1}deg ${a2}deg, #1a2128 ${a2}deg 360deg)`;
+  $("pHpTxt").innerHTML=`you  ${player.hp} → <span style="color:#F09595">${survP}</span> / ${player.max}`;
+  $("cancelBtn").classList.toggle("armed", !!staged); $("confirmBtn").classList.add("armed");
+  drawFans();
+}
+const knob=$("knobFace"); let kDrag=null, rimRot=0; const FLICK_PX=18;
+knob.addEventListener("pointerdown", e=>{ if(busy) return; knob.setPointerCapture(e.pointerId); kDrag={x0:e.clientX, baseRot:rimRot}; });
+knob.addEventListener("pointermove", e=>{ if(!kDrag) return; $("knobRim").style.transform=`rotate(${kDrag.baseRot+(e.clientX-kDrag.x0)*0.45}deg)`; });
+function knobEnd(e){ if(!kDrag) return; const dx=e.clientX-kDrag.x0;
+  if(Math.abs(dx)>=FLICK_PX){ const step=dx>0?1:-1, cur=(staged&&staged.type==="rotate")?staged.r:0;
+    const r=((cur+step)%3+3)%3; rimRot=kDrag.baseRot+step*120; setStaged(r===0?null:{type:"rotate",r});
+  } else rimRot=kDrag.baseRot;
+  $("knobRim").style.transform=`rotate(${rimRot}deg)`; kDrag=null; }
+knob.addEventListener("pointerup", knobEnd); knob.addEventListener("pointercancel", knobEnd);
+let drag=null;
+for(let i=0;i<3;i++){
+  const el=$("die"+i);
+  el.addEventListener("pointerdown", e=>{ if(busy||kDrag) return;
+    if(staged){ rimRot=0; $("knobRim").style.transform="rotate(0deg)"; setStaged(null); }
+    el.setPointerCapture(e.pointerId); const slot=+el.dataset.slot;
+    drag={id:i, slot, x0:e.clientX, y0:e.clientY, moved:false};
+    el.dataset.dragging="1"; el.style.zIndex=10; el.classList.add("fastTumble"); });
+  el.addEventListener("pointermove", e=>{ if(!drag||drag.id!==i) return;
+    const dx=e.clientX-drag.x0, dy=e.clientY-drag.y0; if(Math.abs(dx)+Math.abs(dy)>6) drag.moved=true;
+    el.style.transform=`translateX(${dieX(drag.slot)+dx}px) translateY(${dy}px) scale(1.12)`;
+    const t=slotAt(e.clientX); for(let s=0;s<3;s++) $("slot"+s).classList.toggle("hot", s===t && t!==drag.slot); });
+  const up=e=>{ if(!drag||drag.id!==i) return; const t=slotAt(e.clientX);
+    el.classList.remove("fastTumble"); delete el.dataset.dragging; el.style.zIndex=1;
+    for(let s=0;s<3;s++) $("slot"+s).classList.remove("hot");
+    if(drag.moved && t!==null && t!==drag.slot) setStaged({type:"swap", a:drag.slot, b:t, moved:drag.id}); else render(true);
+    drag=null; };
+  el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+}
+function slotAt(clientX){ const r=$("row").getBoundingClientRect(), x=clientX-r.left;
+  for(let s=0;s<3;s++) if(x>=colX[s]&&x<=colX[s]+colW) return s; return null; }
+function setStaged(st){ staged=st; render(true); }
+$("cancelBtn").addEventListener("pointerup", ()=>{ if(busy||!staged) return; rimRot=0; $("knobRim").style.transform="rotate(0deg)"; setStaged(null); });
+$("confirmBtn").addEventListener("pointerup", async ()=>{ if(busy) return; await resolveTurn(); });
+async function resolveTurn(){
+  busy=true; const wasSwap = staged && staged.type==="swap"; basePerm=effPerm();
+  const moved = wasSwap? staged.moved : null; staged=null; rimRot=0; $("knobRim").style.transform="rotate(0deg)";
+  if(wasSwap){ const el=$("die"+moved); el.classList.add("fastTumble"); render(); await sleep(650);
+    dice[moved].val=d6(); el.classList.remove("fastTumble"); }
+  render(); const o=outcome(basePerm); streakStars(true); await sleep(250);
+  pop($("mPop"), "−"+o.deal); monster.hp=Math.max(monster.hp-o.deal,0); render(); await sleep(650);
+  if(monster.hp<=0){ fight++; monster.max=14+3*(fight-1); monster.hp=monster.max; patIdx++;
+    if(fight>3){ overlay("victory","gauntlet cleared — tap to restart",true); return; }
+  } else { player.hp=Math.max(player.hp-o.take,0); if(o.take>0) pop($("mPop"), "you take "+o.take);
+    render(); await sleep(650); if(player.hp<=0){ overlay("defeat","tap to restart",true); return; } patIdx++; }
+  round++; streakStars(false);
+  for(const el of [$("die0"),$("die1"),$("die2")]) el.classList.add("fastTumble");
+  render(); await sleep(700);
+  for(let i=0;i<3;i++){ dice[i].val=d6(); $("die"+i).classList.remove("fastTumble"); }
+  busy=false; render();
+}
+function pop(el, txt){ el.textContent=txt;
+  el.animate([{opacity:0, transform:"translateX(-50%) translateY(10px)"},
+              {opacity:1, transform:"translateX(-50%) translateY(-8px)"},
+              {opacity:0, transform:"translateX(-50%) translateY(-26px)"}], {duration:900, easing:"ease-out"}); }
+function overlay(title, sub, restart){ $("ovTitle").textContent=title; $("ovSub").textContent=sub; $("overlay").style.display="flex";
+  $("overlay").addEventListener("pointerup", ()=>{ $("overlay").style.display="none"; if(restart) reset(); }, {once:true}); }
+$("menuBtn").addEventListener("pointerup", ()=>{ sendPrompt("Open the combat menu mockup (settings, give up, left-hand toggle)"); });
+const cv=$("stars"), cx=cv.getContext("2d"); let starArr=[], streak=0;
+function sizeStars(){ cv.width=$("app").clientWidth; cv.height=$("app").clientHeight;
+  if(!starArr.length) for(let i=0;i<70;i++) starArr.push({x:Math.random(),y:Math.random(),z:Math.random()*0.7+0.3}); }
+function streakStars(on){ streak=on?1:0; }
+function tick(){ cx.clearRect(0,0,cv.width,cv.height);
+  for(const s of starArr){ s.y += (0.0002 + streak*0.02)*s.z; if(s.y>1) s.y-=1;
+    const px=s.x*cv.width, py=s.y*cv.height, r=s.z*1.3; cx.globalAlpha=0.25+s.z*0.4; cx.fillStyle="#9fd8c4";
+    if(streak){ cx.fillRect(px, py, 1, 6+s.z*10); } else { cx.beginPath(); cx.arc(px,py,r,0,7); cx.fill(); } }
+  cx.globalAlpha=1; requestAnimationFrame(tick); }
+reset(); tick();
+</script>

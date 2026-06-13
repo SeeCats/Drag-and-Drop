@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://c8kxp3x8jkr5q" path="res://character/monster/pattern/pattern.gd" id="2_mh3go"]
 [ext_resource type="Resource" uid="uid://djfv4u5cbm4fi" path="res://character/monster/alien/alien_pattern1.tres" id="3_8xylc"]
 [ext_resource type="Resource" uid="uid://bf4tdcnqt3pfw" path="res://character/monster/alien/alien_pattern2.tres" id="4_05yd3"]
-[ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/monster/hp_bar.tscn" id="5_3xoap"]
+[ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/Hp/hp_bar.tscn" id="5_3xoap"]
 [ext_resource type="Texture2D" uid="uid://7honr2nkyant" path="res://character/monster/alien/u_fg0tkeqgiy-monster-8589461_1920.png" id="6_rsp5e"]
 [ext_resource type="Script" uid="uid://cppy6naubv6ff" path="res://character/monster/alien/blurry_halo.gd" id="7_mkp08"]
 [ext_resource type="Script" uid="uid://q1bjrcfj412x" path="res://character/monster/alien/current_roll.gd" id="8_7s2l1"]

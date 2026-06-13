@@ -23,6 +23,7 @@ Constants="*uid://b7qpkxre5gsqe"
 CombatState="*uid://cslvhtn5efpdp"
 View="*uid://bc2mq0tvlf8lx"
 Encounter="*res://Globals/encounter.gd"
+Screenshot="*res://Globals/screenshot.gd"
 
 [display]
 

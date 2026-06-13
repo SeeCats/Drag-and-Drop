@@ -1,17 +1,13 @@
 extends ProgressBar
 class_name Hp
 
-## Fired whenever current or max HP changes. The rework UI hides the ProgressBar
-## itself and listens to this to drive a RadialBar (scouter ring / knob halo).
-signal hp_changed(current: int, maximum: int)
-
 @export var max_hp :int = 20:
 	set(new_value):
 		max_hp = new_value
 		max_value = new_value
 		if label:                    # null while @export loads before _ready
 			label.max_value = max_hp
-		hp_changed.emit(current_hp, max_hp)
+		emit_signal("hp_changed", current_hp, max_hp)
 @export var current_hp = 20 :
 	set(new_value):
 		var old = current_hp
@@ -22,11 +18,13 @@ signal hp_changed(current: int, maximum: int)
 			_hit_feedback(current_hp)   # damage: tween bar + flash
 		else:
 			value = current_hp          # init / heal: instant
-		hp_changed.emit(current_hp, max_hp)
+		emit_signal("hp_changed", current_hp, max_hp)
 var hp_regen = 0
+
 @export var round_start_priority : int = 50
 @onready var label: Label = $Label
 
+signal hp_changed(current: int, maximum: int)
 
 func _ready():
 	add_to_group("round_participants")
@@ -34,7 +32,6 @@ func _ready():
 	label.max_value = max_hp
 	value = current_hp
 	label.current_value = current_hp
-	hp_changed.emit(current_hp, max_hp)   # initial sync for anything that connected before now
 
 
 

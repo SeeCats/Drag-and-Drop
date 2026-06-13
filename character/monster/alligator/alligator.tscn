@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://c8kxp3x8jkr5q" path="res://character/monster/pattern/pattern.gd" id="2_leb8f"]
 [ext_resource type="Resource" uid="uid://c0cxmbp31rbir" path="res://character/monster/alligator/alligator_pattern1.tres" id="3_58fgl"]
 [ext_resource type="Resource" uid="uid://bgb4en3ikedtg" path="res://character/monster/alligator/alligator_pattern2.tres" id="4_4us4j"]
-[ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/monster/hp_bar.tscn" id="5_l0uat"]
+[ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/Hp/hp_bar.tscn" id="5_l0uat"]
 [ext_resource type="Texture2D" uid="uid://c7cpm04ve0til" path="res://character/monster/alligator/alligator.png" id="6_pv0j1"]
 [ext_resource type="Script" uid="uid://1wb4sgjrit0c" path="res://character/monster/alligator/blurry_halo.gd" id="8_a0glr"]
 [ext_resource type="Script" uid="uid://dn7txfp405w3b" path="res://character/monster/alligator/current_roll.gd" id="9_pt8cv"]

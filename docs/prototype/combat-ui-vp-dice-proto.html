@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>VP dice rendering proto (ui-spec §7.1)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; background:#05070a; overflow:hidden; }
+  body { font-family:system-ui,sans-serif; color:#cfd8d4; display:flex; justify-content:center; }
+  #app { position:relative; width:100%; max-width:480px; height:100dvh; background:#080b0f;
+         display:flex; flex-direction:column; touch-action:none; user-select:none; -webkit-user-select:none; overflow:hidden;
+         padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
+  #stage { position:absolute; inset:0; z-index:1; }
+  #bar { position:absolute; left:0; right:0; bottom:0; z-index:2; display:flex; gap:8px; justify-content:center;
+         padding:10px 12px calc(10px + env(safe-area-inset-bottom)); }
+  .btn { font-size:12px; color:#bcd; background:#141a22; border:1px solid #2a3340; border-radius:8px; padding:8px 12px; }
+  .btn.on { border-color:#5DCAA5; color:#9fe7cf; }
+  #hint { position:absolute; left:0; right:0; top:calc(10px + env(safe-area-inset-top)); z-index:2; text-align:center;
+          font-size:11px; color:#5a7a6c; pointer-events:none; }
+</style>
+</head>
+<body>
+<div id="app">
+  <svg id="stage"></svg>
+  <div id="hint">drag the monster to move the vanishing point · press a die to lift it toward you</div>
+  <div id="bar">
+    <button class="btn on" id="modeBtn">mode: VP</button>
+    <button class="btn" id="aimBtn">aim guides</button>
+    <button class="btn" id="rollBtn">roll dice</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+const SVGNS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+const stage = $("stage");
+const COL    = ["#F25CF2","#33E0FF","#B0FF00"];   // RED→magenta, BLUE→cyan, GREEN→lime
+const COLDIM = ["#a03aa0","#1d8aa0","#6a9a10"];
+
+let W=0, H=0, slotSize=0, slotsY=0;
+let vp = {x:0, y:0};
+let mode = "vp";            // "vp" | "parallel"
+let showAim = false;
+const PAR_DIR = norm(0.42, -1);   // parallel fallback: constant offset direction
+let dice = [ die(0), die(1), die(2) ];
+let dragVP=false, heldDie=-1;
+
+function die(el){ return {el, val:1+Math.floor(Math.random()*6), tumbling:false, ang:0, spin:0, lift:0}; }
+function norm(x,y){ const m=Math.hypot(x,y)||1; return {x:x/m, y:y/m}; }
+function slotX(i){ const gap=slotSize*0.34; const total=3*slotSize+2*gap; const x0=(W-total)/2; return x0+i*(slotSize+gap)+slotSize/2; }
+
+function resize(){
+  W=$("app").clientWidth; H=$("app").clientHeight;
+  stage.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  slotSize=Math.min(W*0.24, 118);
+  slotsY=H*0.72;
+  vp={x:W/2, y:H*0.20};
+}
+window.addEventListener("resize", resize);
+
+function el(name, attrs){ const n=document.createElementNS(SVGNS,name); for(const k in attrs) n.setAttribute(k,attrs[k]); return n; }
+function rot(cx,cy,px,py,a){ const s=Math.sin(a),c=Math.cos(a),dx=px-cx,dy=py-cy; return {x:cx+dx*c-dy*s, y:cy+dx*s+dy*c}; }
+function poly(corners, attrs){ const p=el("polygon",attrs); p.setAttribute("points",corners.map(c=>`${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(" ")); return p; }
+
+// the cube: front face (toward viewer) + back face (toward VP) + 4 connecting edges, all inside the slot square
+function drawCube(g, cx, cy, d){
+  const col=COL[d.el], dim=COLDIM[d.el];
+
+  if(d.tumbling){                                  // tumble overrides aim — two rotating concentric squares
+    const a=d.ang, h1=slotSize*0.34, h2=slotSize*0.22;
+    const sq=(cx,cy,h,a)=>[rot(cx,cy,cx-h,cy-h,a),rot(cx,cy,cx+h,cy-h,a),rot(cx,cy,cx+h,cy+h,a),rot(cx,cy,cx-h,cy+h,a)];
+    g.appendChild(poly(sq(cx,cy,h1,a),       {fill:"none", stroke:col, "stroke-width":2}));
+    g.appendChild(poly(sq(cx,cy,h2,a*-1.3),  {fill:"none", stroke:dim, "stroke-width":1.5}));
+    return;
+  }
+
+  const dir = mode==="vp" ? norm(vp.x-cx, vp.y-cy) : PAR_DIR;
+  const lift = d.lift;                              // 0..1 z-lift toward viewer
+  const off  = slotSize*0.22;
+  const frontC = {x: cx - dir.x*off*(0.45+lift*0.6), y: cy - dir.y*off*(0.45+lift*0.6)};  // toward viewer (away from VP)
+  const backC  = {x: cx + dir.x*off,                 y: cy + dir.y*off};                   // toward VP
+  const fh = slotSize*(0.33 + lift*0.06);          // front face half-size (grows on lift)
+  const bh = slotSize*0.21;                          // back face half-size (smaller = farther)
+  const fc=[ {x:frontC.x-fh,y:frontC.y-fh},{x:frontC.x+fh,y:frontC.y-fh},{x:frontC.x+fh,y:frontC.y+fh},{x:frontC.x-fh,y:frontC.y+fh} ];
+  const bc=[ {x:backC.x-bh,y:backC.y-bh}, {x:backC.x+bh,y:backC.y-bh}, {x:backC.x+bh,y:backC.y+bh}, {x:backC.x-bh,y:backC.y+bh} ];
+
+  if(showAim){                                      // debug only — convergence rays are never standing UI
+    for(let i=0;i<4;i++) g.appendChild(el("line",{x1:fc[i].x,y1:fc[i].y,x2:vp.x,y2:vp.y,stroke:dim,"stroke-width":0.5,opacity:0.25}));
+  }
+  g.appendChild(poly(bc,{fill:"#0b0f12", stroke:dim, "stroke-width":1.5}));          // back face
+  for(let i=0;i<4;i++) g.appendChild(el("line",{x1:fc[i].x,y1:fc[i].y,x2:bc[i].x,y2:bc[i].y,stroke:dim,"stroke-width":1.5}));  // z-edges
+  g.appendChild(poly(fc,{fill:"none", stroke:col, "stroke-width":2}));               // front face
+
+  // value label at perceived center (front pulls it forward), upright, on a backing disc
+  const lc={x: cx - dir.x*slotSize*0.10, y: cy - dir.y*slotSize*0.10};
+  g.appendChild(el("circle",{cx:lc.x, cy:lc.y, r:slotSize*0.20, fill:"#05070a", opacity:0.85}));
+  const t=el("text",{x:lc.x, y:lc.y, fill:"#fff", "font-size":slotSize*0.34, "font-weight":600,
+                     "text-anchor":"middle", "dominant-baseline":"central"});
+  t.textContent=d.val; g.appendChild(t);
+}
+
+function drawMonster(g){
+  const r=slotSize*0.46;
+  g.appendChild(el("circle",{cx:vp.x, cy:vp.y, r:r, fill:"#0f1712", stroke:"#3fae6a", "stroke-width":2}));
+  g.appendChild(el("circle",{cx:vp.x, cy:vp.y, r:r*0.74, fill:"none", stroke:"#2f7a52", "stroke-width":1}));
+  g.appendChild(el("ellipse",{cx:vp.x, cy:vp.y, rx:r*0.5, ry:r*0.42, fill:"#1d3a2a"}));
+  const cross=el("text",{x:vp.x, y:vp.y+r+14, fill:"#5a7a6c", "font-size":10, "text-anchor":"middle"});
+  cross.textContent="vanishing point (drag)"; g.appendChild(cross);
+}
+
+function frame(){
+  stage.innerHTML="";
+  const g=el("g",{}); stage.appendChild(g);
+  drawMonster(g);
+  for(let i=0;i<3;i++){
+    if(dice[i].tumbling){ dice[i].ang += dice[i].spin; }
+    drawCube(g, slotX(i), slotsY, dice[i]);
+    if(dice[i].lift>0 && heldDie!==i) dice[i].lift=Math.max(0,dice[i].lift-0.08);
+    if(heldDie===i) dice[i].lift=Math.min(1,dice[i].lift+0.12);
+  }
+  requestAnimationFrame(frame);
+}
+
+function rollDice(){
+  dice.forEach(d=>{ d.tumbling=true; d.spin=0.35+Math.random()*0.2; });
+  setTimeout(()=>{ dice.forEach(d=>{ d.tumbling=false; d.val=1+Math.floor(Math.random()*6); }); }, 750);
+}
+
+// pointer: drag VP, or press a die to lift
+function at(e){ const r=stage.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
+stage.addEventListener("pointerdown", e=>{
+  const p=at(e); stage.setPointerCapture(e.pointerId);
+  if(Math.hypot(p.x-vp.x,p.y-vp.y) < slotSize*0.6){ dragVP=true; return; }
+  for(let i=0;i<3;i++) if(Math.hypot(p.x-slotX(i),p.y-slotsY) < slotSize*0.6){ heldDie=i; return; }
+});
+stage.addEventListener("pointermove", e=>{ if(dragVP){ const p=at(e); vp.x=p.x; vp.y=Math.max(slotSize*0.5, Math.min(p.y, slotsY-slotSize)); } });
+function release(){ dragVP=false; heldDie=-1; }
+stage.addEventListener("pointerup", release); stage.addEventListener("pointercancel", release);
+
+$("modeBtn").addEventListener("click", ()=>{ mode = mode==="vp"?"parallel":"vp";
+  $("modeBtn").textContent="mode: "+(mode==="vp"?"VP":"parallel"); $("modeBtn").classList.toggle("on", mode==="vp"); });
+$("aimBtn").addEventListener("click", ()=>{ showAim=!showAim; $("aimBtn").classList.toggle("on", showAim); });
+$("rollBtn").addEventListener("click", rollDice);
+
+resize(); frame();
+</script>
+</body>
+</html>

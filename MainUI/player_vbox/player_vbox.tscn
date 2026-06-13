@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bbg31ufd2qthy"]
 
 [ext_resource type="Script" uid="uid://byrfeoexwjvdc" path="res://MainUI/player_vbox/player_character.gd" id="1_pn0sx"]
-[ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/monster/hp_bar.tscn" id="2_8dhto"]
+[ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/Hp/hp_bar.tscn" id="2_8dhto"]
 [ext_resource type="Script" uid="uid://cbjlrdqx801yy" path="res://MainUI/player_vbox/swap.gd" id="3_irviu"]
 [ext_resource type="PackedScene" uid="uid://c3isp8krrp02a" path="res://MainUI/player_vbox/zone/zone.tscn" id="4_jo8b4"]
 [ext_resource type="PackedScene" uid="uid://ch4nevd614kw4" path="res://MainUI/player_vbox/dice/dice.tscn" id="5_u56ai"]

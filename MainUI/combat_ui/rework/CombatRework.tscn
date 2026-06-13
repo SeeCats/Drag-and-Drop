@@ -1,0 +1,73 @@
+[gd_scene format=3 uid="uid://bfjacaijjq70c"]
+
+[node name="CombatRework" type="Control" unique_id=1909872269]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Bands" type="VBoxContainer" parent="." unique_id=1462368933]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StatusBar" type="PanelContainer" parent="Bands" unique_id=1247935148]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="StatusRow" type="HBoxContainer" parent="Bands/StatusBar" unique_id=472470699]
+layout_mode = 2
+
+[node name="MenuButton" type="Button" parent="Bands/StatusBar/StatusRow" unique_id=537929204]
+layout_mode = 2
+text = "☰"
+
+[node name="PhaseLabel" type="RichTextLabel" parent="Bands/StatusBar/StatusRow" unique_id=1591327651]
+layout_mode = 2
+size_flags_vertical = 4
+text = "planning · fight 1"
+fit_content = true
+autowrap_mode = 0
+
+[node name="Spacer" type="Control" parent="Bands/StatusBar/StatusRow" unique_id=168890790]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NextHintLabel" type="RichTextLabel" parent="Bands/StatusBar/StatusRow" unique_id=1260497981]
+layout_mode = 2
+size_flags_vertical = 4
+bbcode_enabled = true
+text = "incoming: —"
+fit_content = true
+autowrap_mode = 0
+
+[node name="EnemyPanel" type="PanelContainer" parent="Bands" unique_id=2050237865]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ThresholdStrip" type="PanelContainer" parent="Bands" unique_id=680865222]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="Tray" type="PanelContainer" parent="Bands" unique_id=339290826]
+custom_minimum_size = Vector2(0, 330)
+layout_mode = 2
+
+[node name="TrayColumn" type="VBoxContainer" parent="Bands/Tray" unique_id=2118217002]
+layout_mode = 2
+
+[node name="PlayerHP" type="VBoxContainer" parent="Bands/Tray/TrayColumn" unique_id=1434722099]
+layout_mode = 2
+
+[node name="DiceRow" type="HBoxContainer" parent="Bands/Tray/TrayColumn" unique_id=506724497]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+
+[node name="KnobRow" type="HBoxContainer" parent="Bands/Tray/TrayColumn" unique_id=1103842978]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
