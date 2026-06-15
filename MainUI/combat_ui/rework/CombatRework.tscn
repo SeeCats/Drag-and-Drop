@@ -1,5 +1,130 @@
 [gd_scene format=3 uid="uid://bfjacaijjq70c"]
 
+[ext_resource type="PackedScene" uid="uid://di2ir08il7fcf" path="res://MainUI/combat_ui/rework/radial_bar/RadialBar.tscn" id="1_8eonr"]
+[ext_resource type="Script" uid="uid://5tarbequlibu" path="res://MainUI/combat_ui/rework/rich_label.gd" id="2_0ytkr"]
+[ext_resource type="Script" uid="uid://dwvvqm0pbl8fl" path="res://MainUI/combat_ui/rework/circle_button.gd" id="3_f2lms"]
+[ext_resource type="Script" uid="uid://4mhka2atb3xy" path="res://MainUI/combat_ui/rework/radial_bar/radial_bar.gd" id="4_4wg2g"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cn02j"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.58706105, 0.23319083, 0.33860078, 1)
+corner_radius_top_left = 31
+corner_radius_top_right = 31
+corner_radius_bottom_right = 31
+corner_radius_bottom_left = 31
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ylo7x"]
+bg_color = Color(0.1, 0.1, 0.1, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.7315897, 0.50157404, 0.57009053, 1)
+corner_radius_top_left = 31
+corner_radius_top_right = 31
+corner_radius_bottom_right = 31
+corner_radius_bottom_left = 31
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_glbgv"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.66139007, 0.37121648, 0.45765266, 1)
+corner_radius_top_left = 31
+corner_radius_top_right = 31
+corner_radius_bottom_right = 31
+corner_radius_bottom_left = 31
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8glxk"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35223663, 0.13991451, 0.20316048, 1)
+corner_radius_top_left = 31
+corner_radius_top_right = 31
+corner_radius_bottom_right = 31
+corner_radius_bottom_left = 31
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v2mva"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.58706105, 0.23319083, 0.33860078, 1)
+corner_radius_top_left = 31
+corner_radius_top_right = 31
+corner_radius_bottom_right = 31
+corner_radius_bottom_left = 31
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eb4aj"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.24313726, 0.41568628, 0.32156864, 1)
+corner_radius_top_left = 31
+corner_radius_top_right = 31
+corner_radius_bottom_right = 31
+corner_radius_bottom_left = 31
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tieji"]
+bg_color = Color(0.1, 0.1, 0.1, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.50803924, 0.6201961, 0.5590196, 1)
+corner_radius_top_left = 31
+corner_radius_top_right = 31
+corner_radius_bottom_right = 31
+corner_radius_bottom_left = 31
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_trygy"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.37937254, 0.52086276, 0.4436863, 1)
+corner_radius_top_left = 31
+corner_radius_top_right = 31
+corner_radius_bottom_right = 31
+corner_radius_bottom_left = 31
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vm8p4"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.14588235, 0.24941178, 0.19294119, 1)
+corner_radius_top_left = 31
+corner_radius_top_right = 31
+corner_radius_bottom_right = 31
+corner_radius_bottom_left = 31
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8i4cv"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.24313726, 0.41568628, 0.32156864, 1)
+corner_radius_top_left = 31
+corner_radius_top_right = 31
+corner_radius_bottom_right = 31
+corner_radius_bottom_left = 31
+
 [node name="CombatRework" type="Control" unique_id=1909872269]
 layout_mode = 3
 anchors_preset = 15
@@ -50,24 +175,303 @@ autowrap_mode = 0
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ThresholdStrip" type="PanelContainer" parent="Bands" unique_id=680865222]
-custom_minimum_size = Vector2(0, 50)
+[node name="EnemyZone" type="Control" parent="Bands/EnemyPanel" unique_id=231200599]
 layout_mode = 2
+
+[node name="ScouterRing" parent="Bands/EnemyPanel/EnemyZone" unique_id=610998314 instance=ExtResource("1_8eonr")]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -210.0
+offset_top = -210.0
+offset_right = 210.0
+offset_bottom = 210.0
+grow_horizontal = 2
+grow_vertical = 2
+max_value = 14.0
+value = 14.0
+
+[node name="MonsterDock" type="VBoxContainer" parent="Bands/EnemyPanel/EnemyZone" unique_id=360375524]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -42.0
+offset_top = 220.0
+offset_right = 42.0
+offset_bottom = 260.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HpText" type="RichTextLabel" parent="Bands/EnemyPanel/EnemyZone/MonsterDock" unique_id=955326041]
+layout_mode = 2
+bbcode_enabled = true
+text = "hp 14 → 11"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="MonsterChips" type="MarginContainer" parent="Bands" unique_id=338190144]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 4
+
+[node name="ChipRow" type="HBoxContainer" parent="Bands/MonsterChips" unique_id=2043356605]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BaseChip" type="PanelContainer" parent="Bands/MonsterChips/ChipRow" unique_id=1221429076]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ChipBox" type="VBoxContainer" parent="Bands/MonsterChips/ChipRow/BaseChip" unique_id=150582326]
+layout_mode = 2
+
+[node name="ValueLabel" type="RichTextLabel" parent="Bands/MonsterChips/ChipRow/BaseChip/ChipBox" unique_id=2057360062]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]3[/center]"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="NameLabel" type="RichTextLabel" parent="Bands/MonsterChips/ChipRow/BaseChip/ChipBox" unique_id=1196767994]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]base[/center]"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="MultChip" type="PanelContainer" parent="Bands/MonsterChips/ChipRow" unique_id=219521496]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ChipBox" type="VBoxContainer" parent="Bands/MonsterChips/ChipRow/MultChip" unique_id=547681188]
+layout_mode = 2
+
+[node name="ValueLabel" type="RichTextLabel" parent="Bands/MonsterChips/ChipRow/MultChip/ChipBox" unique_id=581521416]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]3[/center]"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="NameLabel" type="RichTextLabel" parent="Bands/MonsterChips/ChipRow/MultChip/ChipBox" unique_id=1118661825]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]mult[/center]"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="AntiChip" type="PanelContainer" parent="Bands/MonsterChips/ChipRow" unique_id=1094317171]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ChipBox" type="VBoxContainer" parent="Bands/MonsterChips/ChipRow/AntiChip" unique_id=107057184]
+layout_mode = 2
+
+[node name="ValueLabel" type="RichTextLabel" parent="Bands/MonsterChips/ChipRow/AntiChip/ChipBox" unique_id=675423301]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]3[/center]"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="NameLabel" type="RichTextLabel" parent="Bands/MonsterChips/ChipRow/AntiChip/ChipBox" unique_id=1916960708]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]anti[/center]"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
 
 [node name="Tray" type="PanelContainer" parent="Bands" unique_id=339290826]
 custom_minimum_size = Vector2(0, 330)
 layout_mode = 2
 
-[node name="TrayColumn" type="VBoxContainer" parent="Bands/Tray" unique_id=2118217002]
+[node name="Traypad" type="MarginContainer" parent="Bands/Tray" unique_id=687664002]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_right = 16
+
+[node name="TrayColumn" type="VBoxContainer" parent="Bands/Tray/Traypad" unique_id=2118217002]
 layout_mode = 2
 
-[node name="PlayerHP" type="VBoxContainer" parent="Bands/Tray/TrayColumn" unique_id=1434722099]
-layout_mode = 2
-
-[node name="DiceRow" type="HBoxContainer" parent="Bands/Tray/TrayColumn" unique_id=506724497]
+[node name="DiceRow" type="HBoxContainer" parent="Bands/Tray/Traypad/TrayColumn" unique_id=506724497]
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="KnobRow" type="HBoxContainer" parent="Bands/Tray/TrayColumn" unique_id=1103842978]
+[node name="BaseColumn" type="VBoxContainer" parent="Bands/Tray/Traypad/TrayColumn/DiceRow" unique_id=1664459357]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Slot" type="PanelContainer" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseColumn" unique_id=550732076]
+custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+
+[node name="DieValue" type="RichTextLabel" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseColumn/Slot" unique_id=2082874432]
+layout_mode = 2
+bbcode_enabled = true
+text = " [center]5[/center]
+"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="SlotLabel" type="RichTextLabel" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseColumn" unique_id=1840182376]
+layout_mode = 2
+bbcode_enabled = true
+text = " [center]Base
+[/center]
+"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="SubLabel" type="RichTextLabel" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseColumn" unique_id=1453897106]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]3/hit[/center]
+"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="BaseColumn2" type="VBoxContainer" parent="Bands/Tray/Traypad/TrayColumn/DiceRow" unique_id=364119372]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Slot" type="PanelContainer" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseColumn2" unique_id=1197158177]
+custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+
+[node name="DieValue" type="RichTextLabel" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseColumn2/Slot" unique_id=270234578]
+layout_mode = 2
+bbcode_enabled = true
+text = " [center]5[/center]
+"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="SlotLabel" type="RichTextLabel" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseColumn2" unique_id=254344574]
+layout_mode = 2
+bbcode_enabled = true
+text = " [center]Mult
+[/center]
+"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="SubLabel" type="RichTextLabel" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseColumn2" unique_id=436720886]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]x3 hits[/center]
+"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="BaseColumn3" type="VBoxContainer" parent="Bands/Tray/Traypad/TrayColumn/DiceRow" unique_id=1822026462]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Slot" type="PanelContainer" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseColumn3" unique_id=286616185]
+custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+
+[node name="DieValue" type="RichTextLabel" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseColumn3/Slot" unique_id=2101915516]
+layout_mode = 2
+bbcode_enabled = true
+text = " [center]5[/center]
+"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="SlotLabel" type="RichTextLabel" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseColumn3" unique_id=1744669063]
+layout_mode = 2
+bbcode_enabled = true
+text = " [center]Anti
+[/center]
+"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="SubLabel" type="RichTextLabel" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseColumn3" unique_id=4289488]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]evade -3[/center]
+"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_0ytkr")
+
+[node name="KnobRow" type="HBoxContainer" parent="Bands/Tray/Traypad/TrayColumn" unique_id=1103842978]
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="CancelButton" type="Button" parent="Bands/Tray/Traypad/TrayColumn/KnobRow" unique_id=2093515215]
+custom_minimum_size = Vector2(62, 62)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.8117647, 0.5411765, 0.5411765, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_cn02j")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ylo7x")
+theme_override_styles/hover = SubResource("StyleBoxFlat_glbgv")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_8glxk")
+theme_override_styles/focus = SubResource("StyleBoxFlat_v2mva")
+text = "X"
+script = ExtResource("3_f2lms")
+border_color = Color(0.58706105, 0.23319083, 0.33860078, 1)
+
+[node name="SpacerL" type="Control" parent="Bands/Tray/Traypad/TrayColumn/KnobRow" unique_id=1278857793]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="KnobWrap" type="Control" parent="Bands/Tray/Traypad/TrayColumn/KnobRow" unique_id=233317989]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+
+[node name="HpRing" type="Control" parent="Bands/Tray/Traypad/TrayColumn/KnobRow/KnobWrap" unique_id=1521725675]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_4wg2g")
+metadata/_custom_type_script = "uid://4mhka2atb3xy"
+
+[node name="SpacerL2" type="Control" parent="Bands/Tray/Traypad/TrayColumn/KnobRow" unique_id=56279530]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ConfrimButton" type="Button" parent="Bands/Tray/Traypad/TrayColumn/KnobRow" unique_id=104890865]
+custom_minimum_size = Vector2(62, 62)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.24313726, 0.41568628, 0.32156864, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_eb4aj")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_tieji")
+theme_override_styles/hover = SubResource("StyleBoxFlat_trygy")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_vm8p4")
+theme_override_styles/focus = SubResource("StyleBoxFlat_8i4cv")
+text = "✓"
+script = ExtResource("3_f2lms")

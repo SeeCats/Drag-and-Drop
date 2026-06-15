@@ -174,6 +174,7 @@ Acceptance criteria — each maps to a screenshot state; Code Claude's build pas
 6. Research to-do before wave 2: play Slice & Dice (closest relative — portrait dice combat; study its intent display, unlimited pre-commit undo, information density).
 7. **Knob discoverability = wave-2 criterion** (Fable, 06-12): the chopsticks test proves comfort for a *taught* user, not discovery by an untutored one. Wave-2 telemetry must show untutored players find the flick; if not, the tap-tap redundant channel (§5 archive) gets promoted.
 8. Demand-hint visual form (T4): icon chip vs. pattern-type halo. Halo path is blocked by the Godot 4.6 RichTextEffect outline gotcha (CLAUDE.md); icon chip is the safe default.
+9. **Scouter: convey absolute max-HP on the ring.** A normalized ring can't distinguish max-10 from max-20 (both = a full circle), yet total HP matters for kill planning. Candidates: (a) HP-quantized reticle ticks — tick count/density = max HP (reuses the scouter's existing ticks; my lean); (b) ring radius/thickness scales with max HP (bigger monster = bigger ring; costs layout stability); (c) fixed degrees-per-HP so arc length = absolute HP (needs a cap / overflow ring). Affects `RadialBar._draw`. Undecided.
 
 ## Changelog
 

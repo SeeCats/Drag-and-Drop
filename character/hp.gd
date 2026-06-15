@@ -2,7 +2,7 @@ extends ProgressBar
 class_name Hp
 
 ## Fired whenever current or max HP changes. The rework UI hides the ProgressBar
-## itself and listens to this to drive a RadialBar (scouter ring / knob halo).
+## visual and listens to this to drive a RadialBar (scouter ring / knob halo).
 signal hp_changed(current: int, maximum: int)
 
 @export var max_hp :int = 20:
@@ -34,14 +34,13 @@ func _ready():
 	label.max_value = max_hp
 	value = current_hp
 	label.current_value = current_hp
-	hp_changed.emit(current_hp, max_hp)   # initial sync for anything that connected before now
-
+	hp_changed.emit(current_hp, max_hp)   # initial sync for listeners connected before now
 
 
 func round_start():
 	current_hp += hp_regen
-	
-	
+
+
 func take_damage(damage: int):
 	current_hp -= damage
 
@@ -55,7 +54,3 @@ func _hit_feedback(target: float) -> void:
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	modulate = Color(2, 2, 2)  # bright flash, eased back to white
 	create_tween().tween_property(self, "modulate", Color.WHITE, 0.2)
-
-
-
-	

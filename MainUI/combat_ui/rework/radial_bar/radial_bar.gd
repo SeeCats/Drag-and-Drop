@@ -49,3 +49,19 @@ func set_hp(current: float, projected: float, maximum: float) -> void:
 	value = projected                 # bright = what survives
 	secondary = maxf(current - projected, 0.0)  # dim = what's about to be lost
 	queue_redraw()
+
+var _tween: Tween
+
+## Animate the bright arc down to `target` (damage feedback). Because `value`'s
+## setter calls queue_redraw(), tweening it redraws the arc each frame. Clears the
+## at-risk `secondary` (the preview is now being realized) and flashes the ring.
+func tween_to(target: float, dur: float = 0.25, flash: bool = true) -> void:
+	secondary = 0.0
+	if _tween and _tween.is_valid():
+		_tween.kill()
+	_tween = create_tween()
+	_tween.tween_property(self, "value", target, dur)\
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	if flash:
+		modulate = Color(2, 2, 2)                              # bright flash
+		create_tween().tween_property(self, "modulate", Color.WHITE, 0.2)
