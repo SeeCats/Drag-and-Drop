@@ -1,3 +1,4 @@
+@tool
 extends Control
 class_name Dice
 
@@ -10,14 +11,18 @@ class_name Dice
 @export var current_roll : int :
 	set(new_value):
 		current_roll = clamp(new_value, min_roll, max_roll)
-		label.text = str(current_roll)
+		if label:
+			label.text = str(current_roll)
 @export var texture : Texture
-@export var element : Rollables.Element
+@export var element : Rollables.Element :
+	set(value):
+		element = value
+		_apply_element_tint()
+@export var fit_to_control : bool = true   # size the cube to this Control's rect (rework slots); off keeps old UI dice unchanged
 
 
 var swapping : bool:
 	set(new_value):
-		print("swapping setter: value = ", new_value, " caller-trace: ", get_stack())
 		swapping = new_value
 		top_level = new_value
 		cube.rotation_axis = Vector3(1, 1, -1)
@@ -35,28 +40,34 @@ var initial_halo_width : float = 12
 
 
 func _ready() -> void:
-	# Tint the cube's halo to match this die's element.
-	cube.fill_color =  Swatch.HALF[element as int ]
-	cube.halo_color = Swatch.NEON_COLOR[element as int]
-	roll()
+	_apply_element_tint()
+
+
+
+func _apply_element_tint() -> void:
+	# Tint cube fill + halo to this die's element. Guarded because the element
+	# setter can fire before @onready resolves cube.
+	if cube:
+		cube.fill_color = Swatch.HALF[element as int]
+		cube.halo_color = Swatch.NEON_COLOR[element as int]
 
 
 func roll():
 	current_roll = randi_range(min_roll, max_roll)
 
 func fake_roll():
-	label.text = str(randi_range(min_roll, max_roll))
+	label.text = "?"
 	 
 func _process(delta: float) -> void:
 	# Keep the cube glued to the label's visual center, even if the Dice
 	# control resizes. Label fills the parent (anchors_preset = 15) and text
 	# is centered, so label.position + label.size / 2 is where the digit sits.
 	cube.position = label.position + label.size / 2
+	if fit_to_control:
+		cube.fit_to(min(size.x, size.y))   # cube tracks the slot size
 	if swapping:
 		print("_process sees swapping=true, global_position=", global_position)
 		cube.halo_width = initial_halo_width * (1 + 1 * sin(TAU * swap_time / swap_interval))
 		swap_time += delta
 		global_position = get_global_mouse_position() - size/2
-		if swap_time >= swap_interval:
-			swap_time = 0
-			fake_roll() # if swap_time gets longer than swap interval do a fake roll
+		fake_roll() 

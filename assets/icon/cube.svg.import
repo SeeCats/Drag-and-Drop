@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dl74m8ts30pun"
-path="res://.godot/imported/butterfly_halo.png-656b0a1b0030dc9bef4c7e8ecd3e4e37.ctex"
+uid="uid://riiyem7wmo1t"
+path="res://.godot/imported/cube.svg-bb3b42f9347086b6728f3f7b69c5847d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/butterfly_halo.png"
-dest_files=["res://.godot/imported/butterfly_halo.png-656b0a1b0030dc9bef4c7e8ecd3e4e37.ctex"]
+source_file="res://assets/icon/cube.svg"
+dest_files=["res://.godot/imported/cube.svg-bb3b42f9347086b6728f3f7b69c5847d.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

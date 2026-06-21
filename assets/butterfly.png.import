@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cewcl5c7r5l77"
-path="res://.godot/imported/counter.svg-26fa0cfd70697163ef9159f9465e16c8.ctex"
+uid="uid://bhgisph6wl2go"
+path="res://.godot/imported/butterfly.png-391d59908df50d255e7fafb9bdcdd731.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/icon/counter.svg"
-dest_files=["res://.godot/imported/counter.svg-26fa0cfd70697163ef9159f9465e16c8.ctex"]
+source_file="res://assets/butterfly.png"
+dest_files=["res://.godot/imported/butterfly.png-391d59908df50d255e7fafb9bdcdd731.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

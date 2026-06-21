@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://db6uxhijh4qif"
-path="res://.godot/imported/hex.svg-9633bbace3337528a6b85e230f1d0dcd.ctex"
+uid="uid://c5128u2q7vklg"
+path="res://.godot/imported/slot10.png-f0d1316a12d7a15f29adfb2c27bb1ab3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/icon/hex.svg"
-dest_files=["res://.godot/imported/hex.svg-9633bbace3337528a6b85e230f1d0dcd.ctex"]
+source_file="res://assets/icon/slot10.png"
+dest_files=["res://.godot/imported/slot10.png-f0d1316a12d7a15f29adfb2c27bb1ab3.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

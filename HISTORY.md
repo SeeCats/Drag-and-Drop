@@ -4,6 +4,14 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-06-20 (Code Claude — rework dice row built: DiceSlot + Outliner widgets, responsive cube, element re-tint)
+
+- **DiceSlot** (`rework/dice_slot/`): dumb `VBoxContainer` widget — `@export role`/`element`, `set_value`/`set_sub` in, `is_inside` (off `Slot` hover) out; wraps a reused `dice.tscn`. Three instances now fill `CombatRework.tscn`'s `DiceRow` (roles BASE/MULT/ANTI). Closes task #4 (scene shell). Lesson re-flagged: instance the `.tscn`, don't add the `class_name` type from the node dialog (gives a bare childless node).
+- **Outliner** (`rework/widgets/outliner.gd`): reusable framed `PanelContainer` — script-built StyleBoxFlat (border + `padding` content-margin), tunable via exports. Frames each slot so it reads as one unit; transparent fill by default.
+- `cube_2d.gd`: added `Cube.fit_to(diameter)` — scales the `Node2D` to fit a px box (a `Node2D` ignores Control sizing). `dice.gd`: `@export fit_to_control` (**default true**) calls it each frame so the die tracks its slot; `element` now has a setter that re-tints the cube live (needed when dice get reassigned between slots); `current_roll` setter `if label:` guarded. CLAUDE.md scene-map updated.
+- **Controller seam (#9):** `combat_rework.gd` is the adapter — owns the player dice (`_values`/`_elements`, model A) and exposes two channels: `render()` (out, pushes to dumb widgets) + `request_swap`/`request_rotate` (in, stubbed for #3). `CurrentRoll.get_roll_from_dice()` is the pure projection (replaces the old `_roll_from`). `DiceSlot`s referenced via `%`-unique-names. `Chip`/`ChipRow` (rework/widgets) are dumb monster-stat chips; `ChipRow.set_roll()` fans the monster roll out to each chip by its `role`. Monster roll currently stubbed in `current_roll.gd`; real source is MonsterResource (parked).
+- **CLAUDE.md edit:** codified comment style (was "keep short") — 1–2 sentence what/how atop each function, minimal why, no header essays or `# --- section ---` dividers. Mirrors a saved user-memory.
+
 ## 2026-06-13 (UI Claude — combat-UI preview rebuilt; "no corners" UI doctrine added to CLAUDE.md)
 
 - Rebuilt the finalized staring-phase layout as an interactive proto `docs/prototype/combat-ui-prototypever4.html` (supersedes ver3): player HP = knob ring, kill-verdict docked under the monster scouter ring, threshold strip + horizontal HP bar gone, ownership fans, tempo-channel starfield, recognition-first demand hint, neutral monster-anti chip, d6, cube z-edges. Parked the §7.1 VP dice treatment as a separate exploration proto `docs/prototype/combat-ui-vp-dice-proto.html` (user: VP is "way later").

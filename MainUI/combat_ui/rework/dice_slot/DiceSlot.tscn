@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://dgraytjy1nxlv"]
+
+[ext_resource type="Script" uid="uid://c42nnq2nc2kuf" path="res://MainUI/combat_ui/rework/dice_slot/dice_slot.gd" id="1_t4kgc"]
+[ext_resource type="PackedScene" uid="uid://ch4nevd614kw4" path="res://MainUI/player_vbox/dice/dice.tscn" id="1_tkkj1"]
+[ext_resource type="Script" uid="uid://5tarbequlibu" path="res://MainUI/combat_ui/rework/widgets/rich_label.gd" id="2_t4kgc"]
+
+[node name="DiceSlot" type="VBoxContainer" unique_id=1986076020]
+offset_right = 64.0
+offset_bottom = 91.0
+script = ExtResource("1_t4kgc")
+
+[node name="Slot" type="PanelContainer" parent="." unique_id=1149354065]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="DiceHolder" type="CenterContainer" parent="Slot" unique_id=856275834]
+layout_mode = 2
+
+[node name="Dice" parent="Slot/DiceHolder" unique_id=1860795333 instance=ExtResource("1_tkkj1")]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+current_roll = 2
+
+[node name="SlotLabel" type="RichTextLabel" parent="." unique_id=1296721402]
+layout_mode = 2
+mouse_filter = 2
+bbcode_enabled = true
+text = "[center]14[/center]"
+fit_content = true
+autowrap_mode = 0
+script = ExtResource("2_t4kgc")
+metadata/_custom_type_script = "uid://5tarbequlibu"

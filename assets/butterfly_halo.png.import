@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p1j87xq7fvtj"
-path="res://.godot/imported/path1.png-3bf592b893bfb5ef5921e3defd1c6552.ctex"
+uid="uid://dl74m8ts30pun"
+path="res://.godot/imported/butterfly_halo.png-6c5cd64cc8b3c1bd1a87ebfae4df0ae1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/path1.png"
-dest_files=["res://.godot/imported/path1.png-3bf592b893bfb5ef5921e3defd1c6552.ctex"]
+source_file="res://assets/butterfly_halo.png"
+dest_files=["res://.godot/imported/butterfly_halo.png-6c5cd64cc8b3c1bd1a87ebfae4df0ae1.ctex"]
 
 [params]
 

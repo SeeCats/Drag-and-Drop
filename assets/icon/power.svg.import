@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bkesy1modryic"
-path="res://.godot/imported/edurs34-minecraft-8036149.png-a7cfd252c9d9523e2b7ac2af658bc526.ctex"
+uid="uid://bvgxlxyhjlqe2"
+path="res://.godot/imported/power.svg-c0b1615b17bfa096c7749a525ea7fd66.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/icon/edurs34-minecraft-8036149.png"
-dest_files=["res://.godot/imported/edurs34-minecraft-8036149.png-a7cfd252c9d9523e2b7ac2af658bc526.ctex"]
+source_file="res://assets/icon/power.svg"
+dest_files=["res://.godot/imported/power.svg-c0b1615b17bfa096c7749a525ea7fd66.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

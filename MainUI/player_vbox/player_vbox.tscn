@@ -7,9 +7,9 @@
 [ext_resource type="PackedScene" uid="uid://ch4nevd614kw4" path="res://MainUI/player_vbox/dice/dice.tscn" id="5_u56ai"]
 [ext_resource type="Script" uid="uid://33v1lkwvhy0t" path="res://MainUI/player_vbox/rotate.gd" id="6_8nv8j"]
 [ext_resource type="PackedScene" uid="uid://5dal5o1fts6i" path="res://MainUI/player_vbox/action/action.tscn" id="7_6x8qi"]
-[ext_resource type="Texture2D" uid="uid://bvgxlxyhjlqe2" path="res://asset/icon/power.svg" id="8_8ro3w"]
-[ext_resource type="Texture2D" uid="uid://tft74hem5cog" path="res://asset/icon/rep.svg" id="9_874wy"]
-[ext_resource type="Texture2D" uid="uid://cewcl5c7r5l77" path="res://asset/icon/counter.svg" id="10_25hc1"]
+[ext_resource type="Texture2D" uid="uid://bvgxlxyhjlqe2" path="res://assets/icon/power.svg" id="8_8ro3w"]
+[ext_resource type="Texture2D" uid="uid://tft74hem5cog" path="res://assets/icon/rep.svg" id="9_874wy"]
+[ext_resource type="Texture2D" uid="uid://cewcl5c7r5l77" path="res://assets/icon/counter.svg" id="10_25hc1"]
 
 [node name="VBoxContainer" type="VBoxContainer" unique_id=1703046513 node_paths=PackedStringArray("hp")]
 custom_minimum_size = Vector2(396, 0)

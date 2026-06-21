@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bylh6okgit5t4"
-path="res://.godot/imported/slot6.png-efff9b22dd5a26ce60822c1c75c6c2ea.ctex"
+uid="uid://com1ti2c4cx7p"
+path="res://.godot/imported/line2.svg-724a4d77bc69a0438f5ca10bbb4eb37a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/icon/slot6.png"
-dest_files=["res://.godot/imported/slot6.png-efff9b22dd5a26ce60822c1c75c6c2ea.ctex"]
+source_file="res://assets/두루미/line2.svg"
+dest_files=["res://.godot/imported/line2.svg-724a4d77bc69a0438f5ca10bbb4eb37a.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

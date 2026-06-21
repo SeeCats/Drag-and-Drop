@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dqotgt4ejg3kh"
-path="res://.godot/imported/line.svg-b8af73267d1a324a3e879c33d74de1ff.ctex"
+uid="uid://db6uxhijh4qif"
+path="res://.godot/imported/hex.svg-9b66f2f8b0fffb23e8623986a2950655.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/두루미/line.svg"
-dest_files=["res://.godot/imported/line.svg-b8af73267d1a324a3e879c33d74de1ff.ctex"]
+source_file="res://assets/icon/hex.svg"
+dest_files=["res://.godot/imported/hex.svg-9b66f2f8b0fffb23e8623986a2950655.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c5128u2q7vklg"
-path="res://.godot/imported/slot10.png-78f6931affb22a4985c47d44b3f92b4c.ctex"
+uid="uid://4jsueh420lrm"
+path="res://.godot/imported/line3.png-442a746679c1af48a254cefa3f5812ea.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/icon/slot10.png"
-dest_files=["res://.godot/imported/slot10.png-78f6931affb22a4985c47d44b3f92b4c.ctex"]
+source_file="res://assets/두루미/line3.png"
+dest_files=["res://.godot/imported/line3.png-442a746679c1af48a254cefa3f5812ea.ctex"]
 
 [params]
 

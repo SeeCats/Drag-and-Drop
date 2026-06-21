@@ -5,7 +5,7 @@
 [ext_resource type="Resource" uid="uid://c1wptyq6icp8i" path="res://character/monster/slimebosss/slime_pattern1.tres" id="3_aupmv"]
 [ext_resource type="Resource" uid="uid://bkj5u7pf364lt" path="res://character/monster/slimebosss/slime_pattern2.tres" id="4_jsc2i"]
 [ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/Hp/hp_bar.tscn" id="5_f0uf0"]
-[ext_resource type="Texture2D" uid="uid://bkesy1modryic" path="res://asset/icon/edurs34-minecraft-8036149.png" id="6_7q0ly"]
+[ext_resource type="Texture2D" uid="uid://bkesy1modryic" path="res://assets/icon/edurs34-minecraft-8036149.png" id="6_7q0ly"]
 [ext_resource type="Script" uid="uid://bwlu01qqe0gwi" path="res://character/monster/slimebosss/blurry_halo.gd" id="7_t8244"]
 [ext_resource type="Script" uid="uid://brdf5r5fcskm8" path="res://character/monster/slimebosss/current_roll.gd" id="8_fh2mt"]
 

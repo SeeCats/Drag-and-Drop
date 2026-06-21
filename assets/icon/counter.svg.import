@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://4jsueh420lrm"
-path="res://.godot/imported/line3.png-0735bde1d98d599bd651468d5757a6af.ctex"
+uid="uid://cewcl5c7r5l77"
+path="res://.godot/imported/counter.svg-b50a6324d9de42ad30a81a4b50208790.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/두루미/line3.png"
-dest_files=["res://.godot/imported/line3.png-0735bde1d98d599bd651468d5757a6af.ctex"]
+source_file="res://assets/icon/counter.svg"
+dest_files=["res://.godot/imported/counter.svg-b50a6324d9de42ad30a81a4b50208790.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

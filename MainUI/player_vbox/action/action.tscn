@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://5dal5o1fts6i"]
 
 [ext_resource type="Script" uid="uid://ko1jkvu2m3bc" path="res://MainUI/player_vbox/action/action.gd" id="1_8ov6p"]
-[ext_resource type="Texture2D" uid="uid://dm5o4rsbq5ohc" path="res://asset/icon/hex.png" id="2_f6lmb"]
-[ext_resource type="Texture2D" uid="uid://cewcl5c7r5l77" path="res://asset/icon/counter.svg" id="3_e1wb5"]
+[ext_resource type="Texture2D" uid="uid://dm5o4rsbq5ohc" path="res://assets/icon/hex.png" id="2_f6lmb"]
+[ext_resource type="Texture2D" uid="uid://cewcl5c7r5l77" path="res://assets/icon/counter.svg" id="3_e1wb5"]
 
 [node name="Dice" type="Control" unique_id=1860795333]
 custom_minimum_size = Vector2(40, 49)

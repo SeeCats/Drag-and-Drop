@@ -7,7 +7,7 @@
 [ext_resource type="Resource" uid="uid://csklla27ja7el" path="res://character/monster/slime/slime_pattern2.tres" id="4_yrb4l"]
 [ext_resource type="Resource" uid="uid://ccvql6ovo0s7j" path="res://character/monster/slime/slime_pattern3.tres" id="5_80xjw"]
 [ext_resource type="Resource" uid="uid://diw3oeyqf4hoq" path="res://character/monster/slime/slime_pattern4.tres" id="6_jxgeq"]
-[ext_resource type="Texture2D" uid="uid://bkesy1modryic" path="res://asset/icon/edurs34-minecraft-8036149.png" id="6_kr13b"]
+[ext_resource type="Texture2D" uid="uid://bkesy1modryic" path="res://assets/icon/edurs34-minecraft-8036149.png" id="6_kr13b"]
 [ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/Hp/hp_bar.tscn" id="6_r0b23"]
 [ext_resource type="Script" uid="uid://bqfts427ymh43" path="res://character/monster/slime/current_roll.gd" id="9_hekce"]
 [ext_resource type="Script" uid="uid://d37r2fe2cv8g7" path="res://character/monster/slime/blurry_halo.gd" id="blurry_halo_script"]

@@ -25,7 +25,7 @@ var action_index_list : Array[int]
 #base mult anti
 var current_min_list = [1,1,0,0]
 # base, mult, anti, anti_type
-var current_monster_roll_list = [0, 0 , 0, 0]
+var current_monster_roll_list = [3, 3 , 1, 0]
 var current_monster_min_list = [1, 1, 0, 0]
 var next_pattern: Pattern   # upcoming round's pattern (lookahead)
 
@@ -109,6 +109,17 @@ func round_end():
 # --- Pure preview resolver (no side effects) -------------------------------
 # Mirrors anti_operator + base*mult on COPIES. The live combat above still
 # resolves the real (mutating) way; this is for the preview UI.
+# Dice -> roll list. Model A: column order IS role order, so read left->right;
+# anti_type = the ANTI-column die's element. Replaces player_character._roll_from.
+func get_roll_from_dice(values: Array, elements: Array) -> Array:
+	return [
+		values[RollIndex.BASE],   # col 0
+		values[RollIndex.MULT],   # col 1
+		values[RollIndex.ANTI],   # col 2
+		elements[RollIndex.ANTI], # anti_type = anti die's element
+	]
+
+
 func compute_outcome(player_roll: Array, monster_roll: Array) -> Dictionary:
 	var p := player_roll.duplicate()
 	var m := monster_roll.duplicate()

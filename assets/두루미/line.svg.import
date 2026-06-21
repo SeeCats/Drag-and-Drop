@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cbpscuc2gf7bc"
-path="res://.godot/imported/slot8.png-00ae04567ed02e4752a029f9d2708137.ctex"
+uid="uid://dqotgt4ejg3kh"
+path="res://.godot/imported/line.svg-f817596f110729b39a272d2e51a64c0b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://asset/icon/slot8.png"
-dest_files=["res://.godot/imported/slot8.png-00ae04567ed02e4752a029f9d2708137.ctex"]
+source_file="res://assets/두루미/line.svg"
+dest_files=["res://.godot/imported/line.svg-f817596f110729b39a272d2e51a64c0b.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

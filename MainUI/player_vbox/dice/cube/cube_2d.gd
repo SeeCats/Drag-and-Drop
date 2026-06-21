@@ -198,3 +198,25 @@ func _project(corner: Vector3) -> Vector2:
 	if depth < 0.1:
 		depth = 0.1   # clamp if a corner ever passes through the camera plane
 	return Vector2(corner.x, -corner.y) * focal_length / depth
+
+
+# Scale the cube so its rest silhouette fits a box of `diameter` px. natural is
+# the largest projected corner at rest; scaling by wanted/natural keeps the line
+# widths proportional too (Node2D scale multiplies geometry AND width). Lets the
+# die be sized by its container instead of by fixed focal_length/camera_distance.
+func fit_to(diameter: float) -> void:
+	if shape == null or shape.corners.is_empty():
+		return
+	var natural := _natural_radius()
+	if natural <= 0.0:
+		return
+	var k := (diameter * 0.5) / natural
+	scale = Vector2(k, k)
+
+
+func _natural_radius() -> float:
+	var euler_basis := Basis.from_euler(euler_offset * PI / 180.0)
+	var r := 0.0
+	for corner in shape.corners:
+		r = max(r, _project(euler_basis * corner).length())
+	return r
