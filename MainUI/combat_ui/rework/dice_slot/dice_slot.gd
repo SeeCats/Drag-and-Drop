@@ -38,6 +38,11 @@ func set_value(v: int) -> void:
 	if dice:
 		dice.current_roll = v
 
+# Shows the die face as a hidden gamble ("?") until commit reveals it.
+func set_unknown() -> void:
+	if dice:
+		dice.fake_roll()
+
 func set_element(e: Rollables.Element) -> void:
 	element = e
 

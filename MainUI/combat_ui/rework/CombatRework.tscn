@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://dgraytjy1nxlv" path="res://MainUI/combat_ui/rework/dice_slot/DiceSlot.tscn" id="4_ylo7x"]
 [ext_resource type="Script" uid="uid://bj4ljy0a3q1p4" path="res://MainUI/combat_ui/rework/widgets/chip.gd" id="5_v2mva"]
 [ext_resource type="Script" uid="uid://7qs3w28qnihh" path="res://MainUI/combat_ui/rework/widgets/damage_preview.gd" id="10_v2mva"]
+[ext_resource type="Script" uid="uid://c2cvh465urfgn" path="res://MainUI/combat_ui/rework/tray_input/tray_input.gd" id="11_eb4aj"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v2mva"]
 content_margin_left = 10.0
@@ -409,6 +410,7 @@ layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="CancelButton" type="Button" parent="Bands/Tray/Traypad/TrayColumn/KnobRow" unique_id=2093515215]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(62, 62)
 layout_mode = 2
 size_flags_horizontal = 6
@@ -424,6 +426,7 @@ script = ExtResource("3_f2lms")
 border_color = Color(0.58706105, 0.23319083, 0.33860078, 1)
 
 [node name="KnobWrap" type="Control" parent="Bands/Tray/Traypad/TrayColumn/KnobRow" unique_id=233317989]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -478,6 +481,7 @@ autowrap_mode = 0
 script = ExtResource("10_v2mva")
 
 [node name="ConfirmButton" type="Button" parent="Bands/Tray/Traypad/TrayColumn/KnobRow" unique_id=104890865]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(62, 62)
 layout_mode = 2
 size_flags_horizontal = 6
@@ -490,3 +494,7 @@ theme_override_styles/disabled = SubResource("StyleBoxFlat_0amv0")
 theme_override_styles/focus = SubResource("StyleBoxFlat_88cq2")
 text = "✓"
 script = ExtResource("3_f2lms")
+
+[node name="TrayInput" type="Node" parent="." unique_id=352829681]
+script = ExtResource("11_eb4aj")
+metadata/_custom_type_script = "uid://c2cvh465urfgn"

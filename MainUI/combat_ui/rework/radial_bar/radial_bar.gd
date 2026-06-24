@@ -11,6 +11,8 @@ class_name RadialBar
 	set(v): value = v; queue_redraw()
 @export var secondary: float = 0.0:            # dim arc, drawn after `value` (e.g. at-risk HP)
 	set(v): secondary = v; queue_redraw()
+@export var range_amount: float = 0.0:         # middle "uncertain" band between value and secondary
+	set(v): range_amount = v; queue_redraw()
 @export var thickness: float = 10.0:
 	set(v): thickness = v; queue_redraw()
 @export var start_angle_deg: float = -90.0:    # -90 = 12 o'clock
@@ -32,22 +34,34 @@ func _draw() -> void:
 	var start := deg_to_rad(start_angle_deg)
 	var dir := 1.0 if clockwise else -1.0
 	var frac_v := clampf(value / max_value, 0.0, 1.0)
-	var frac_s := clampf(secondary / max_value, 0.0, 1.0 - frac_v)
+	var frac_r := clampf(range_amount / max_value, 0.0, 1.0 - frac_v)
+	var frac_s := clampf(secondary / max_value, 0.0, 1.0 - frac_v - frac_r)
 	# track (full ring)
 	draw_arc(center, radius, start, start + dir * TAU, 96, track_color, thickness, true)
-	# secondary (at-risk) — sits between value's end and the track
+	# secondary (sure loss) — outermost band of the filled arc
 	if frac_s > 0.0:
-		var s0 := start + dir * frac_v * TAU
+		var s0 := start + dir * (frac_v + frac_r) * TAU
 		draw_arc(center, radius, s0, s0 + dir * frac_s * TAU, 96, secondary_color, thickness, true)
+	# range (uncertain) — middle band, a blend of value and secondary
+	if frac_r > 0.0:
+		var r0 := start + dir * frac_v * TAU
+		draw_arc(center, radius, r0, r0 + dir * frac_r * TAU, 96, value_color.lerp(secondary_color, 0.5), thickness, true)
 	# value (bright) drawn last so the seam is clean
 	if frac_v > 0.0:
 		draw_arc(center, radius, start, start + dir * frac_v * TAU, 96, value_color, thickness, true)
 
-# convenience for wiring later: set both arcs from an HP state in one call
+# Sets the two arcs from a single HP projection (the exact, no-gamble case).
 func set_hp(current: float, projected: float, maximum: float) -> void:
+	var dmg := current - projected
+	set_hp_range(current, dmg, dmg, maximum)
+
+# Sets three bands from a damage RANGE: bright = survivors at worst, middle =
+# uncertain (the gamble), dim = sure loss. Equal min/max collapses the middle.
+func set_hp_range(current: float, dmg_min: float, dmg_max: float, maximum: float) -> void:
 	max_value = maximum
-	value = projected                 # bright = what survives
-	secondary = maxf(current - projected, 0.0)  # dim = what's about to be lost
+	value = maxf(current - dmg_max, 0.0)        # survives even at max damage
+	range_amount = maxf(dmg_max - dmg_min, 0.0)  # the gamble band
+	secondary = maxf(dmg_min, 0.0)              # lost for sure
 	queue_redraw()
 
 var _tween: Tween

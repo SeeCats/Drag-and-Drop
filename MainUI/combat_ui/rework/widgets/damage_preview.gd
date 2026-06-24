@@ -3,7 +3,7 @@ extends RichLabel
 class_name DamagePreview
 
 # Player's projected-damage readout in the knob: DEAL header, number, sub line.
-var value: int:
+var value: String:
 	set(new_value):
 		value = new_value
 		_queue_refresh()
@@ -24,4 +24,4 @@ func _queue_refresh() -> void:
 # Renders the three stacked lines from the current value and sub.
 func set_deal() -> void:
 	_pending = false
-	text = "[center][font_size=13]DEAL[/font_size][/center]\n[center][font_size=30]%d[/font_size][/center]\n[center][font_size=13]%s[/font_size][/center]" % [value, sub]
+	text = "[center][font_size=13]DEAL[/font_size][/center]\n[center][font_size=30]%s[/font_size][/center]\n[center][font_size=13]%s[/font_size][/center]" % [value, sub]
