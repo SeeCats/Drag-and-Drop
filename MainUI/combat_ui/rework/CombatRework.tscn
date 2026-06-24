@@ -9,56 +9,57 @@
 [ext_resource type="Script" uid="uid://m4g0s4vwvyj3" path="res://MainUI/combat_ui/rework/widgets/chip_row.gd" id="4_8glxk"]
 [ext_resource type="PackedScene" uid="uid://dgraytjy1nxlv" path="res://MainUI/combat_ui/rework/dice_slot/DiceSlot.tscn" id="4_ylo7x"]
 [ext_resource type="Script" uid="uid://bj4ljy0a3q1p4" path="res://MainUI/combat_ui/rework/widgets/chip.gd" id="5_v2mva"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ylo7x"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0, 0, 0, 0)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.24313726, 0.41568628, 0.32156864, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_glbgv"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0, 0, 0, 0)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.24313726, 0.41568628, 0.32156864, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8glxk"]
-content_margin_left = 10.0
-content_margin_top = 10.0
-content_margin_right = 10.0
-content_margin_bottom = 10.0
-bg_color = Color(0, 0, 0, 0)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.24313726, 0.41568628, 0.32156864, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+[ext_resource type="Script" uid="uid://7qs3w28qnihh" path="res://MainUI/combat_ui/rework/widgets/damage_preview.gd" id="10_v2mva"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v2mva"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.24313726, 0.41568628, 0.32156864, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eb4aj"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.24313726, 0.41568628, 0.32156864, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tieji"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.24313726, 0.41568628, 0.32156864, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_trygy"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -70,7 +71,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eb4aj"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vm8p4"]
 bg_color = Color(0.1, 0.1, 0.1, 0)
 border_width_left = 2
 border_width_top = 2
@@ -82,7 +83,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tieji"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8i4cv"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -94,7 +95,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_trygy"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hwn8k"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -106,7 +107,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vm8p4"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k0wnr"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -124,7 +125,7 @@ corner_radius_top_right = 48
 corner_radius_bottom_right = 48
 corner_radius_bottom_left = 48
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8i4cv"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fecdo"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -136,7 +137,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hwn8k"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g035i"]
 bg_color = Color(0.1, 0.1, 0.1, 0)
 border_width_left = 2
 border_width_top = 2
@@ -148,7 +149,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k0wnr"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wkt3x"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -160,7 +161,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fecdo"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0amv0"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -172,7 +173,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g035i"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_88cq2"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -214,6 +215,7 @@ layout_mode = 2
 text = "☰"
 
 [node name="PhaseLabel" type="RichTextLabel" parent="Bands/StatusBar/StatusRow" unique_id=1591327651]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 4
 text = "planning · fight 1"
@@ -243,6 +245,7 @@ self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 
 [node name="ScouterRing" parent="Bands/EnemyPanel/EnemyZone" unique_id=610998314 instance=ExtResource("1_8eonr")]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -273,6 +276,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="HpText" type="RichTextLabel" parent="Bands/EnemyPanel/EnemyZone/MonsterDock" unique_id=955326041]
+unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true
 text = "hp 14 → 11"
@@ -304,7 +308,8 @@ layout_mode = 2
 [node name="ValueLabel" type="RichTextLabel" parent="Bands/MonsterChips/ChipRow/BaseChip/ChipBox" unique_id=2057360062]
 layout_mode = 2
 bbcode_enabled = true
-text = "[center]3[/center][center]base[/center]"
+text = "[center]0[/center]
+[center]base[/center]"
 fit_content = true
 autowrap_mode = 0
 script = ExtResource("2_0ytkr")
@@ -321,7 +326,7 @@ layout_mode = 2
 [node name="ValueLabel" type="RichTextLabel" parent="Bands/MonsterChips/ChipRow/MultChip/ChipBox" unique_id=581521416]
 layout_mode = 2
 bbcode_enabled = true
-text = "[center]x 3[/center]
+text = "[center]x0[/center]
 [center]mult[/center]"
 fit_content = true
 autowrap_mode = 0
@@ -339,7 +344,7 @@ layout_mode = 2
 [node name="ValueLabel" type="RichTextLabel" parent="Bands/MonsterChips/ChipRow/AntiChip/ChipBox" unique_id=675423301]
 layout_mode = 2
 bbcode_enabled = true
-text = "[center]3[/center]
+text = "[center]0[/center]
 [center]anti[/center]"
 fit_content = true
 autowrap_mode = 0
@@ -367,7 +372,7 @@ theme_override_constants/separation = 10
 [node name="BaseOutliner" type="PanelContainer" parent="Bands/Tray/Traypad/TrayColumn/DiceRow" unique_id=2043259744]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_ylo7x")
+theme_override_styles/panel = SubResource("StyleBoxFlat_v2mva")
 script = ExtResource("3_cn02j")
 
 [node name="BaseSlot" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseOutliner" unique_id=1986076020 instance=ExtResource("4_ylo7x")]
@@ -377,7 +382,7 @@ layout_mode = 2
 [node name="MultOutliner" type="PanelContainer" parent="Bands/Tray/Traypad/TrayColumn/DiceRow" unique_id=387670042]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_glbgv")
+theme_override_styles/panel = SubResource("StyleBoxFlat_eb4aj")
 script = ExtResource("3_cn02j")
 
 [node name="MultSlot" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/MultOutliner" unique_id=721407254 instance=ExtResource("4_ylo7x")]
@@ -389,7 +394,7 @@ element = 1
 [node name="AntiOutliner" type="PanelContainer" parent="Bands/Tray/Traypad/TrayColumn/DiceRow" unique_id=420776260]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_8glxk")
+theme_override_styles/panel = SubResource("StyleBoxFlat_tieji")
 script = ExtResource("3_cn02j")
 
 [node name="AntiSlot" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/AntiOutliner" unique_id=373100492 instance=ExtResource("4_ylo7x")]
@@ -409,11 +414,11 @@ layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.8117647, 0.5411765, 0.5411765, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_v2mva")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_eb4aj")
-theme_override_styles/hover = SubResource("StyleBoxFlat_tieji")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_trygy")
-theme_override_styles/focus = SubResource("StyleBoxFlat_vm8p4")
+theme_override_styles/normal = SubResource("StyleBoxFlat_trygy")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_vm8p4")
+theme_override_styles/hover = SubResource("StyleBoxFlat_8i4cv")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_hwn8k")
+theme_override_styles/focus = SubResource("StyleBoxFlat_k0wnr")
 text = "X"
 script = ExtResource("3_f2lms")
 border_color = Color(0.58706105, 0.23319083, 0.33860078, 1)
@@ -424,6 +429,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="HpRing" type="Control" parent="Bands/Tray/Traypad/TrayColumn/KnobRow/KnobWrap" unique_id=1521725675]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -449,7 +455,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_f2lms")
 
-[node name="RichLabel" type="RichTextLabel" parent="Bands/Tray/Traypad/TrayColumn/KnobRow/KnobWrap/KnobFace" unique_id=1126540465]
+[node name="DamagePreview" type="RichTextLabel" parent="Bands/Tray/Traypad/TrayColumn/KnobRow/KnobWrap/KnobFace" unique_id=1126540465]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -468,7 +475,7 @@ text = "[center][font_size=13]DEAL[/font_size][/center]
 [center][font_size=13]exact[/font_size][/center]"
 fit_content = true
 autowrap_mode = 0
-script = ExtResource("2_0ytkr")
+script = ExtResource("10_v2mva")
 
 [node name="ConfirmButton" type="Button" parent="Bands/Tray/Traypad/TrayColumn/KnobRow" unique_id=104890865]
 custom_minimum_size = Vector2(62, 62)
@@ -476,10 +483,10 @@ layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.24313726, 0.41568628, 0.32156864, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_8i4cv")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_hwn8k")
-theme_override_styles/hover = SubResource("StyleBoxFlat_k0wnr")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_fecdo")
-theme_override_styles/focus = SubResource("StyleBoxFlat_g035i")
+theme_override_styles/normal = SubResource("StyleBoxFlat_fecdo")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_g035i")
+theme_override_styles/hover = SubResource("StyleBoxFlat_wkt3x")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_0amv0")
+theme_override_styles/focus = SubResource("StyleBoxFlat_88cq2")
 text = "✓"
 script = ExtResource("3_f2lms")
