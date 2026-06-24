@@ -29,6 +29,7 @@ var _monster_hp : int = 14
 var _monster_max_hp : int = 14
 var _player_hp : int = 20
 var _player_max_hp : int = 20
+var _monster : Monster   # spawned from a MonsterResource; the rework reads its pattern + hp
 
 # --- dumb view refs ---------------------------------------------------------
 @onready var _slots : Array[DiceSlot] = [
@@ -54,6 +55,7 @@ func _ready() -> void:
 	_confirm_button.pressed.connect(commit)
 	roll_dice()      # controller owns rolling now (rework dice don't self-roll)
 	_snapshot()
+	_spawn_monster()
 	render()
 
 
@@ -61,7 +63,7 @@ func _ready() -> void:
 # Repaint from current state. _resolve() folds the swap gamble into min/max ranges.
 func render() -> void:
 	_push_dice()
-	_chip_row.set_roll(CurrentRoll.current_monster_roll_list)
+	_chip_row.set_roll(_monster_roll())
 	var r : Dictionary = _resolve()
 	_push_deal(r)
 	_push_subs(r)
@@ -103,10 +105,12 @@ func _defense_word(element: Rollables.Element) -> String:
 
 # Rings: bright = sure survivors, middle = uncertain (gamble range), dim = sure loss.
 func _push_rings(r: Dictionary) -> void:
-	_scouter_ring.set_hp_range(_monster_hp, r.deal[0], r.deal[1], _monster_max_hp)
-	var monster_lo : int = maxi(_monster_hp - r.deal[1], 0)
-	var monster_hi : int = maxi(_monster_hp - r.deal[0], 0)
-	_hp_text.text = "[center]hp %d → %s[/center]" % [_monster_hp, _range_str(monster_lo, monster_hi)]
+	var mhp : int = _monster.hp.current_hp if _monster and _monster.hp else _monster_hp
+	var mmax : int = _monster.hp.max_hp if _monster and _monster.hp else _monster_max_hp
+	_scouter_ring.set_hp_range(mhp, r.deal[0], r.deal[1], mmax)
+	var monster_lo : int = maxi(mhp - r.deal[1], 0)
+	var monster_hi : int = maxi(mhp - r.deal[0], 0)
+	_hp_text.text = "[center]hp %d → %s[/center]" % [mhp, _range_str(monster_lo, monster_hi)]
 	_hp_ring.set_hp_range(_player_hp, r.take[0], r.take[1], _player_max_hp)
 
 
@@ -170,10 +174,26 @@ func roll_dice() -> void:
 	_reset_pending()
 
 
+# Spawns the lean Monster, fed by the current MonsterResource (set before it enters the tree).
+func _spawn_monster() -> void:
+	_monster = preload("res://character/monster/Monster.tscn").instantiate() as Monster
+	_monster.data = Encounter.next_monster
+	add_child(_monster)
+
+
+# The monster's intended roll [base, mult, anti, anti_type], read from its pattern (the owner).
+func _monster_roll() -> Array:
+	if _monster and _monster.current_pattern:
+		var p : Pattern = _monster.current_pattern
+		return [p.base, p.mult, p.anti, p.anti_type]
+	return CurrentRoll.current_monster_roll_list
+
+
 # Resolves the outcome over the pending die's 1..6 (or once if none); returns min/max ranges.
 func _resolve() -> Dictionary:
 	var slot : int = _pending_slot()
 	var trials : Array = [1, 2, 3, 4, 5, 6] if slot != -1 else [-1]
+	var monster_roll : Array = _monster_roll()
 	var deal : Array[int] = []
 	var take : Array[int] = []
 	var per_hit : Array[int] = []
@@ -183,7 +203,7 @@ func _resolve() -> Dictionary:
 		if slot != -1:
 			vals[slot] = v
 		var roll : Array = CurrentRoll.get_roll_from_dice(vals, _elements)
-		var o : Dictionary = CurrentRoll.compute_outcome(roll, CurrentRoll.current_monster_roll_list)
+		var o : Dictionary = CurrentRoll.compute_outcome(roll, monster_roll)
 		deal.append(o.player.total)
 		take.append(o.monster.total)
 		per_hit.append(o.player.per_hit)

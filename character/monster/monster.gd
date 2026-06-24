@@ -2,22 +2,25 @@ extends Character
 class_name Monster
 
 @export var monster_name : String = "Slime"
+@export var data : MonsterResource   # when set, overrides the fields below (rework path); null = legacy
 var current_round : int:
 	set(new_value):
 		current_round = new_value
 		current_pattern = pattern_list[current_round % pattern_list.size()]
 @export var pattern_list : Array[Pattern]
 var current_pattern : Pattern
-@onready var current_roll: HBoxContainer = $VBar/CurrentRoll
+@onready var current_roll = get_node_or_null("VBar/CurrentRoll")   # legacy roll display; absent in the lean rework Monster
 
 
 
 func _ready() -> void:
 	super()
+	_load_data()
 	hp.label.set("monster_name", monster_name)   # name shows on this monster's HP bar only
 	current_pattern = pattern_list[current_round]
 	update_roll()
-	current_roll.update_text()
+	if current_roll:
+		current_roll.update_text()
 	GlobalSignal.player_attacked.connect(monster_hit)
 	# Announce as soon as monster_attacked fires — at that point the FSM has
 	# computed damage but hasn't yet cascaded into CHECK_DEFEAT / ROUND_START
@@ -27,6 +30,17 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
 	pass
+
+# Pulls static fields from the MonsterResource when one is assigned (rework path).
+# Legacy scenes leave `data` null and keep their baked @export fields.
+func _load_data() -> void:
+	if not data:
+		return
+	monster_name = data.monster_name
+	pattern_list = data.pattern_list
+	if hp:
+		hp.max_hp = data.max_hp
+		hp.current_hp = data.max_hp
 
 func round_start():
 	super()

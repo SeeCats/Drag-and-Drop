@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="MonsterResource" load_steps=5 format=3]
+
+[ext_resource type="Script" uid="uid://k3dthoavmsp4" path="res://character/monster/monster_resource/monster_resource.gd" id="1_mres"]
+[ext_resource type="Script" uid="uid://c8kxp3x8jkr5q" path="res://character/monster/pattern/pattern.gd" id="2_ptn"]
+[ext_resource type="Resource" uid="uid://c0cxmbp31rbir" path="res://character/monster/alligator/alligator_pattern1.tres" id="3_p1"]
+[ext_resource type="Resource" uid="uid://bgb4en3ikedtg" path="res://character/monster/alligator/alligator_pattern2.tres" id="4_p2"]
+
+[resource]
+script = ExtResource("1_mres")
+monster_name = "Alligator"
+max_hp = 24
+pattern_list = Array[ExtResource("2_ptn")]([ExtResource("3_p1"), ExtResource("4_p2")])

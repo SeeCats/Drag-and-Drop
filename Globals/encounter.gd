@@ -1,14 +1,14 @@
 extends Node
 
-# External "next monster" selector (autoload "Encounter").
-# Run/encounter logic sets `next_monster` before combat loads; the spawner reads
-# it. Defaults to slime so combat works without any selection logic yet.
+# "Next monster" selector (autoload "Encounter"). Run logic sets current_monster_order;
+# the rework spawner reads next_monster (a MonsterResource) and feeds it to a Monster node.
+# Loosely typed on purpose so the legacy PackedScene spawner doesn't fail to compile.
 
-var slime : PackedScene = preload("res://character/monster/slime/slime.tscn")
-var ghost : PackedScene =  preload("res://character/monster/ghost/ghost.tscn")
-var alien : PackedScene =  preload("res://character/monster/alien/alien.tscn")
-var alligator : PackedScene = preload("res://character/monster/alligator/alligator.tscn")
-
+var slimeboss = preload("res://character/monster/slimebosss/slimeboss.tres")
+var slime = preload("res://character/monster/slime/slime.tres")
+var ghost = preload("res://character/monster/ghost/ghost.tres")
+var alien = preload("res://character/monster/alien/alien.tres")
+var alligator = preload("res://character/monster/alligator/alligator.tres")
 
 var current_monster_order : int
 var monster_list = [
@@ -18,6 +18,6 @@ var monster_list = [
 	slime,
 ]
 
-var next_monster : PackedScene:
+var next_monster:
 	get:
 		return monster_list[current_monster_order % monster_list.size()]

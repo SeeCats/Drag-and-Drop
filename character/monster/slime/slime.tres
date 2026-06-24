@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="MonsterResource" format=3 uid="uid://dvotukj7ye4ro"]
+
+[ext_resource type="Script" uid="uid://k3dthoavmsp4" path="res://character/monster/monster_resource/monster_resource.gd" id="1_mres"]
+[ext_resource type="Script" uid="uid://c8kxp3x8jkr5q" path="res://character/monster/pattern/pattern.gd" id="2_ptn"]
+[ext_resource type="Resource" uid="uid://k8e2s6vd017f" path="res://character/monster/slime/slime_patternb.tres" id="4_pb"]
+[ext_resource type="Resource" uid="uid://csklla27ja7el" path="res://character/monster/slime/slime_pattern2.tres" id="5_p2"]
+[ext_resource type="Resource" uid="uid://ccvql6ovo0s7j" path="res://character/monster/slime/slime_pattern3.tres" id="6_p3"]
+[ext_resource type="Texture2D" uid="uid://bkesy1modryic" path="res://assets/icon/edurs34-minecraft-8036149.png" id="7_brq6d"]
+[ext_resource type="Resource" uid="uid://diw3oeyqf4hoq" path="res://character/monster/slime/slime_pattern4.tres" id="7_p4"]
+
+[sub_resource type="Resource" id="Resource_auq4g"]
+script = ExtResource("2_ptn")
+metadata/_custom_type_script = "uid://c8kxp3x8jkr5q"
+
+[resource]
+script = ExtResource("1_mres")
+texture = ExtResource("7_brq6d")
+pattern_list = Array[ExtResource("2_ptn")]([SubResource("Resource_auq4g"), ExtResource("4_pb"), ExtResource("5_p2"), ExtResource("6_p3"), ExtResource("7_p4")])

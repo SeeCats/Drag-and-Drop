@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MonsterResource" load_steps=7 format=3]
+
+[ext_resource type="Script" uid="uid://k3dthoavmsp4" path="res://character/monster/monster_resource/monster_resource.gd" id="1_mres"]
+[ext_resource type="Script" uid="uid://c8kxp3x8jkr5q" path="res://character/monster/pattern/pattern.gd" id="2_ptn"]
+[ext_resource type="Resource" uid="uid://j7tuq25h1jvk" path="res://character/monster/ghost/ghost_pattern1.tres" id="3_p1"]
+[ext_resource type="Resource" uid="uid://dat2rvo7rqs3j" path="res://character/monster/ghost/ghost_pattern3.tres" id="4_p3"]
+[ext_resource type="Resource" uid="uid://bxj2ms3po86o5" path="res://character/monster/ghost/ghost_pattern2.tres" id="5_p2"]
+[ext_resource type="Resource" uid="uid://oumbp81y0wwu" path="res://character/monster/ghost/ghost_pattern4.tres" id="6_p4"]
+
+[resource]
+script = ExtResource("1_mres")
+monster_name = "Ghost"
+max_hp = 20
+pattern_list = Array[ExtResource("2_ptn")]([ExtResource("3_p1"), ExtResource("4_p3"), ExtResource("5_p2"), ExtResource("6_p4")])
