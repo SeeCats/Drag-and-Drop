@@ -1,9 +1,12 @@
 extends Character
 class_name PlayerCharacter
 
+# Player runtime for two scenes: the legacy fat player_vbox (Rotate/Swap + old signal
+# combat path) and the lean rework entity (HP + round_participants only). Lean-safe like
+# monster.gd: the legacy wiring runs only when Rotate/Swap are present.
 
-@onready var rotate: Rotate = $Rotate
-@onready var swap: HBoxContainer = $Swap
+@onready var rotate: Rotate = get_node_or_null("Rotate")
+@onready var swap: HBoxContainer = get_node_or_null("Swap")
 
 var action_index_list : Array[Constants.RollIndex] = [
 	RollIndex.BASE,
@@ -20,6 +23,9 @@ var dice_roll_list : Array [int]
 
 func _ready() -> void:
 	super()
+	Combatants.player = self
+	if not rotate:
+		return   # lean rework entity: HP + state only, no legacy combat wiring
 	GlobalSignal.updated_roll.connect(update_player_dice)
 	GlobalSignal.monster_attacked.connect(player_hit)
 	GlobalSignal.monster_atack_finished.connect(announce_damage_taken)
@@ -33,9 +39,15 @@ func update_player_dice():
 	CurrentRoll.anti_type = element_index_list[action_index_list.find(RollIndex.ANTI) as int]
 
 func _exit_tree() -> void:
-	GlobalSignal.updated_roll.disconnect(update_player_dice)
-	GlobalSignal.monster_attacked.disconnect(player_hit)
-	GlobalSignal.monster_atack_finished.disconnect(announce_damage_taken)
+	super()   # base disconnects state_entered
+	if Combatants.player == self:
+		Combatants.player = null
+	if GlobalSignal.updated_roll.is_connected(update_player_dice):
+		GlobalSignal.updated_roll.disconnect(update_player_dice)
+	if GlobalSignal.monster_attacked.is_connected(player_hit):
+		GlobalSignal.monster_attacked.disconnect(player_hit)
+	if GlobalSignal.monster_atack_finished.is_connected(announce_damage_taken):
+		GlobalSignal.monster_atack_finished.disconnect(announce_damage_taken)
 
 func player_hit():
 	hp.current_hp -= CurrentRoll.monster_damage  # per monster hit

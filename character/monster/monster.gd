@@ -15,6 +15,7 @@ var current_pattern : Pattern
 
 func _ready() -> void:
 	super()
+	Combatants.monster = self
 	_load_data()
 	hp.label.set("monster_name", monster_name)   # name shows on this monster's HP bar only
 	current_pattern = pattern_list[current_round]
@@ -30,6 +31,14 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
 	pass
+
+
+# Clears the registry ref on free, guarded so a respawn's new monster isn't clobbered.
+func _exit_tree() -> void:
+	super()
+	if Combatants.monster == self:
+		Combatants.monster = null
+
 
 # Pulls static fields from the MonsterResource when one is assigned (rework path).
 # Legacy scenes leave `data` null and keep their baked @export fields.

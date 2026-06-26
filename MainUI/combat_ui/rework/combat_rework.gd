@@ -24,12 +24,13 @@ var _pending : Array[bool] = [false, false, false]
 var _snapshot_values : Array[int] = []
 var _snapshot_elements : Array[Rollables.Element] = []
 
-# --- HP state: stubbed until real sources (player node + MonsterResource) exist ---
+# --- HP fallbacks: used only until the spawned entities' Hp nodes resolve ---
 var _monster_hp : int = 14
 var _monster_max_hp : int = 14
 var _player_hp : int = 20
 var _player_max_hp : int = 20
-var _monster : Monster   # spawned from a MonsterResource; the rework reads its pattern + hp
+var _monster : Monster            # spawned from a MonsterResource; the rework reads its pattern + hp
+var _player : PlayerCharacter     # lean entity; the rework reads its hp (mirrors _monster)
 
 # --- dumb view refs ---------------------------------------------------------
 @onready var _slots : Array[DiceSlot] = [
@@ -56,6 +57,7 @@ func _ready() -> void:
 	roll_dice()      # controller owns rolling now (rework dice don't self-roll)
 	_snapshot()
 	_spawn_monster()
+	_spawn_player()
 	render()
 
 
@@ -111,7 +113,9 @@ func _push_rings(r: Dictionary) -> void:
 	var monster_lo : int = maxi(mhp - r.deal[1], 0)
 	var monster_hi : int = maxi(mhp - r.deal[0], 0)
 	_hp_text.text = "[center]hp %d → %s[/center]" % [mhp, _range_str(monster_lo, monster_hi)]
-	_hp_ring.set_hp_range(_player_hp, r.take[0], r.take[1], _player_max_hp)
+	var php : int = _player.hp.current_hp if _player and _player.hp else _player_hp
+	var pmax : int = _player.hp.max_hp if _player and _player.hp else _player_max_hp
+	_hp_ring.set_hp_range(php, r.take[0], r.take[1], pmax)
 
 
 # Updates the phase label from the FSM state + current fight number.
@@ -179,6 +183,12 @@ func _spawn_monster() -> void:
 	_monster = preload("res://character/monster/Monster.tscn").instantiate() as Monster
 	_monster.data = Encounter.next_monster
 	add_child(_monster)
+
+
+# Spawns the lean PlayerCharacter (HP + state only); the rework reads its hp, mirroring the monster.
+func _spawn_player() -> void:
+	_player = preload("res://character/Player.tscn").instantiate() as PlayerCharacter
+	add_child(_player)
 
 
 # The monster's intended roll [base, mult, anti, anti_type], read from its pattern (the owner).
