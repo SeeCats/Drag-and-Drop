@@ -59,6 +59,8 @@ func _ready() -> void:
 	_spawn_monster()
 	_spawn_player()
 	render()
+	_sync_rings_exact()   # baseline so rings show real HP before the first planning preview
+	CombatState.start()   # drive the FSM from the rework (was only kicked by legacy combat_ui.gd)
 
 
 # === OUT channel: state -> widgets =========================================
@@ -107,15 +109,43 @@ func _defense_word(element: Rollables.Element) -> String:
 
 # Rings: bright = sure survivors, middle = uncertain (gamble range), dim = sure loss.
 func _push_rings(r: Dictionary) -> void:
+	# Planning: rings show the 3-band gamble preview. Resolving/over: the rings are driven by
+	# hp_changed tweens (live drain), so render() leaves them alone here and only updates text.
 	var mhp : int = _monster.hp.current_hp if _monster and _monster.hp else _monster_hp
 	var mmax : int = _monster.hp.max_hp if _monster and _monster.hp else _monster_max_hp
-	_scouter_ring.set_hp_range(mhp, r.deal[0], r.deal[1], mmax)
-	var monster_lo : int = maxi(mhp - r.deal[1], 0)
-	var monster_hi : int = maxi(mhp - r.deal[0], 0)
-	_hp_text.text = "[center]hp %d → %s[/center]" % [mhp, _range_str(monster_lo, monster_hi)]
 	var php : int = _player.hp.current_hp if _player and _player.hp else _player_hp
 	var pmax : int = _player.hp.max_hp if _player and _player.hp else _player_max_hp
-	_hp_ring.set_hp_range(php, r.take[0], r.take[1], pmax)
+	if CombatState.current_state == CombatState.State.PLAYER_PLANNING:
+		_scouter_ring.set_hp_range(mhp, r.deal[0], r.deal[1], mmax)
+		_hp_ring.set_hp_range(php, r.take[0], r.take[1], pmax)
+		var monster_lo : int = maxi(mhp - r.deal[1], 0)
+		var monster_hi : int = maxi(mhp - r.deal[0], 0)
+		_hp_text.text = "[center]hp %d → %s[/center]" % [mhp, _range_str(monster_lo, monster_hi)]
+	else:
+		_hp_text.text = "[center]hp %d[/center]" % mhp
+
+
+# Snaps both rings to current HP with no preview bands — the live-drain baseline at resolve start.
+func _sync_rings_exact() -> void:
+	if _monster and _monster.hp:
+		_scouter_ring.set_hp_range(_monster.hp.current_hp, 0, 0, _monster.hp.max_hp)
+	if _player and _player.hp:
+		_hp_ring.set_hp_range(_player.hp.current_hp, 0, 0, _player.hp.max_hp)
+
+
+# Live HP drain: tween the ring as damage lands. Skipped during planning (preview owns the
+# rings) and round start (regen would fire a no-op flash).
+func _on_monster_hp_changed(current: int, _maximum: int) -> void:
+	if CombatState.current_state in [CombatState.State.PLAYER_PLANNING, CombatState.State.ROUND_START]:
+		return
+	_scouter_ring.tween_to(current)
+	_hp_text.text = "[center]hp %d[/center]" % current
+
+
+func _on_player_hp_changed(current: int, _maximum: int) -> void:
+	if CombatState.current_state in [CombatState.State.PLAYER_PLANNING, CombatState.State.ROUND_START]:
+		return
+	_hp_ring.tween_to(current)
 
 
 # Updates the phase label from the FSM state + current fight number.
@@ -123,8 +153,12 @@ func _push_phase() -> void:
 	_phase_label.text = "%s · fight %d" % [_phase_word(CombatState.current_state), Encounter.current_monster_order + 1]
 
 
-func _on_state_changed(_from, _to) -> void:
-	_push_phase()
+func _on_state_changed(_from, to) -> void:
+	if to == CombatState.State.PLAYER_PLANNING:
+		_snapshot()   # cancel restores THIS round's starting hand, not the run's first
+	elif to == CombatState.State.TURN_RESOLVING:
+		_sync_rings_exact()   # snap rings off the preview to live HP; per-hit tweens drain from here
+	render()          # repaint chips/deal/dice/phase/text each transition (rings are tween-driven in resolve)
 
 
 # Maps the FSM state to its status-bar word.
@@ -155,6 +189,8 @@ func request_rotate(direction: int) -> void:
 
 # Cancel: full reset of this turn's planning back to the round-start hand.
 func cancel() -> void:
+	if CombatState.current_state != CombatState.State.PLAYER_PLANNING:
+		return   # buttons act only during planning
 	_reset_pending()
 	_values = _snapshot_values.duplicate()
 	_elements = _snapshot_elements.duplicate()
@@ -163,11 +199,14 @@ func cancel() -> void:
 
 # Confirm: reveal the gamble, then end planning so the FSM resolves (no-op until FSM).
 func commit() -> void:
+	if CombatState.current_state != CombatState.State.PLAYER_PLANNING:
+		return   # buttons act only during planning
 	for i in _pending.size():
 		if _pending[i]:
 			_values[i] = randi_range(1, 6)
 	_reset_pending()
 	render()
+	CurrentRoll.current_roll_list = CurrentRoll.get_roll_from_dice(_values, _elements)   # publish the committed roll for the FSM
 	CombatState.end_player_turn()
 
 
@@ -183,12 +222,14 @@ func _spawn_monster() -> void:
 	_monster = preload("res://character/monster/Monster.tscn").instantiate() as Monster
 	_monster.data = Encounter.next_monster
 	add_child(_monster)
+	_monster.hp.hp_changed.connect(_on_monster_hp_changed)   # live ring drain during resolve
 
 
 # Spawns the lean PlayerCharacter (HP + state only); the rework reads its hp, mirroring the monster.
 func _spawn_player() -> void:
 	_player = preload("res://character/Player.tscn").instantiate() as PlayerCharacter
 	add_child(_player)
+	_player.hp.hp_changed.connect(_on_player_hp_changed)   # live ring drain during resolve
 
 
 # The monster's intended roll [base, mult, anti, anti_type], read from its pattern (the owner).

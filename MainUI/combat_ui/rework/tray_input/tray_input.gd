@@ -13,19 +13,26 @@ class_name TrayInput
 var _grabbed : int = -1
 var _flicking : bool = false
 var _flick_start_x : float = 0.0
-var _move_done : bool = false   # one swap/rotate per turn; reset on Cancel (and round start, #2)
+var _move_done : bool = false   # one swap/rotate per turn; reset on Cancel + each new planning phase
 
-# Resets the one-move guard when the player cancels.
+# Wires the cancel button and clears the one-move guard at the start of every planning phase.
 func _ready() -> void:
 	var cancel_button : Button = %CancelButton
 	cancel_button.pressed.connect(_on_cancel)
+	CombatState.state_changed.connect(_on_state_changed)
 
 func _on_cancel() -> void:
 	_move_done = false
 
+# Each new planning phase clears the one-move guard so the player can act again next turn.
+func _on_state_changed(_from, to) -> void:
+	if to == CombatState.State.PLAYER_PLANNING:
+		_move_done = false
+
 # Routes left mouse press/release to the gesture handlers.
 func _input(event: InputEvent) -> void:
-	# TODO(#2): gate to CombatState.PLAYER_PLANNING once the FSM drives the rework.
+	if CombatState.current_state != CombatState.State.PLAYER_PLANNING:
+		return   # dice only move during planning
 	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT):
 		return
 	if event.pressed:

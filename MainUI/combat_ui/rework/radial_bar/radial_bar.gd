@@ -58,10 +58,13 @@ func set_hp(current: float, projected: float, maximum: float) -> void:
 # Sets three bands from a damage RANGE: bright = survivors at worst, middle =
 # uncertain (the gamble), dim = sure loss. Equal min/max collapses the middle.
 func set_hp_range(current: float, dmg_min: float, dmg_max: float, maximum: float) -> void:
+	# Cap damage at current HP, else the bands sum past current and overflow the ring (pops to full).
+	dmg_max = clampf(dmg_max, 0.0, current)
+	dmg_min = clampf(dmg_min, 0.0, current)
 	max_value = maximum
-	value = maxf(current - dmg_max, 0.0)        # survives even at max damage
+	value = maxf(current - dmg_max, 0.0)         # survives even at max damage
 	range_amount = maxf(dmg_max - dmg_min, 0.0)  # the gamble band
-	secondary = maxf(dmg_min, 0.0)              # lost for sure
+	secondary = maxf(dmg_min, 0.0)               # lost for sure
 	queue_redraw()
 
 var _tween: Tween
@@ -71,6 +74,7 @@ var _tween: Tween
 ## at-risk `secondary` (the preview is now being realized) and flashes the ring.
 func tween_to(target: float, dur: float = 0.25, flash: bool = true) -> void:
 	secondary = 0.0
+	range_amount = 0.0   # the gamble preview is now being realized live
 	if _tween and _tween.is_valid():
 		_tween.kill()
 	_tween = create_tween()

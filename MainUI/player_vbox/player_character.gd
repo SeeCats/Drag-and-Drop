@@ -51,7 +51,7 @@ func _exit_tree() -> void:
 
 func player_hit():
 	hp.current_hp -= CurrentRoll.monster_damage  # per monster hit
-	# Defeat handled by CombatState (CHECK_DEFEAT).
+	# Defeat handled by CombatState (_advance reads Combatants HP).
 
 func announce_damage_taken():  # once, after all monster hits
 	var base_string = get_reduced_roll(RollIndex.BASE)

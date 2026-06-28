@@ -9,7 +9,6 @@ enum State {
 	TURN_RESOLVING,     # apply anti, compute damage
 	PLAYER_ATTACK,      # emit per-hit damage
 	MONSTER_ATTACK,     # counter-attack
-	CHECK_DEFEAT,       # someone dead? → WIN/LOSE : ROUND_START
 	WIN,                # monster dead
 	LOSE,               # player dead
 }
@@ -17,6 +16,9 @@ enum State {
 signal state_changed(from: State, to: State)
 signal state_entered(state: State)
 signal state_exited(state: State)
+
+# Resolved outcome for the in-progress turn (from compute_outcome): {player:{...}, monster:{...}}.
+var _outcome : Dictionary = {}
 
 var current_state : State = State.INITIAL:
 	set(new_state):
@@ -70,8 +72,6 @@ func _enter_state(state: State) -> void:
 			_on_player_attack()
 		State.MONSTER_ATTACK:
 			_on_monster_attack()
-		State.CHECK_DEFEAT:
-			_on_check_defeat()
 		State.WIN:
 			print("WIN")
 			_on_win()
@@ -96,72 +96,72 @@ func _on_round_start() -> void:
 	for p in participants:
 		if p.has_method("round_start"):
 			p.round_start()
-	transition_to(State.PLAYER_PLANNING)
+	_advance(State.PLAYER_PLANNING)   # a round-start damage source (future DoT) can end it here
 
 
 func _on_turn_resolving() -> void:
+	# Resolve the whole turn once, pure: anti is folded into compute_outcome (no more
+	# mutating anti_operator). Player roll = controller's committed current_roll_list;
+	# monster roll = its current pattern, written into current_monster_roll_list at round start.
 	await get_tree().create_timer(1).timeout
-	CurrentRoll.anti_operator()
-	transition_to(State.PLAYER_ATTACK)
+	_outcome = CurrentRoll.compute_outcome(CurrentRoll.current_roll_list, CurrentRoll.current_monster_roll_list)
+	_advance(State.PLAYER_ATTACK)
 
 
 func _on_player_attack() -> void:
-	# Emits player_attacked N times → monster.monster_hit() takes damage per emit.
 	await get_tree().create_timer(1).timeout
-	await CurrentRoll.player_attack()
-	if _is_monster_dead():
-		transition_to(State.WIN)
-		return
-	transition_to(State.MONSTER_ATTACK)
+	await _apply_attack(Combatants.monster, _outcome.player, GlobalSignal.player_attacked, GlobalSignal.player_missed)
+	_advance(State.MONSTER_ATTACK)   # death (either side) caught in _advance
 
 
 func _on_monster_attack() -> void:
-	# Computes monster_damage and emits monster_attacked → player.player_hit() takes damage.
 	await get_tree().create_timer(1).timeout
-	await CurrentRoll.monster_attack()
-	if _is_player_dead():
+	await _apply_attack(Combatants.player, _outcome.monster, GlobalSignal.monster_attacked, GlobalSignal.monster_missed)
+	_advance(State.ROUND_START)   # death (either side) caught in _advance
+
+
+# Single transition gate. Reads HP from the live combatants so death is detected from
+# ANY state (round-start DoT, mid-attack kill, or a plain attack) and routed the same way.
+# Player is checked first, so a mutual kill (both at 0) resolves to LOSE — the tie
+# "both win" / retreat model is deferred until effects exist (see HISTORY 2026-06-25).
+func _advance(next_state: State) -> void:
+	if _is_dead(Combatants.player):
 		transition_to(State.LOSE)
+	elif _is_dead(Combatants.monster):
+		transition_to(State.WIN)
+	else:
+		transition_to(next_state)
+
+
+# True when a combatant exists and its HP has hit 0.
+func _is_dead(combatant: Character) -> bool:
+	return is_instance_valid(combatant) and combatant.hp and combatant.hp.current_hp <= 0
+
+
+# Applies one resolved side (per_hit / hits / misses from compute_outcome) to a target,
+# staggered. Damage goes straight to the owner's Hp; the per-hit signals are emitted for
+# juice only. Bails the instant the target is dead so a kill doesn't play out as over-kill.
+func _apply_attack(target: Character, side: Dictionary, hit_signal: Signal, miss_signal: Signal) -> void:
+	if not is_instance_valid(target) or not target.hp:
 		return
-	transition_to(State.CHECK_DEFEAT)
-
-
-func _is_monster_dead() -> bool:
-	for p in get_tree().get_nodes_in_group("round_participants"):
-		if p is Monster:
-			return p.hp.current_hp <= 0
-	return false
-
-
-func _is_player_dead() -> bool:
-	for p in get_tree().get_nodes_in_group("round_participants"):
-		if p is PlayerCharacter:
-			return p.hp.current_hp <= 0
-	return false
-
-
-func _on_check_defeat() -> void:
-	# TODO: read HP, transition accordingly
-	# if player_dead or monster_dead:
-	#     transition_to(State.WIN or State.LOSE)
-	# else:
-	#     transition_to(State.ROUND_START)
-	await get_tree().create_timer(1).timeout
-	transition_to(State.ROUND_START)
+	for i in side.misses:
+		miss_signal.emit()
+		await get_tree().create_timer(CurrentRoll.attack_stagger).timeout
+	for i in side.hits:
+		if _is_dead(target):
+			break
+		target.hp.take_damage(side.per_hit)
+		hit_signal.emit()
+		await get_tree().create_timer(CurrentRoll.attack_stagger).timeout
 
 
 func _on_win() ->void:
+	# Terminal for now: the rework loop lands here and stops (phase shows "victory").
+	# Gauntlet respawn + run flow (advance Encounter, respawn the monster, restart) is
+	# the next step of #2; the old monster_spawner path crashed in the rework scene.
 	await get_tree().create_timer(1).timeout
-	if Encounter.current_monster_order < Encounter.monster_list.size() - 1:
-		Encounter.current_monster_order += 1                             # advance the gauntlet
-		get_tree().get_first_node_in_group("monster_spawner").respawn()  # swap monster only — player HP persists
-		start()                                                         # begin the next fight
-		return
-	Encounter.current_monster_order = 0          # gauntlet cleared: reset for next run
-	CurrentRoll.is_player_winning = "WIN"
-	get_tree().change_scene_to_file("res://MainUI/main_menu/main_menu.tscn")
 
 func _on_lose() ->void:
+	# Terminal for now: lands here and stops (phase shows "defeat"). Retreat / run-reset
+	# flow is a later step.
 	await get_tree().create_timer(1).timeout
-	Encounter.current_monster_order = 0          # reset gauntlet for next run
-	CurrentRoll.is_player_winning = "LOSE"
-	get_tree().change_scene_to_file("res://MainUI/main_menu/main_menu.tscn")

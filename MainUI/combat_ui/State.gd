@@ -7,7 +7,6 @@ var State = [
 	"TURN_RESOLVING",     # apply anti, compute damage
 	"PLAYER_ATTACK",      # emit per-hit damage
 	"MONSTER_ATTACK",     # counter-attack
-	"CHECK_DEFEAT",       # someone dead? → GAME_OVER : ROUND_START
 	"WIN",                # monster dead
 	"LOSE",               # player dead
 ]

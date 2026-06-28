@@ -22,11 +22,12 @@ func _ready() -> void:
 	update_roll()
 	if current_roll:
 		current_roll.update_text()
-	GlobalSignal.player_attacked.connect(monster_hit)
-	# Announce as soon as monster_attacked fires — at that point the FSM has
-	# computed damage but hasn't yet cascaded into CHECK_DEFEAT / ROUND_START
-	# (which would reset current_monster_roll_list to next round's values).
-	GlobalSignal.monster_atack_finished.connect(_announce_attack)
+	# Legacy self-applies damage + announces via these signals; the rework monster (data
+	# set) lets the FSM resolve and apply to Combatants HP, so the lean one skips them
+	# (otherwise it'd double-apply with _apply_attack).
+	if not data:
+		GlobalSignal.player_attacked.connect(monster_hit)
+		GlobalSignal.monster_atack_finished.connect(_announce_attack)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
