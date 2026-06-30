@@ -56,6 +56,7 @@ func _ready() -> void:
 	_confirm_button.pressed.connect(commit)
 	roll_dice()      # controller owns rolling now (rework dice don't self-roll)
 	_snapshot()
+	Encounter.current_monster_order = 0   # fresh run starts at the first monster
 	_spawn_monster()
 	_spawn_player()
 	render()
@@ -158,6 +159,8 @@ func _on_state_changed(_from, to) -> void:
 		_snapshot()   # cancel restores THIS round's starting hand, not the run's first
 	elif to == CombatState.State.TURN_RESOLVING:
 		_sync_rings_exact()   # snap rings off the preview to live HP; per-hit tweens drain from here
+	elif to == CombatState.State.WIN:
+		_on_victory.call_deferred()   # deferred so we don't re-enter the FSM mid-transition
 	render()          # repaint chips/deal/dice/phase/text each transition (rings are tween-driven in resolve)
 
 
@@ -230,6 +233,25 @@ func _spawn_player() -> void:
 	_player = preload("res://character/Player.tscn").instantiate() as PlayerCharacter
 	add_child(_player)
 	_player.hp.hp_changed.connect(_on_player_hp_changed)   # live ring drain during resolve
+
+
+# On WIN: after a beat, advance the gauntlet and start the next fight (player + HP persist).
+# Last monster cleared → stay on the victory screen (run-complete flow is a later step).
+func _on_victory() -> void:
+	await get_tree().create_timer(1.0).timeout
+	if Encounter.current_monster_order >= Encounter.monster_list.size() - 1:
+		return
+	Encounter.current_monster_order += 1
+	_respawn_monster()
+	CombatState.start()
+
+
+# Swaps the dead monster for the next gauntlet entry; only the monster is replaced.
+func _respawn_monster() -> void:
+	if is_instance_valid(_monster):
+		_monster.queue_free()
+	_spawn_monster()
+	_sync_rings_exact()   # show the new monster at full immediately (no 0-flash before planning)
 
 
 # The monster's intended roll [base, mult, anti, anti_type], read from its pattern (the owner).
