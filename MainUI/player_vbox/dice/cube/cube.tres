@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="WireShape" load_steps=2 format=3]
-
-[ext_resource type="Script" path="res://MainUI/player_vbox/dice/cube/wire_shape.gd" id="1"]
-
-[resource]
-script = ExtResource("1")
-corners = Array[Vector3]([Vector3(-1, -1, -1), Vector3(1, -1, -1), Vector3(1, 1, -1), Vector3(-1, 1, -1), Vector3(-1, -1, 1), Vector3(1, -1, 1), Vector3(1, 1, 1), Vector3(-1, 1, 1)])
-edges = Array[Vector2i]([Vector2i(0, 1), Vector2i(1, 2), Vector2i(2, 3), Vector2i(3, 0), Vector2i(4, 5), Vector2i(5, 6), Vector2i(6, 7), Vector2i(7, 4), Vector2i(0, 4), Vector2i(1, 5), Vector2i(2, 6), Vector2i(3, 7)])
-faces = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(7, 6, 5, 4), PackedInt32Array(0, 4, 5, 1), PackedInt32Array(3, 2, 6, 7), PackedInt32Array(0, 3, 7, 4), PackedInt32Array(1, 5, 6, 2)])

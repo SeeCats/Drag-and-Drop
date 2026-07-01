@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c0r8nlvy33p64"]
 
 [ext_resource type="Script" uid="uid://khaswvo8mpyp" path="res://character/hp.gd" id="1_tiqid"]
-[ext_resource type="Script" uid="uid://2s86k4xquayu" path="res://character/monster/slime/hplabel.gd" id="2_3mrx3"]
+[ext_resource type="Script" uid="uid://2s86k4xquayu" path="res://character/Hp/hplabel.gd" id="2_3mrx3"]
 
 [node name="HpBar" type="ProgressBar" unique_id=2040145802]
 show_percentage = false

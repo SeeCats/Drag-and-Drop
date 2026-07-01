@@ -8,6 +8,13 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 - **⚑ Cross-lane edit (flag for Design):** per the user's playtest call, reversed GDD §"No pass button by default" → **passing (hand in current hand without a swap/rotate) is allowed by default**. Updated the core-loop line ("at most one verb… or none") + the no-pass principle (now: lookahead still drives planning, per-round reroll covers anti-stagnation). No code change — Confirm was never gated on having moved, so this only documents existing behavior. Design owns this section; please confirm framing + whether any forced-churn lever should remain.
 
+## 2026-07-01 (Code Claude + user — folder reorganization)
+
+- **Phase 1 (deletes):** removed the orphaned legacy layer — per-monster display scripts (`anti_label`/`blurry_halo`/`glow`/`label`/`current_roll`/dead `hplabel` copies), `slimebosss/` (+ its `encounter.gd` ref), `State.gd`, `mouse.gd`, the emptied `player_vbox/Monster.gd`, `learn3d.gd`, `RewardChoice.tscn`, `drag/`, `character/character.tscn`, and all `.tmp` junk. Kept `slime/hplabel.gd` (live, shared HP-bar label).
+- **Phase 2 (reorg, user moved in-editor so Godot fixed UID refs).** New top-level layout: `combat/` (the live UI — controller, widgets, dice, damage_number; un-nested from the dead `combat_ui/rework`), `character/` (+ `player_character.gd` moved in, `Hp/hplabel.gd` moved in), `ui/main_menu/`, `Globals/` unchanged. `MainUI/` deleted entirely.
+- **Code fixes (mine, the 2 hardcoded strings Godot doesn't auto-update):** `ui/main_menu/button.gd` → `res://combat/CombatRework.tscn`; `combat/damage_number/damage_number_zone.gd` → `res://combat/damage_number/damage_number_label.gd`. All other `res://` preloads point at unmoved files (Monster.tscn, Player.tscn, audio, monster `.tres`), so they still resolve; autoloads in `Globals/` untouched. Verified: no unresolved `res://` paths remain.
+- **Docs:** rewrote CLAUDE.md's scene-map/layout section to the new structure + purged stale paths and dead-file quirks.
+
 ## 2026-07-01 (Code Claude — monster anti chip shows its type)
 
 - The monster's ANTI chip showed the value but not its `anti_type` (armor/evade/strip), because `ChipRow.set_roll` only fanned `roll[role]` and never passed index 3. Added `Chip.set_anti_type` + `_anti_word` (RED→armor, GREEN→evade, BLUE→strip, mirroring `combat_rework._defense_word`); `ChipRow` now also sets it on the ANTI chip. So the anti chip labels with its type instead of a bare "anti".

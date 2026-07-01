@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" uid="uid://byrfeoexwjvdc" path="res://MainUI/player_vbox/player_character.gd" id="1_pc"]
+[ext_resource type="Script" uid="uid://byrfeoexwjvdc" path="res://character/player_character.gd" id="1_pc"]
 [ext_resource type="PackedScene" uid="uid://c0r8nlvy33p64" path="res://character/Hp/hp_bar.tscn" id="2_hp"]
 
 [node name="PlayerCharacter" type="Node" node_paths=PackedStringArray("hp")]

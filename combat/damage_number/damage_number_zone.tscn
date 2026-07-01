@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://1x3l20sts0i8"]
+
+[ext_resource type="Script" uid="uid://lmoi1gk3g4sh" path="res://combat/damage_number/damage_number_zone.gd" id="1_wn3ir"]
+[ext_resource type="PackedScene" uid="uid://csqkckvs7iwb7" path="res://combat/damage_number/damage_number_rich_text_label.tscn" id="2_wn3ir"]
+
+[node name="DamageNumberZone" type="Control" unique_id=1458470042]
+layout_mode = 3
+anchors_preset = 0
+offset_top = 67.0
+offset_right = 454.0
+offset_bottom = 339.0
+script = ExtResource("1_wn3ir")
+
+[node name="DamageNumberLabel" parent="." unique_id=1607587097 instance=ExtResource("2_wn3ir")]
+layout_mode = 0
+offset_left = 140.0
+offset_top = -152.0
+offset_right = 491.0
+offset_bottom = 35.0

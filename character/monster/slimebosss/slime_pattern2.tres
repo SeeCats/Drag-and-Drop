@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="Pattern" format=3 uid="uid://bkj5u7pf364lt"]
-
-[ext_resource type="Script" uid="uid://c8kxp3x8jkr5q" path="res://character/monster/pattern/pattern.gd" id="1_nhlmd"]
-
-[resource]
-script = ExtResource("1_nhlmd")
-mult = 6
-anti_type = 1
-metadata/_custom_type_script = "uid://c8kxp3x8jkr5q"
