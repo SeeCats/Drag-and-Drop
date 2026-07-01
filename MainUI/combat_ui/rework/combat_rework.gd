@@ -2,14 +2,10 @@ extends Control
 class_name CombatRework
 # Controller / adapter for the reworked combat UI (the CombatRework root).
 #
-# The ONE node that knows about game state. It owns the player's dice (source of
-# truth, model A) and talks to the rest through exactly two narrow channels:
+# The ONE node that knows about game state. It owns the player's dice (source of truth, model A) and talks to the rest through exactly two narrow channels:
 #   OUT  render()        -- state -> dumb widgets (DiceSlot.set_*, chips, DEAL, rings)
 #   IN   request_*(...)  -- intents from the input layer -> mutate state -> render()
-# Pure helpers live on CurrentRoll (get_roll_from_dice + compute_outcome). Keeping
-# ALL the coupling here means the backend (CurrentRoll today, an event pipeline
-# later) can change without touching a single widget. The scene tree is authored
-# in the editor; this script only holds refs and moves data across the two channels.
+# Pure helpers live on CurrentRoll (get_roll_from_dice + compute_outcome).
 
 # --- dice state: source of truth. Column order = role order (BASE, MULT, ANTI) ---
 var _values : Array[int] = [3, 4, 5]
@@ -23,6 +19,8 @@ var _pending : Array[bool] = [false, false, false]
 # round-start snapshot of the dice, for Cancel (full reset to the rolled hand).
 var _snapshot_values : Array[int] = []
 var _snapshot_elements : Array[Rollables.Element] = []
+# The move the player made this turn, for the run log; reset to "pass" each planning phase.
+var _turn_action : Dictionary = {"type": "pass"}
 
 # --- HP fallbacks: used only until the spawned entities' Hp nodes resolve ---
 var _monster_hp : int = 14
@@ -59,6 +57,9 @@ func _ready() -> void:
 	Encounter.current_monster_order = 0   # fresh run starts at the first monster
 	_spawn_monster()
 	_spawn_player()
+	add_child(CombatSfx.new())   # combat hit/miss SFX (replaces the deleted legacy combat_ui.gd audio)
+	RunLog.begin_run(_player.hp.max_hp)   # run history logging
+	_log_begin_fight()
 	render()
 	_sync_rings_exact()   # baseline so rings show real HP before the first planning preview
 	CombatState.start()   # drive the FSM from the rework (was only kicked by legacy combat_ui.gd)
@@ -154,13 +155,26 @@ func _push_phase() -> void:
 	_phase_label.text = "%s · fight %d" % [_phase_word(CombatState.current_state), Encounter.current_monster_order + 1]
 
 
-func _on_state_changed(_from, to) -> void:
+func _on_state_changed(from, to) -> void:
 	if to == CombatState.State.PLAYER_PLANNING:
-		_snapshot()   # cancel restores THIS round's starting hand, not the run's first
+		roll_dice()          # fresh hand each round (values reroll; elements persist), then snapshot it
+		_snapshot()          # cancel restores THIS round's rolled hand
+		_turn_action = {"type": "pass"}   # default; a swap/rotate overwrites it
+		RunLog.begin_round(_dice_snapshot(), CurrentRoll.current_monster_roll_list.duplicate(),
+			_player.hp.current_hp, _monster.hp.current_hp)
 	elif to == CombatState.State.TURN_RESOLVING:
 		_sync_rings_exact()   # snap rings off the preview to live HP; per-hit tweens drain from here
+	elif to == CombatState.State.ROUND_START:
+		if from == CombatState.State.MONSTER_ATTACK:
+			RunLog.record_result(_player.hp.current_hp, _monster.hp.current_hp)   # round survived → log it
 	elif to == CombatState.State.WIN:
+		RunLog.record_result(_player.hp.current_hp, _monster.hp.current_hp)
+		RunLog.end_fight(_player.hp.current_hp)
 		_on_victory.call_deferred()   # deferred so we don't re-enter the FSM mid-transition
+	elif to == CombatState.State.LOSE:
+		RunLog.record_result(_player.hp.current_hp, _monster.hp.current_hp)
+		RunLog.end_fight(_player.hp.current_hp)
+		RunLog.end_run("died", _monster.monster_name)
 	render()          # repaint chips/deal/dice/phase/text each transition (rings are tween-driven in resolve)
 
 
@@ -180,6 +194,7 @@ func request_swap(source_slot: int, target_slot: int) -> void:
 	_swap(_values, source_slot, target_slot)
 	_swap(_elements, source_slot, target_slot)
 	_pending[target_slot] = true
+	_turn_action = {"type": "swap", "from": source_slot, "to": target_slot}
 	render()
 
 
@@ -187,6 +202,7 @@ func request_swap(source_slot: int, target_slot: int) -> void:
 func request_rotate(direction: int) -> void:
 	_cycle(_values, direction)
 	_cycle(_elements, direction)
+	_turn_action = {"type": "rotate", "dir": direction}
 	render()
 
 
@@ -197,6 +213,7 @@ func cancel() -> void:
 	_reset_pending()
 	_values = _snapshot_values.duplicate()
 	_elements = _snapshot_elements.duplicate()
+	_turn_action = {"type": "pass"}   # cancelled → back to no move for the log
 	render()
 
 
@@ -207,9 +224,12 @@ func commit() -> void:
 	for i in _pending.size():
 		if _pending[i]:
 			_values[i] = randi_range(1, 6)
+	if _turn_action.get("type") == "swap":
+		_turn_action["rerolled"] = _values[_turn_action["to"]]   # the gamble reveal
 	_reset_pending()
 	render()
 	CurrentRoll.current_roll_list = CurrentRoll.get_roll_from_dice(_values, _elements)   # publish the committed roll for the FSM
+	RunLog.record_action(_turn_action, _dice_snapshot())
 	CombatState.end_player_turn()
 
 
@@ -240,6 +260,7 @@ func _spawn_player() -> void:
 func _on_victory() -> void:
 	await get_tree().create_timer(1.0).timeout
 	if Encounter.current_monster_order >= Encounter.monster_list.size() - 1:
+		RunLog.end_run("cleared")   # last monster down — run logged
 		return
 	Encounter.current_monster_order += 1
 	_respawn_monster()
@@ -252,13 +273,14 @@ func _respawn_monster() -> void:
 		_monster.queue_free()
 	_spawn_monster()
 	_sync_rings_exact()   # show the new monster at full immediately (no 0-flash before planning)
+	_log_begin_fight()    # open the next fight's log record (player + HP persist)
 
 
-# The monster's intended roll [base, mult, anti, anti_type], read from its pattern (the owner).
+# THIS round's monster roll [base, mult, anti, anti_type]. Reads current_monster_roll_list —
+# the value update_roll() wrote for this round, which is exactly what the FSM resolves with.
+# NOT _monster.current_pattern: round_start advances that to NEXT round's pattern right after
+# writing, so reading it made the chips/preview show one turn ahead of what actually resolved.
 func _monster_roll() -> Array:
-	if _monster and _monster.current_pattern:
-		var p : Pattern = _monster.current_pattern
-		return [p.base, p.mult, p.anti, p.anti_type]
 	return CurrentRoll.current_monster_roll_list
 
 
@@ -310,6 +332,29 @@ func _range_str(lo: int, hi: int) -> String:
 func _snapshot() -> void:
 	_snapshot_values = _values.duplicate()
 	_snapshot_elements = _elements.duplicate()
+
+
+# Opens a run-log fight record for the current monster (player HP carries in).
+func _log_begin_fight() -> void:
+	if _monster and _monster.hp and _player and _player.hp:
+		RunLog.begin_fight(_monster.monster_name, _monster.hp.max_hp, _player.hp.current_hp)
+
+
+# Current dice as [[value, element_name], ...] for the run log.
+func _dice_snapshot() -> Array:
+	var out : Array = []
+	for i in _values.size():
+		out.append([_values[i], _element_name(_elements[i])])
+	return out
+
+
+func _element_name(element: Rollables.Element) -> String:
+	match element:
+		Rollables.Element.RED: return "RED"
+		Rollables.Element.GREEN: return "GREEN"
+		Rollables.Element.BLUE: return "BLUE"
+		Rollables.Element.WHITE: return "WHITE"
+		_: return "?"
 
 
 # Swaps two entries of an array in place.

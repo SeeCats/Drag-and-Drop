@@ -108,8 +108,8 @@ Direct field writes:
 - `CombatState` — `combat_state.gd:145,151` (`_on_win`/`_on_lose`): sets `is_player_winning`.
 
 Method calls that mutate `CurrentRoll` internally (all driven by `CombatState`):
-- `anti_operator()` (`combat_state.gd:95`) — rewrites `current_roll_list` / `current_monster_roll_list`, snapshots `initial_roll` / `initial_monster_roll`. **Primary transform seam for effects.**
-- `player_attack()` (`:102`) — sets `player_damage`.
-- `monster_attack()` (`:112`) — sets `monster_damage`.
+- ~~`anti_operator()` / `player_attack()` / `monster_attack()`~~ — **REMOVED 2026-06-30** (Code Claude). The whole mutating path is gone; `CurrentRoll.compute_outcome()` (pure, no side effects) is now the live resolver used by both the FSM and the preview, and is the **transform seam for effects** in their place.
+
+> **Design follow-up (flagged):** this section and the "funnel through `anti_operator`" guidance above were written when `anti_operator` was the seam. They need re-pointing at `compute_outcome`. Code removed the methods at the user's direction; the ADR re-write is Design's lane.
 
 Everything else touching `CurrentRoll` is read-only.

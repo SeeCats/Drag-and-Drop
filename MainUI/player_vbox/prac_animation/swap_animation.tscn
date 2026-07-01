@@ -1,5 +1,0 @@
-[gd_scene format=3 uid="uid://cnow8t558bie7"]
-
-[ext_resource type="PackedScene" uid="uid://bbg31ufd2qthy" path="res://MainUI/player_vbox/player_vbox.tscn" id="1_1aj50"]
-
-[node name="VBoxContainer" unique_id=1703046513 instance=ExtResource("1_1aj50")]

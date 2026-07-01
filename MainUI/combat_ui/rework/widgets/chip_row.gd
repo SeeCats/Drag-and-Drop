@@ -8,3 +8,5 @@ class_name ChipRow
 func set_roll(roll: Array) -> void:
 	for chip in find_children("*", "Chip", true):   # recursive: finds chips at any depth
 		chip.set_value(roll[chip.role])   # role = index into [base, mult, anti]
+		if chip.role == Rollables.RollIndex.ANTI and roll.size() > Rollables.RollIndex.ANTI_TYPE:
+			chip.set_anti_type(roll[Rollables.RollIndex.ANTI_TYPE])   # anti chip also shows its type

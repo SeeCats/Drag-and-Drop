@@ -4,6 +4,49 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-06-30 (Code Claude — GDD: passing now allowed [⚑ Design-lane edit])
+
+- **⚑ Cross-lane edit (flag for Design):** per the user's playtest call, reversed GDD §"No pass button by default" → **passing (hand in current hand without a swap/rotate) is allowed by default**. Updated the core-loop line ("at most one verb… or none") + the no-pass principle (now: lookahead still drives planning, per-round reroll covers anti-stagnation). No code change — Confirm was never gated on having moved, so this only documents existing behavior. Design owns this section; please confirm framing + whether any forced-churn lever should remain.
+
+## 2026-07-01 (Code Claude — monster anti chip shows its type)
+
+- The monster's ANTI chip showed the value but not its `anti_type` (armor/evade/strip), because `ChipRow.set_roll` only fanned `roll[role]` and never passed index 3. Added `Chip.set_anti_type` + `_anti_word` (RED→armor, GREEN→evade, BLUE→strip, mirroring `combat_rework._defense_word`); `ChipRow` now also sets it on the ANTI chip. So the anti chip labels with its type instead of a bare "anti".
+
+## 2026-07-01 (Code Claude — fix: monster chips/preview showed one turn ahead)
+
+- **Bug:** chips + deal/ring preview read `_monster.current_pattern`, but `monster.round_start()` does `update_roll()` (writes this round's `current_monster_roll_list`) *then* `current_round += 1` (advances `current_pattern` to NEXT). So the display showed the next pattern while the FSM resolved with the current one — shown ≠ did. (Run log was already correct; it reads `current_monster_roll_list`.)
+- **Fix:** `_monster_roll()` now returns `CurrentRoll.current_monster_roll_list` (the FSM's actual resolution input). Fixes chips, DEAL, and ring preview in one spot. Safe now that the mutating `anti_operator` is gone. The `current_pattern` lookahead belongs to the still-unwired "incoming:" slot, not the chips.
+
+## 2026-07-01 (Code Claude — run history logging)
+
+- **`RunLog` autoload added** (`Globals/run_log.gd`, registered in project.godot) — appends one JSON line per completed run to `user://run_log.jsonl`. Schema per user's spec: per-round `start` dice (value+element per slot), `monster_roll` (that turn's pattern), `hp_before`/`hp_after` both sides, `action` (swap/rotate/pass; swap carries `rerolled` reveal), `after` dice, `deal`/`take` (actual HP deltas — kill-skip reads take 0). Fight/run fields mirror `balance_sim` (monster/max_hp/hp_in/hp_out, outcome/died_to/start_hp/final_hp) for real-vs-sim comparison. Local-only; abandoned runs not written.
+- **Controller wiring:** `combat_rework.gd` reports at lifecycle points it already owns — `begin_run`+`begin_fight` in `_ready`, `begin_round` on entering PLANNING (after the reroll), `record_action` on commit (tracks `_turn_action`; swap captures the rerolled value; reset to `pass` on planning entry + on cancel), `record_result` at resolve-complete (ROUND_START from MONSTER_ATTACK / WIN / LOSE), `end_fight` on win/lose, `end_run` on run cleared/died. No FSM changes. Deal/take derived from HP deltas so no coupling to `_outcome`.
+- **Verify:** play a full run, then check `user://run_log.jsonl` (Godot → Project → Open User Data Folder) for one JSON line with the expected shape.
+
+## 2026-06-30 (Code Claude — per-round dice reroll)
+
+- **Fixed: dice never rerolled per round.** `roll_dice()` only ran in `_ready`, so confirming without a swap kept the same hand forever. Now `_on_state_changed` rerolls on entering PLAYER_PLANNING (before the snapshot, so Cancel restores the round's rolled hand). Values reroll, elements persist (matches the swap-gamble's value-only reroll). Resolves the long-standing "decide if rounds should reroll" open thread — answer: yes.
+
+## 2026-06-30 (Code Claude — restore combat audio in the rework)
+
+- **Audio was a legacy casualty, not a path bug.** The hit/miss SFX + `AudioStreamPlayer` nodes lived in the deleted `combat_ui.gd`/`.tscn`; the rework had no audio. The sound files survived (`assets/audio/laser_zap.mp3` = hit, `whoosh.mp3` = miss). Added `rework/combat_sfx.gd` (`class_name CombatSfx`): self-wires to `player_attacked`/`monster_attacked` → hit and `player_missed`/`monster_missed` → miss, building its own `AudioStreamPlayer`s. Controller spawns one in `_ready` (no scene/placement needed). Mapping assumed laser_zap=hit / whoosh=miss — confirm vs the old combat_ui.gd intent (e.g. whoosh may have been a swap sound).
+
+## 2026-06-30 (Code Claude — player_character trimmed to lean (#6 done) + stray-type sweep)
+
+- **#6 done — `player_character.gd` trimmed to lean.** After the fat `player_vbox.tscn` was deleted, deleting `rotate.gd` orphaned the `: Rotate` type ref in `player_character.gd` (compile error "Could not find type Rotate"). All its legacy methods (update_player_dice/player_hit/announce_damage_taken/update_action/update_dice_roll/preview_rotate/preview_swap/_roll_from/_rng) were self-referenced only, so rewrote the script to just `_ready`(super + `Combatants.player = self`) + `_exit_tree`(clear). Script stays at `MainUI/player_vbox/player_character.gd` (folder kept for `dice/`).
+- **Swept for other dangling deleted-type refs:** only one more — `MainUI/player_vbox/Monster.gd` (a stray orphan, no `class_name`, references deleted `Zone`). **User TODO:** delete it in-editor (can't delete on disk). No other type-level breaks (grep clean for Rotate/Swap/Zone/Action). Remaining `player_vbox/` = `player_character.gd` + `dice/` (+ inert `.tmp` junk).
+
+## 2026-06-30 (Code Claude — damage numbers in the rework + legacy retirement)
+
+- **Damage numbers wired to the rework.** Kept `damage_number/` (only legacy bit not deleted). Rewrote `damage_number_zone.gd`'s number logic to read FSM-published per-hit/block values instead of the deleted `initial_roll` diff: `combat_state._on_player_attack`/`_on_monster_attack` now set `CurrentRoll.player_damage`/`player_blocked` (+ monster) from `_outcome` before `_apply_attack`; added `player_blocked`/`monster_blocked` to `CurrentRoll`. The zone self-wires to the four signals, so it just needs instancing into `CombatRework.tscn` (sized over the play area) — no controller wiring. **User TODO:** add the `DamageNumberZone` to the rework scene.
+
+## 2026-06-30 (Code Claude — retire legacy combat, part 1: repoint + dead-method trim)
+
+- **Rework is now the game.** `main_menu/button.gd` Play → `CombatRework.tscn` (was the legacy `combat_ui.tscn`). The old combat scene is now orphaned (only its own folder references it). Functional retirement done; file deletion is housekeeping (pending — safest in the editor's FileSystem dock per the `.tres`-freeze history).
+- **Trimmed fully-dead `CurrentRoll` wrappers:** `turn_end`, `monster_turn_end`, `monster_damage_operator` removed. **Kept** `anti_operator`/`player_attack`/`monster_attack` (dead in code, but ADR-001 names `anti_operator` the effect-transform seam — deleting them is a **design-lane** call; flagging for Design, see open thread).
+- **Open — file deletion (pending user/editor):** legacy combat scene (`combat_ui.tscn`/`.gd`, `State.gd`), fat player (`player_vbox.tscn`, `rotate.gd`, `swap.gd`, `zone/`, `action/`, `prac_animation/`), `monster_spawner.gd`, legacy per-monster display scenes. **KEEP** `player_character.gd` (shared w/ lean) + `player_vbox/dice/` (reused by rework `DiceSlot`). **VERIFY** `announce.gd`/`next_pattern.gd`/`damage_number/` (legacy vs reusable).
+- **Removed the mutating trio** (`anti_operator`/`player_attack`/`monster_attack`) at the user's direction. `current_roll.gd` is now resolver + roll-data only (`compute_outcome` + `get_roll_from_dice`); kept `attack_stagger`, `player_damage`/`monster_damage`, `initial_*` (still read by the kept `player_character.gd`). Updated ADR-001 (struck the seam list, **flagged for Design** to re-point the effect-seam guidance at `compute_outcome`) + CLAUDE roll-data/signals sections.
+
 ## 2026-06-28 (Code Claude — FSM death decoupling: lean player + Combatants + `_advance()`)
 
 - **Lean player entity (#2, step 1).** Added `character/Player.tscn` — a `Node` + hidden `HpBar`, mirroring the lean Monster. Made `player_character.gd` **lean-safe** (`$Rotate`/`$Swap` → `get_node_or_null`; `_ready` early-returns after `super()` when `rotate` absent, so the lean entity wires no legacy combat signals). `combat_rework.gd` now `_spawn_player()`s it and reads `_player.hp` in the rings (stub HP vars demoted to fallback). This gives the FSM a real player HP to read so player-death can fire in the rework (previously impossible — HP was a controller stub). Detail in CLAUDE.md.

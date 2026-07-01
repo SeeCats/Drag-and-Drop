@@ -105,7 +105,7 @@ Both verbs move dice; the slots never move:
 
 Consequence: there are **two ways to change your defense mode** — *rotate* a different-colored die into the ANTI column (no re-roll), or *swap* one in (re-rolls). The defense mode is always just "whichever die currently sits in the ANTI column."
 
-Each turn you commit exactly one verb: moves are *staged* — shown with live preview, revertible — and the round resolves on Confirm (ui-spec §5). This is the "drag and drop": you drag values into the right shape, then commit.
+Each turn you commit **at most one verb** (a swap or rotate — or none, just confirming the current hand): moves are *staged* — shown with live preview, revertible — and the round resolves on Confirm (ui-spec §5). This is the "drag and drop": you drag values into the right shape, then commit.
 
 ### 3.3 The anti-slot color decides your defense mode
 This is the keystone rule. Your **defense type is the color of whichever die currently sits in the ANTI slot**:
@@ -400,7 +400,7 @@ The game runs **two different stresses on two different clocks**, paced independ
 
 **Scarce healing sharpens every RNG moment — so RNG must always be *chosen*.** A bad swap-reroll or a big hit costs HP you can't recover, which stings. That's good *only if* the player opted into the risk. Lean on the full-information design: the player must always be able to *see and prevent* the catastrophic hit. The feeling must be "I took that because I chose greed over safety," never "a number I couldn't see mugged me."
 
-**No pass button by default.** Forced churn is the intended anti-stagnation lever; the next-pattern lookahead (§6.1) is what makes the forced move purposeful (position your color/slot layout for what's coming). A pass/"hold" may exist as a **build-specific power-up**, not a baseline verb.
+**Passing is allowed by default** — committing without a swap/rotate (handing in the current hand) is a valid turn. *(Revised 2026-06-30 after playtest; previously "no pass button by default — forced churn as the anti-stagnation lever.")* The next-pattern lookahead (§6.1) still makes planning purposeful (position your color/slot layout for what's coming), and per-round reroll (each round deals a fresh hand) covers anti-stagnation, so a forced move is no longer needed. This was already the de-facto code behavior (Confirm was never gated on having moved). **Design follow-up:** confirm this framing and decide whether any forced-churn lever should remain anywhere.
 
 **On requests to smooth the grind** — sort options, preview rerolls, auto-resolve easy fights — see **§7.9** (the optimization line): the doctrine for which player/feature requests we grant vs refuse. The pacing-friction prong lives there.
 

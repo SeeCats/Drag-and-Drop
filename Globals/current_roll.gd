@@ -31,70 +31,19 @@ var next_pattern: Pattern   # upcoming round's pattern (lookahead)
 
 var player_damage :int
 var monster_damage : int
+var player_blocked : int    # base reduction this attack — for the damage-number "Blocked" pop
+var monster_blocked : int
 
 var initial_roll : Array[int]
 var initial_monster_roll : Array[int]
 
+var attack_stagger : float = 0.3  # delay between each hit/miss pop (read by combat_state._apply_attack)
+
 var is_player_winning : String = "Proj Drag Drop"
-# Called when the node enters the scene tree for the first time.
+
+
 func _ready() -> void:
-
-	pass # Replace with function body.
-
-func turn_end():
-	anti_operator()
-	player_attack()
-
-func monster_turn_end():
-	monster_damage_operator()
-
-
-func anti_operator():
-	initial_roll.assign(current_roll_list)
-	initial_monster_roll.assign(current_monster_roll_list)
-	 
-	current_monster_roll_list[anti_type] -= anti	
-	current_monster_roll_list[anti_type] = max(\
-	current_monster_roll_list[anti_type],\
-	current_monster_min_list[anti_type])
-	
-	current_roll_list[current_monster_roll_list[RollIndex.ANTI_TYPE]] -= current_monster_roll_list[RollIndex.ANTI]
-	current_roll_list[current_monster_roll_list[RollIndex.ANTI_TYPE]] = max(\
-	current_min_list[current_monster_roll_list[RollIndex.ANTI_TYPE]],\
-	current_roll_list[current_monster_roll_list[RollIndex.ANTI_TYPE]]
-	)
-
-
-var attack_stagger : float = 0.3  # delay between each hit/miss pop
-
-func player_attack():
-	var hits = current_roll_list[RollIndex.MULT]          # surviving hits
-	var misses = initial_roll[RollIndex.MULT] - hits      # hits lost to anti
-	player_damage = current_roll_list[RollIndex.BASE]
-	for i in misses:
-		GlobalSignal.player_missed.emit()
-		await get_tree().create_timer(attack_stagger).timeout
-	for i in hits:
-		GlobalSignal.player_attacked.emit()
-		await get_tree().create_timer(attack_stagger).timeout
-	GlobalSignal.player_attack_finished.emit()
-	
-
-func monster_attack():
-	var hits = current_monster_roll_list[RollIndex.MULT]          # surviving hits
-	var misses = initial_monster_roll[RollIndex.MULT] - hits      # hits lost to anti
-	monster_damage = current_monster_roll_list[RollIndex.BASE]
-	for i in misses:
-		GlobalSignal.monster_missed.emit()
-		await get_tree().create_timer(attack_stagger).timeout
-	for i in hits:
-		GlobalSignal.monster_attacked.emit()
-		await get_tree().create_timer(attack_stagger).timeout
-	GlobalSignal.monster_atack_finished.emit()
-
-
-func monster_damage_operator():
-	monster_damage = current_monster_roll_list[RollIndex.BASE] * current_monster_roll_list[RollIndex.MULT]
+	pass
 
 
 func _exit_tree() -> void:
@@ -106,9 +55,11 @@ func round_end():
 	CombatState.transition_to(CombatState.State.ROUND_START)
 
 
-# --- Pure preview resolver (no side effects) -------------------------------
-# Mirrors anti_operator + base*mult on COPIES. The live combat above still
-# resolves the real (mutating) way; this is for the preview UI.
+# --- Resolver --------------------------------------------------------------
+# compute_outcome is the live resolver — both the FSM (via combat_state._on_turn_resolving)
+# and the preview UI use it. The old mutating anti_operator / player_attack / monster_attack
+# path was removed 2026-06-30; compute_outcome supersedes it (see ADR-001).
+
 # Dice -> roll list. Model A: column order IS role order, so read left->right;
 # anti_type = the ANTI-column die's element. Replaces player_character._roll_from.
 func get_roll_from_dice(values: Array, elements: Array) -> Array:
@@ -120,6 +71,7 @@ func get_roll_from_dice(values: Array, elements: Array) -> Array:
 	]
 
 
+# Pure, side-effect-free outcome: applies anti both ways on COPIES, returns per-side numbers.
 func compute_outcome(player_roll: Array, monster_roll: Array) -> Dictionary:
 	var p := player_roll.duplicate()
 	var m := monster_roll.duplicate()

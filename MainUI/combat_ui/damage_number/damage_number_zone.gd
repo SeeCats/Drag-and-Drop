@@ -19,16 +19,15 @@ func _ready() -> void:
 	GlobalSignal.monster_missed.connect(_on_monster_missed)
 
 func _on_player_attacked():
-	var original = CurrentRoll.initial_roll[Constants.RollIndex.BASE]
-	var current = CurrentRoll.current_roll_list[Constants.RollIndex.BASE]
-	var blocked = original - current
+	var per_hit = CurrentRoll.player_damage          # published by combat_state._on_player_attack
+	var blocked = CurrentRoll.player_blocked
 	var label = _spawn()
 	if label == null:  # subscene failed to load
 		return
 	if blocked > 0:
-		label.pop_show_block(original, blocked)
+		label.pop_show_block(per_hit + blocked, blocked)
 	else:
-		label.pop_show_number(current)
+		label.pop_show_number(per_hit)
 
 func _on_player_missed():
 	var label = _spawn()
@@ -36,16 +35,15 @@ func _on_player_missed():
 		label.pop_show_miss()
 
 func _on_monster_attacked():  # monster ver: down-tween variants
-	var original = CurrentRoll.initial_monster_roll[Constants.RollIndex.BASE]
-	var current = CurrentRoll.current_monster_roll_list[Constants.RollIndex.BASE]
-	var blocked = original - current
+	var per_hit = CurrentRoll.monster_damage         # published by combat_state._on_monster_attack
+	var blocked = CurrentRoll.monster_blocked
 	var label = _spawn()
 	if label == null:
 		return
 	if blocked > 0:
-		label.pop_show_block_monster(original, blocked)
+		label.pop_show_block_monster(per_hit + blocked, blocked)
 	else:
-		label.pop_show_number_monster(current)
+		label.pop_show_number_monster(per_hit)
 
 func _on_monster_missed():
 	var label = _spawn()

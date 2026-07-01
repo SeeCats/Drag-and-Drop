@@ -25,6 +25,7 @@ View="*uid://bc2mq0tvlf8lx"
 Encounter="*res://Globals/encounter.gd"
 Screenshot="*res://Globals/screenshot.gd"
 Combatants="*res://Globals/combatants.gd"
+RunLog="*res://Globals/run_log.gd"
 
 [display]
 

@@ -110,12 +110,16 @@ func _on_turn_resolving() -> void:
 
 func _on_player_attack() -> void:
 	await get_tree().create_timer(1).timeout
+	CurrentRoll.player_damage = _outcome.player.per_hit      # published for the damage-number zone
+	CurrentRoll.player_blocked = _outcome.player.blocked
 	await _apply_attack(Combatants.monster, _outcome.player, GlobalSignal.player_attacked, GlobalSignal.player_missed)
 	_advance(State.MONSTER_ATTACK)   # death (either side) caught in _advance
 
 
 func _on_monster_attack() -> void:
 	await get_tree().create_timer(1).timeout
+	CurrentRoll.monster_damage = _outcome.monster.per_hit    # published for the damage-number zone
+	CurrentRoll.monster_blocked = _outcome.monster.blocked
 	await _apply_attack(Combatants.player, _outcome.monster, GlobalSignal.monster_attacked, GlobalSignal.monster_missed)
 	_advance(State.ROUND_START)   # death (either side) caught in _advance
 
