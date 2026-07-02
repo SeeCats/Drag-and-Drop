@@ -206,6 +206,23 @@ func request_rotate(direction: int) -> void:
 	_cycle(_elements, direction)
 	_turn_action = {"type": "rotate", "dir": direction}
 	render()
+	_animate_rotate(direction)
+
+
+# Rotate presentation (FLIP): data is already final after render(), so each die flies in
+# from the slot its value came from; the wrapping die (the N-1 column jump) arcs over the
+# row instead of teleporting across it (ui-spec §5). Rest positions are captured before
+# any die goes top_level, or the first launch would corrupt the later source reads.
+func _animate_rotate(direction: int) -> void:
+	var n : int = _slots.size()
+	var step : int = 1 if direction >= 0 else -1
+	var rests : Array[Vector2] = []
+	for s in _slots:
+		rests.append(s.dice.global_position)
+	for i in n:
+		var src : int = (i - step + n) % n
+		var arc : float = _slots[i].dice.size.y * 1.2 if absi(i - src) == n - 1 else 0.0
+		_slots[i].dice.fly_from(rests[src], arc)
 
 
 # Cancel: full reset of this turn's planning back to the round-start hand.

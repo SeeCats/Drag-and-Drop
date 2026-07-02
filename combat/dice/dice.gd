@@ -59,11 +59,36 @@ func _apply_element_tint() -> void:
 
 func fake_roll():
 	label.text = "?"
-	 
+
+
+var _fly_tween : Tween
+var _flight_offset : Vector2 = Vector2.ZERO   # visual-only shift, applied to label+cube in _process
+
+# Presentation-only FLIP flight: the die (already showing its final value) appears to
+# launch from from_global and settle into place. Implemented as a pure visual offset on
+# the label/cube — the control itself never leaves its container (a top_level flight
+# reflowed the slot layout mid-air and the die landed against a shifted rect).
+# arc_height > 0 bows the path up over the row (the rotate wrap, ui-spec §5).
+func fly_from(from_global: Vector2, arc_height: float = 0.0, dur: float = 0.25) -> void:
+	if swapping:
+		return   # a grabbed die follows the mouse; don't fight it
+	if _fly_tween and _fly_tween.is_valid():
+		_fly_tween.kill()
+	var start : Vector2 = from_global - global_position
+	_fly_tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_fly_tween.tween_method(_fly_step.bind(start, arc_height), 0.0, 1.0, dur)
+
+# One flight sample: the offset shrinks to exactly ZERO at t=1, plus a parabolic bow.
+func _fly_step(t: float, start: Vector2, arc_height: float) -> void:
+	_flight_offset = start * (1.0 - t) - Vector2(0.0, arc_height * 4.0 * t * (1.0 - t))
+
+
 func _process(delta: float) -> void:
 	# Keep the cube glued to the label's visual center, even if the Dice
 	# control resizes. Label fills the parent (anchors_preset = 15) and text
 	# is centered, so label.position + label.size / 2 is where the digit sits.
+	# _flight_offset shifts both during a fly_from (zero at rest).
+	label.position = _flight_offset
 	cube.position = label.position + label.size / 2
 	if fit_to_control:
 		cube.fit_to(min(size.x, size.y))   # cube tracks the slot size
