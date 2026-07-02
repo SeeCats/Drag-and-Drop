@@ -87,7 +87,6 @@ var _angle : float = 0.0
 @export var focal_length : float = 450
 
 func _ready() -> void:
-	print("Rotation speed ",rotation_period)
 	_rebuild_layers()
 
 

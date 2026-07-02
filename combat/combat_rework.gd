@@ -272,10 +272,10 @@ func _spawn_starfield() -> void:
 	bg.add_child(Starfield.new())
 
 
-# On WIN: after a beat, advance the gauntlet and start the next fight (player + HP persist).
+# On WIN: advance the gauntlet and start the next fight (player + HP persist). Already
+# deferred out of the FSM transition by the call_deferred, so no extra wait needed.
 # Last monster cleared → stay on the victory screen (run-complete flow is a later step).
 func _on_victory() -> void:
-	await get_tree().create_timer(1.0).timeout
 	if Encounter.current_monster_order >= Encounter.monster_list.size() - 1:
 		RunLog.end_run("cleared")   # last monster down — run logged
 		return

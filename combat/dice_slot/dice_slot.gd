@@ -50,6 +50,14 @@ func set_sub(text: String) -> void:
 	_sub = text
 	_refresh_label()
 
+# Shine while a sibling die is being dragged (marks this slot as a drop target).
+# The slot's visible frame is the wrapping Outliner in the combat scene — this scene
+# has no border of its own — so the highlight delegates to the parent.
+func set_highlight(on: bool) -> void:
+	var frame := get_parent() as Outliner
+	if frame:
+		frame.set_highlight(on)
+
 # --- internal ---
 func _refresh_label() -> void:
 	if not slot_label:

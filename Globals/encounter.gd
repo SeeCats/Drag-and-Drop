@@ -1,23 +1,21 @@
 extends Node
 
 # "Next monster" selector (autoload "Encounter"). Run logic sets current_monster_order;
-# the rework spawner reads next_monster (a MonsterResource) and feeds it to a Monster node.
-# Loosely typed on purpose so the legacy PackedScene spawner doesn't fail to compile.
+# the spawner reads next_monster (a MonsterResource) and feeds it to a Monster node.
 
-
-var slime = preload("res://character/monster/slime/slime.tres")
-var ghost = preload("res://character/monster/ghost/ghost.tres")
-var alien = preload("res://character/monster/alien/alien.tres")
-var alligator = preload("res://character/monster/alligator/alligator.tres")
+var slime : MonsterResource = preload("res://character/monster/slime/slime.tres")
+var ghost : MonsterResource = preload("res://character/monster/ghost/ghost.tres")
+var alien : MonsterResource = preload("res://character/monster/alien/alien.tres")
+var alligator : MonsterResource = preload("res://character/monster/alligator/alligator.tres")
 
 var current_monster_order : int
-var monster_list = [
+var monster_list : Array[MonsterResource] = [
 	alligator,
 	ghost,
 	alien,
 	slime,
 ]
 
-var next_monster:
+var next_monster : MonsterResource:
 	get:
 		return monster_list[current_monster_order % monster_list.size()]

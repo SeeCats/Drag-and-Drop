@@ -1,58 +1,24 @@
 extends Rollables
 
-var base : int =1:
-	set(new_value):
-		base = new_value
-		current_roll_list[0] = new_value
+# Shared roll data + the pure resolver. Owners publish here: the controller writes
+# current_roll_list on commit, monster.update_roll writes current_monster_roll_list.
 
-var mult : int=2:
-	set(new_value):
-		mult = new_value
-		current_roll_list[1] = new_value
-
-var anti : int =3:
-	set(new_value):
-		anti = new_value
-		current_roll_list[2] = new_value
-
-var anti_type : int =0:
-	set(new_value):
-		anti_type = new_value
-		current_roll_list[3] = new_value
-
-var current_roll_list = [base, mult, anti, anti_type]
-var action_index_list : Array[int]
-#base mult anti
-var current_min_list = [1,1,0,0]
-# base, mult, anti, anti_type
-var current_monster_roll_list = [3, 3 , 1, 0]
+# [base, mult, anti, anti_type] — the committed player roll / this round's monster roll.
+var current_roll_list = [1, 2, 3, 0]
+var current_monster_roll_list = [3, 3, 1, 0]
+# Anti floors per factor (base/mult floor at 1, anti strips to 0).
+var current_min_list = [1, 1, 0, 0]
 var current_monster_min_list = [1, 1, 0, 0]
-var next_pattern: Pattern   # upcoming round's pattern (lookahead)
+var next_pattern: Pattern   # upcoming round's pattern (lookahead hook, #11)
 
-var player_damage :int
+# Per-hit + block amounts published by the FSM right before each attack, read by the
+# damage-number zone.
+var player_damage : int
 var monster_damage : int
-var player_blocked : int    # base reduction this attack — for the damage-number "Blocked" pop
+var player_blocked : int
 var monster_blocked : int
 
-var initial_roll : Array[int]
-var initial_monster_roll : Array[int]
-
 var attack_stagger : float = 0.3  # delay between each hit/miss pop (read by combat_state._apply_attack)
-
-var is_player_winning : String = "Proj Drag Drop"
-
-
-func _ready() -> void:
-	pass
-
-
-func _exit_tree() -> void:
-	pass
-
-
-func round_end():
-	await get_tree().create_timer(1).timeout
-	CombatState.transition_to(CombatState.State.ROUND_START)
 
 
 # --- Resolver --------------------------------------------------------------

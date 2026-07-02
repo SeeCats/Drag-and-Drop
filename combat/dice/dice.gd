@@ -13,7 +13,6 @@ class_name Dice
 		current_roll = clamp(new_value, min_roll, max_roll)
 		if label:
 			label.text = str(current_roll)
-@export var texture : Texture
 @export var element : Rollables.Element :
 	set(value):
 		element = value
@@ -21,13 +20,19 @@ class_name Dice
 @export var fit_to_control : bool = true   # size the cube to this Control's rect (rework slots); off keeps old UI dice unchanged
 
 
+# Grab/release state. On grab: go top_level and snap to the cursor in the same frame
+# (top_level reinterprets position as global, so without the snap the die spends one
+# frame at a bogus spot), reset the halo pulse, and mask the face with "?".
 var swapping : bool:
 	set(new_value):
 		swapping = new_value
 		top_level = new_value
 		cube.rotation_axis = Vector3(1, 1, -1)
-		if !swapping:
-			top_level = false
+		if swapping:
+			global_position = get_global_mouse_position() - size / 2
+			swap_time = 0.0
+			fake_roll()
+		else:
 			label.text = str(current_roll)
 			cube.halo_width = initial_halo_width
 			cube.rotation_axis = Vector3(1, 1, 1)
@@ -52,9 +57,6 @@ func _apply_element_tint() -> void:
 		cube.halo_color = Swatch.NEON_COLOR[element as int]
 
 
-func roll():
-	current_roll = randi_range(min_roll, max_roll)
-
 func fake_roll():
 	label.text = "?"
 	 
@@ -66,8 +68,6 @@ func _process(delta: float) -> void:
 	if fit_to_control:
 		cube.fit_to(min(size.x, size.y))   # cube tracks the slot size
 	if swapping:
-		print("_process sees swapping=true, global_position=", global_position)
 		cube.halo_width = initial_halo_width * (1 + 1 * sin(TAU * swap_time / swap_interval))
 		swap_time += delta
-		global_position = get_global_mouse_position() - size/2
-		fake_roll() 
+		global_position = get_global_mouse_position() - size / 2

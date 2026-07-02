@@ -20,6 +20,9 @@ signal state_exited(state: State)
 # Resolved outcome for the in-progress turn (from compute_outcome): {player:{...}, monster:{...}}.
 var _outcome : Dictionary = {}
 
+# Pause on entering each state — the FSM's pacing tempo (per-hit pacing is attack_stagger).
+var beat : float = 0.1
+
 var current_state : State = State.INITIAL:
 	set(new_state):
 		if new_state == current_state:
@@ -32,26 +35,18 @@ var current_state : State = State.INITIAL:
 		_enter_state(new_state)
 		state_entered.emit(new_state)
 
-func _ready() -> void:
-	# AD HOC: the FSM is now kicked by combat_ui.gd each time combat loads (see
-	# start()), so it restarts correctly after a loss instead of staying stuck.
-	# TODO: proper scene-start / run-reset flow.
-	pass
-
-
 # --- Public API ---
 
 func transition_to(new_state: State) -> void:
-	# Optional: add validation, logging, delays
 	current_state = new_state
 
-# Called by UI when player clicks "end turn"
+# Called by the controller when the player commits their turn.
 func end_player_turn() -> void:
 	if current_state == State.PLAYER_PLANNING:
 		transition_to(State.TURN_RESOLVING)
 
-# AD HOC: called by combat_ui.gd whenever the combat scene loads. Resets the
-# persisted autoload FSM (e.g. stuck in LOSE after a defeat) and starts a fresh
+# AD HOC: called by combat_rework.gd on combat load AND per gauntlet fight. Resets
+# the persisted autoload FSM (e.g. stuck in LOSE after a defeat) and starts a fresh
 # round. TODO: replace with a thorough scene-start / run-reset flow.
 func start() -> void:
 	current_state = State.INITIAL   # force-exit whatever we were stuck in
@@ -90,7 +85,7 @@ func _exit_state(_state: State) -> void:
 func _on_round_start() -> void:
 	# Iterate every node in the "round_participants" group in priority order
 	# and call round_start() on each. Lower priority runs first.
-	await get_tree().create_timer(1).timeout
+	await get_tree().create_timer(beat).timeout
 	var participants = get_tree().get_nodes_in_group("round_participants")
 	participants.sort_custom(func(a, b): return a.round_start_priority < b.round_start_priority)
 	for p in participants:
@@ -103,13 +98,13 @@ func _on_turn_resolving() -> void:
 	# Resolve the whole turn once, pure: anti is folded into compute_outcome (no more
 	# mutating anti_operator). Player roll = controller's committed current_roll_list;
 	# monster roll = its current pattern, written into current_monster_roll_list at round start.
-	await get_tree().create_timer(1).timeout
+	await get_tree().create_timer(beat).timeout
 	_outcome = CurrentRoll.compute_outcome(CurrentRoll.current_roll_list, CurrentRoll.current_monster_roll_list)
 	_advance(State.PLAYER_ATTACK)
 
 
 func _on_player_attack() -> void:
-	await get_tree().create_timer(1).timeout
+	await get_tree().create_timer(beat).timeout
 	CurrentRoll.player_damage = _outcome.player.per_hit      # published for the damage-number zone
 	CurrentRoll.player_blocked = _outcome.player.blocked
 	await _apply_attack(Combatants.monster, _outcome.player, GlobalSignal.player_attacked, GlobalSignal.player_missed)
@@ -117,7 +112,7 @@ func _on_player_attack() -> void:
 
 
 func _on_monster_attack() -> void:
-	await get_tree().create_timer(1).timeout
+	await get_tree().create_timer(beat).timeout
 	CurrentRoll.monster_damage = _outcome.monster.per_hit    # published for the damage-number zone
 	CurrentRoll.monster_blocked = _outcome.monster.blocked
 	await _apply_attack(Combatants.player, _outcome.monster, GlobalSignal.monster_attacked, GlobalSignal.monster_missed)
@@ -159,13 +154,11 @@ func _apply_attack(target: Character, side: Dictionary, hit_signal: Signal, miss
 		await get_tree().create_timer(CurrentRoll.attack_stagger).timeout
 
 
-func _on_win() ->void:
-	# Terminal for now: the rework loop lands here and stops (phase shows "victory").
-	# Gauntlet respawn + run flow (advance Encounter, respawn the monster, restart) is
-	# the next step of #2; the old monster_spawner path crashed in the rework scene.
-	await get_tree().create_timer(1).timeout
+# Minimal beat only — the gauntlet respawn is controller-owned (combat_rework._on_victory,
+# fired deferred off state_changed), so the FSM does no scene work here.
+func _on_win() -> void:
+	await get_tree().create_timer(beat).timeout
 
-func _on_lose() ->void:
-	# Terminal for now: lands here and stops (phase shows "defeat"). Retreat / run-reset
-	# flow is a later step.
-	await get_tree().create_timer(1).timeout
+# Terminal: lands here and stops (phase shows "defeat"). Retreat / run-reset is a later step.
+func _on_lose() -> void:
+	await get_tree().create_timer(beat).timeout
