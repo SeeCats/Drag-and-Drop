@@ -4,9 +4,25 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 
 ---
 
+## 2026-07-02 (Code Claude — starfield implemented)
+
+- Built `combat/starfield.gd` (`class_name Starfield`, Node2D, custom `_draw`): ~90 downward-drifting stars with parallax; `_process` moves them + wraps top↔bottom; speed eases toward a tempo target read from `CombatState` (crawl `crawl_speed` in planning/round-start/win-lose, `streak_speed` while resolving) and `_draw` elongates dots into streaks when fast. Controller `_spawn_starfield()` puts it on a back `CanvasLayer` (layer -1) so it renders behind the whole UI; spawned in `_ready` like `CombatSfx`. Tunable via `@export` (count/speeds/color). GDScript note: stars move via `s.pos += Vector2(...)` (reassigns the dict key — `s.pos.y += ` wouldn't persist, Vector2 is a value type). Reduced-motion docking is still TODO (no setting yet).
+
+## 2026-07-02 (Code Claude — ui-spec: starfield downward drift)
+
+- ui-spec §7: specced the starfield's baseline aesthetic — stars drift slowly **downward** (gentle ambient, read most at the bottom/tray gaps). Flagged + reconciled the tension with the "idle states are still" rule (that rule targets decision-surface objects; the starfield is background-in-the-gaps, exempt) and folded it into the existing tempo channel (planning = slow crawl, resolve = downward streak). Spec-only; not implemented yet. Changelog updated.
+
+## 2026-07-02 (Code Claude + user — scene naming: enemy → monster)
+
+- Standardized the combat scene's enemy/monster mix on **monster** (matches the code — uniformly `Monster` — and the existing `MonsterDock`/`MonsterChips`). User renamed the scene nodes `Enemy*` → `Monster*` (`MonsterPanel`/`MonsterZone`/`MonsterArt`/`MonsterTexture`) in-editor; I flipped the one code ref: `_enemy_texture`/`%EnemyTexture`/`_push_enemy_texture` → `_monster_texture`/`%MonsterTexture`/`_push_monster_texture`. The GDD's fiction term "enemy" is left as-is (narrative layer, Design's lane).
+
 ## 2026-06-30 (Code Claude — GDD: passing now allowed [⚑ Design-lane edit])
 
 - **⚑ Cross-lane edit (flag for Design):** per the user's playtest call, reversed GDD §"No pass button by default" → **passing (hand in current hand without a swap/rotate) is allowed by default**. Updated the core-loop line ("at most one verb… or none") + the no-pass principle (now: lookahead still drives planning, per-round reroll covers anti-stagnation). No code change — Confirm was never gated on having moved, so this only documents existing behavior. Design owns this section; please confirm framing + whether any forced-churn lever should remain.
+
+## 2026-07-01 (Code Claude — monster portrait in the scouter)
+
+- Controller now shows the monster's art: `_push_monster_texture()` sets `%MonsterTexture.texture = _monster.data.texture`, called from `_spawn_monster` so it fires on the initial spawn and every gauntlet respawn. Monsters whose `.tres` has no `texture` show blank (add textures per-`.tres` to fill them in).
 
 ## 2026-07-01 (Code Claude + user — folder reorganization)
 

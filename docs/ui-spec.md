@@ -100,7 +100,7 @@ Dice cube spin states (wireframe cube rendering kept):
 
 Future juice passes (shake, pops, halos) are bound by the same rule. A reduced-motion setting docks with the existing bloom/flash accessibility options (GDD §9.3).
 
-**Starfield (adopted):** a full-screen starfield behind everything — stars live in the gaps, never inside an information container (slots, chips, buttons are opaque). Its motion is the **tempo channel**: near-still during planning, hard streak during the resolve beat (the one place "swoosh" is allowed), settle on return to planning. Docks with reduced-motion.
+**Starfield (adopted):** a full-screen starfield behind everything — stars live in the gaps, never inside an information container (slots, chips, buttons are opaque). **Baseline aesthetic: stars drift slowly *downward*** — a gentle, low-opacity ambient (read most in the empty space around/below the tray at the bottom). This constant drift is compatible with the §7 idle-still rule because that rule targets *decision-surface* objects; the starfield is background-in-the-gaps, exempt. Drift *speed* is the **tempo channel**: a slow downward crawl during planning, accelerating to a hard downward streak on the resolve beat (the one place "swoosh" is allowed), settling back to the crawl on return to planning. Docks with reduced-motion (drift → static).
 
 ### 7.2 Ownership grammar (callout fans)
 
@@ -178,6 +178,7 @@ Acceptance criteria — each maps to a screenshot state; Code Claude's build pas
 
 ## Changelog
 
+- 2026-07-02 — §7 starfield refined (Code, user-directed): added the baseline aesthetic — stars **drift slowly downward** (gentle ambient, densest in the empty space at the bottom/tray). Reconciled with the idle-still rule (starfield is background-in-the-gaps, exempt) and folded into the existing tempo channel (planning = slow crawl → resolve = downward streak).
 - 2026-06-12 — staring-phase finalization (UI Claude, all user-driven): S2 strip + HP bar abolished (gaze-fence rule, criterion 20); verdict docked under monster HP; player HP = knob ring; knob dial affordance restored (grip ticks + orientation notch); full-screen starfield adopted (tempo channel); §7.2 ownership fans (connection beat console-plate in head-to-head); chips snug above slots; slime sky-centered; criteria 3/12 updated, 20–21 added.
 - 2026-06-12 — §7.1 added (UI Claude): vanishing-point dice rendering (user idea) — VP at live monster position, slot-centered shrink-to-fit cubes, label at perceived center, tumble-overrides-aim rule; classified pure tone (pairing info already carried by §4 column alignment — user's call), toggleable w/ parallel-extrusion fallback + wave-2 fresh-eyes question. §4 caption moved below the slot square.
 - 2026-06-12 — §6 mirror sync (Code Claude): `Swatch.NEON_COLOR` + `HALF` gained the 4th (ghost-white/WHITE) entry, `from_name` gained `neon_white` — the §6.2 work order is built. `ELEMENT_COLOR`→`NEON_COLOR` swap in UI display scripts deferred to the layout build.

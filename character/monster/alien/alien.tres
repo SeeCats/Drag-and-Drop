@@ -1,12 +1,14 @@
-[gd_resource type="Resource" script_class="MonsterResource" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="MonsterResource" format=3 uid="uid://btqnra7f83aic"]
 
 [ext_resource type="Script" uid="uid://k3dthoavmsp4" path="res://character/monster/monster_resource/monster_resource.gd" id="1_mres"]
 [ext_resource type="Script" uid="uid://c8kxp3x8jkr5q" path="res://character/monster/pattern/pattern.gd" id="2_ptn"]
 [ext_resource type="Resource" uid="uid://djfv4u5cbm4fi" path="res://character/monster/alien/alien_pattern1.tres" id="3_p1"]
 [ext_resource type="Resource" uid="uid://bf4tdcnqt3pfw" path="res://character/monster/alien/alien_pattern2.tres" id="4_p2"]
+[ext_resource type="Texture2D" uid="uid://7honr2nkyant" path="res://character/monster/alien/u_fg0tkeqgiy-monster-8589461_1920.png" id="5_vbet1"]
 
 [resource]
 script = ExtResource("1_mres")
 monster_name = "Alien"
+texture = ExtResource("5_vbet1")
 max_hp = 10
 pattern_list = Array[ExtResource("2_ptn")]([ExtResource("3_p1"), ExtResource("4_p2")])
