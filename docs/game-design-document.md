@@ -28,6 +28,19 @@ Depth isn't the problem on mobile — *interfaces built for other inputs are.* Y
 ### 1.3 Why this works on phone (rationale)
 Touch fails at two things deep games lean on: precise/fast targeting and timing (action combat), and dense menus with many small targets (ARPG gear management). It excels at one: direct manipulation — dragging big objects. Most deep mobile games feel bad not because they're deep but because they express that depth through the two things touch is worst at, usually as a port of a mouse/controller design. Drag N Drop expresses its depth through the one thing touch is *best* at, so the interface stops being a tax on the player. The discipline this demands: never add a mechanic that needs twitch timing or tiny tap targets, and hold the gear loop to the same drag-native standard as combat (pillar 7) — otherwise the thesis holds in the fight and breaks in the menus. Precedent that this lane wins when executed: **Marvel Snap** (deep, mobile-first, tap/drag core), with Balatro and Hearthstone as softer evidence.
 
+### 1.4 Structure commitment — what persists (canonical; read before assuming a genre)
+*(Added 2026-07-02, resolving a recurring misread: fresh readers — humans and Claude sessions alike — kept parsing this project as a build-reset roguelite, because the doc's vocabulary was roguelite-shaped while the intended structure lived off-doc. This section is the commitment. Every other section cites it; none restates it.)*
+
+This game uses roguelite mechanics as a toolkit, but it is **not a build-reset run game** (the Slay the Spire / Balatro / Hades model, where your build evaporates each run). It is a **persistent-gear extraction-crafter** — nearest loop relatives: Moonlighter / Mystery Dungeon's dive-and-bank, chasing PoE's gear horizon, turn-based. The persistence rules:
+
+1. **Banked gear persists forever.** Equipment in the stash/loadout is never lost. There is no build reset between runs.
+2. **A run = one dungeon = one crafting session.** Its product is a single item, visibly constructed across the run's maps (§8). One item per run is the intended reward density — roughly two orders of magnitude below ARPG norms, affordable because the reward is *watching the item assemble*, not a drop lottery.
+3. **The stake is the item under construction, not your build.** Die mid-run → the unfinished item is forfeit; extract or clear → it banks. Banked gear is never at risk. HP is the run's clock (§7.4).
+4. **Session unit = one map (~2–3 min); run unit = one dungeon (~6 maps).** A run is a meal eaten in snacks — interruptible at map boundaries (mid-run save/resume is therefore a build requirement, §12.2.9).
+5. The §7 campaign is a **deferred onboarding wrapper** — a maybe, not a commitment. The §8 crafting run is the game being built and tested.
+
+Store shelves will still tag this "roguelite," and that's fine — the tag lacks the resolution to express "the build never resets." This section exists so that no designer, document, or future session builds for the wrong genre again.
+
 ---
 
 ## 2. Core Fantasy & Tone
@@ -156,11 +169,11 @@ WHITE exists in the element enum and color tables but has no combat role in the 
 ## 4. Player Progression Systems
 
 ### 4.1 Health, energy, and run state
-A **run** is a single campaign attempt through the act/dungeon structure (§7). The player carries:
-- **HP** — persists across rooms within a dungeon, restored at defined rest points.
+A **run** is one dungeon — a single crafting excursion (§1.4, §8). *(Rewritten 2026-07-02; previously "a single campaign attempt through the act/dungeon structure," which was the roguelite framing §1.4 retires.)* The player carries:
+- **HP** — the run's clock: persists across the run's maps with scarce healing inside (§7.4), refilled between runs. Hitting 0 ends the run and forfeits the item under construction (§1.4); banked gear is untouched.
 - **Energy pool / dice count** — the size and quality of the hand drawn each round; grows with gear.
-- **Equipment loadout** — the set of items installed in equipment slots (§4.2).
-- **Relics / passives** — run-modifying effects collected from events and bosses (§4.3).
+- **Equipment loadout** — banked items installed in equipment slots (§4.2); persistent, never at risk (§1.4).
+- **Relics / passives** — effects collected mid-run from events and bosses (§4.3). *Scoping under the new structure — run-scoped (evaporate at extraction) vs. banked like gear — is an open call (§12.2).*
 
 ### 4.2 Equipment & slots
 - Completing a dungeon awards **one piece of equipment of the player's choice** from that dungeon's reward pool.
@@ -355,6 +368,8 @@ Elites and bosses are distinguished by **more demanding rotations** (§6.1) — 
 
 ## 7. Content Structure — Campaign
 
+> **Status (2026-07-02, per §1.4):** the campaign is a **deferred onboarding wrapper** — a maybe, not a commitment. The §8 crafting run is the game being built and tested. Note that **§7.4–§7.8 are general doctrine** (pacing, gamble shapes, difficulty honesty, tuning discipline) that binds §8 equally; they live under this heading for historical reasons, not because they are campaign-scoped.
+
 ### 7.1 Acts (the early game)
 The early campaign is **~6 short acts** designed to teach the system in layers so new players ramp into mastery:
 
@@ -498,18 +513,64 @@ When the UI shows a kill threshold ("kill on N+", §7.9), that N *is* the kill p
 
 ---
 
-## 8. Content Structure — Endgame (self-scaling dungeons)
+## 8. The Crafting Run (core structure — the game itself)
 
-After the campaign, the player runs **interstellar dungeons** to craft specific target equipment. The twist that generates effectively unlimited content:
+*(Rewritten 2026-07-02 from "Content Structure — Endgame (self-scaling dungeons)." This is the spine: the campaign (§7) is a deferred wrapper around it. Persistence and stake rules are canonical in §1.4 and not restated here.)*
 
-> Each time you defeat a monster, you may take on an **added penalty** in exchange for a **higher reward ceiling** for the dungeon.
+A run is a single crafting session: **the journey to one piece of gear.** At run start the player makes a **loose target declaration** — the base / slot being crafted, never a full spec (early players don't yet know what to want, and per §7.9 the game states facts and never recommends targets). The run is a chain of **~6 short maps** (one combat encounter each, ~2–3 min; numbers are first-pass per the doc header). Each cleared map adds a component to the item **visibly, on screen** — the item assembling across the run *is* the reward arc, peak-ending at the bank. You choose the maps ("a series of random maps that you choose"): routing is the macro decision layer above combat.
 
-Players stack penalties (tougher modifiers, stat handicaps, nastier enemy patterns) to push reward odds for the exact item they want. This converts difficulty into a player-authored content treadmill: the game gets exactly as hard as the player chooses to make it, and the loot scales to match. It also gives theorycrafters a sink: a build is "good" insofar as it can carry deep penalty stacks.
+### 8.1 Where the randomness lives (decided)
+**Variance in the offers; determinism in the assembly.** Each map clear presents **2–3 component/affix choices**; the player picks one; it applies exactly as shown. There is no crafting slot machine — no currency gambles, no outcome rolls on the item itself (§7.6 "never lie about a number" and §7.5's regret rules both bind here). The RNG the player *chooses* lives upstream: **routing** (map types bias which component pools appear) and **juicing** (§8.2). Structurally this is the roguelite draft transplanted from build-crafting to item-crafting: draft decisions every run, persistent output — the honest synthesis of the two visions this project has carried.
 
-**Design guardrails:**
-- Penalties should be **legible and pre-committed** (you see what you're signing up for).
-- Reward scaling should favor **odds and selection**, not raw power, to protect the meta.
-- A soft "you can stop now" off-ramp each floor prevents loss-aversion spirals.
+The per-map component pick is a **core screen owned by pillar 7**: drag-native, one level deep (§9.1). This is the concrete shape of the gear-loop UX problem (§12.4.15) — a single 2–3-way pick per map plus one A-vs-B compare at banking, not an ARPG inventory.
+
+**Corollary — no inventory system.** One item per run and nothing else accumulates: no material piles, no spare-loot bags, no stash-management minigame. This deletes the worst mobile-ARPG UX surface by construction (§1.3). The moment "crafting materials" or multi-drop loot enters the design, inventory hell returns through the side door — hold this line.
+
+### 8.2 Juicing — the penalty treadmill
+> After clearing a map (or defeating a monster), the player may take on an **added penalty** in exchange for **higher-quality offers** for the rest of the run.
+
+Difficulty stays a player-authored dial: the game gets exactly as hard as the player chooses, and the offers scale to match. Theorycrafters get their sink — a build is "good" insofar as it can carry deep penalty stacks. Guardrails (kept from the original endgame spec):
+- Penalties are **legible and pre-committed** (you see exactly what you're signing up for).
+- Reward scaling favors **offer quality and selection**, not raw power, to protect the meta.
+- The off-ramp is **partial extraction (§8.3)** — every deepening is opt-in and escapable.
+
+### 8.3 Partial extraction (the tension engine)
+The item under construction is bankable at intermediate stages. At any map boundary the player may **extract** — bank the item as it stands, ending the run — or push on for the next component and risk it (death forfeits the item; banked gear is never at risk, §1.4). *"Bank the +2 now, or push for the +4"* is the run-scale twin of the swap gamble (§3.2), and deliberately §7.5's healthy shape: certain reward, risked upside, fully informed. This is the old "soft you-can-stop-now off-ramp each floor," promoted from a guardrail line to the run's load-bearing tension engine.
+
+### 8.4 The dungeon: rooms and routing (specced 2026-07-02)
+**The frontier.** After each cleared room the player is offered **exactly 3 next-room options**; deeper map structure is not visible. The fog is canonical, and deliberately paired with odds-manipulation (below): you cannot route *to* the rooms you want, only bias *what the future offers* — you steer the distribution, not the path. (Run-scale twin of §6.1's one-step lookahead. Do not add full-map visibility later: it collapses odds-rooms into dead picks.) A room card shows **both the threat and the reward** before you commit (full-information doctrine, §6.1/§7.6 — first-pass lean; if three threat-previews overload the phone, degrade threat detail before reward detail).
+
+**Room reward types** (the frontier draws from these; pool weights are authoring surface):
+- **Crafting rooms** — carry a tree operation (§8.5 verbs), named on the card ("re-walk prefix"). Clear the fight → pick 1 of 3 outcomes, or decline (§8.1).
+- **Odds rooms** — reweight future offers (branch/rarity weights). They only pay with enough run left to amortize — weight them toward early-run.
+- **Resource rooms** — currency, healing, boons: immediate, this-run-only. **Currency is never banked** (decided 2026-07-02); persistent currency would rebuild the accumulation economy §8.1 forbids.
+- **Shops** — two kinds: crafting-operation shops and run-boon shops. Spend run currency; unspent currency burns at extraction.
+- **Structural rooms** — skip or add rooms on the current floor: run length as a player dial, priced automatically by the HP clock (§7.4) and feeding the extract-or-push decision (§8.3).
+
+Baseline run stays ~6 rooms (§1.4); structural rooms bend it (first-pass bounds 4–9).
+
+### 8.5 Modifier architecture (working frame — topology open)
+An item = a base + **two mods (prefix, suffix)**. Each mod is a **walked path through a tree**, so the item's whole state is readable as geometry — which *is* this section's visible-construction mechanism: each crafting room lights one step.
+
+Three attributes, three geometric jobs, no overlap:
+- **Specialty — the tree's shape.** An item-level distribution transform: **unlocks** branches, **blocks** branches (identity through exclusion — what this item is forbidden from becoming), **weights** offers. Added **mid-run, every run**, stackable (composition: blocks win, weights multiply; stack cap first-pass 2). **Prospective-only:** a specialty transforms the *pool*, never mods already taken — existing mods are grandfathered (rendered as a kept mod on a withered branch: the item's past visibly diverging from its future). Timing is therefore the run's core strategic gradient — an early specialty captures most of the run's offers and locks you in; a late one is safe and nearly worthless.
+- **Rarity — width budget.** How many branches a mod may hold simultaneously (count model; *which* branches exist is specialty's job, so the two axes never fight over one role).
+- **Tier — depth.** How far along each branch; pure magnitude. Depth discipline per §5.3: offense trees run short, self-capping trees (anti / HP-adjacent) may run long.
+
+**Doctrine: rarity changes the question (how many clauses a mod asks); tier changes the number.** Excitement lives in rarity, tier stays boring and sim-watched — the inverse of the usual loot-game instinct, per §5.3's measured lesson that scaling numbers is what guts tension.
+
+**Safety architecture — two block layers, two jobs.** Specialty blocks are *identity*: composable, and legally sequenced around (taking a mod *before* the specialty that would block it is mastery texture — the item is its history). The *balance quarantine* lives below: a **global mutual-exclusion graph on the mods themselves, enforced on the item**, un-bypassable by any specialty stack or ordering. Corollary authoring rules: multiplier clauses never share a tree, and **topology is a pricing instrument** — the distance between two branches is the cost of combining them.
+
+**The four crafting verbs** (what rooms and shops carry): **transform** (add/alter specialty) · **widen** (rarity +1) · **deepen** (tier-up) · **re-walk** (reroll a path). All resolve as pick-1-of-3-or-decline (§8.1).
+
+**Perfection = lit area.** Wide × deep on both mods — rarity×tier compound with no extra mechanism; this is §8.6's asymptote. Mod pricing inherits §5.3's measured table (+N anti common; +N base and dice-shape rare; +all capstone). Every mod is data on a resource (§5.3 decision 3). Anti-patterns (banked 2026-07-02): conditions satisfiable by free re-sorting (the base×mult symmetry law — key conditions to colors, monster state, or roll outcomes instead), percentages on single-digit integers, heal/regen unpriced against §7.4, and any blind-roll crafting outcome (§8.1).
+
+### 8.6 Open decisions
+1. **Tree topology & sizes** — depth / branch factor per specialty. The load-bearing homework: perfection-curve steepness = tier-ladder length × tree size, and it must be simmed before content is authored (§7.8).
+2. **Sealed banking (lean: yes).** Extraction seals the item; re-entry crafting would deflate §8.3's bank-or-push tension and should exist, if ever, only steeply priced.
+3. **Live under-construction item** — equipped and active mid-run? Feel says yes (you feel it grow, the stake stays visible); cost is UI plus a moving mid-run balance target.
+4. **Boon/relic scoping** — leaning run-scoped (currency already is); deliberately still fuzzy (§12.2.9b).
+5. **Residual numbers** — offers per room, specialty stack cap, re-walk/widen/deepen costs, floor bounds. All first-pass above.
 
 ---
 
@@ -580,17 +641,18 @@ Consolidated tracker of everything still unresolved, grouped by *what kind of an
 6. **Per-dimension soft caps:** needed to prevent one-stat degeneracy, or do enemy archetypes self-correct it?
 7. **Monetization:** premium, cosmetic-only, or battle-pass over challenge dungeons? Must not touch the strategy layer.
 8. **Hand economy / persistence:** values re-roll fully each round and only color/slot *layout* persists (as built). Confirm that's intended; decide whether gear ever changes it (e.g., lock a die, add a 4th).
-9. **Run length & session unit:** ~6 acts × 3 dungeons × 3 floors vs. a 5–15 min target. HP resets between dungeons, so a *dungeon* is the natural checkpoint — confirm and add mid-dungeon save/resume.
+9. **Run length & session unit — RESOLVED (§1.4, 2026-07-02):** session unit = one map (~2–3 min); run unit = one dungeon (~6 maps, one crafting session). Remaining work is build-side: mid-run save/resume at map boundaries.
+9b. **Relic/boon scoping (new, 2026-07-02):** under the §1.4 structure, do relics/boons evaporate at extraction (run-scoped) or bank like gear? Run-scoped is the lean default (§4.1); banked relics would need their own slot economy. *Currency is resolved: never banked (§8.4).* Boons/relics deliberately left fuzzy for now.
 
 ### 12.3 Tuning numbers to pin down
 10. **"+1 base" effective cost** scales by the boss's mult (`base × mult`); state the real per-round number, not the raw modifier (§7.5).
 11. **"Doubled" vs. "guaranteed" legendary** on difficulty-cost events — decide which; they justify very different costs (§7.5).
 12. **base × mult balancing curve.** Multiplicative damage is a tuning minefield as numbers grow (+1 swings hugely at low values, trivially at high). Decide how/whether numbers inflate, and keep the UI doing all arithmetic if they do.
-13. **Endgame economy:** how penalty stacks map to reward odds without becoming a grind wall — and keep campaign difficulty-events (§7.5) milder than the endgame's *stacked* penalties so the two don't flatten into each other.
+13. **Crafting-run economy (repointed 2026-07-02):** now lives in §8.6.1 (perfection curve = tier ladder × tree size) and §8.5's rarity×tier mechanism. The old concern stands in updated form: penalty stacks must buy offer quality without becoming a grind wall, and campaign difficulty-events (§7.5), if the campaign ships, stay milder than stacked juice so the two don't flatten into each other.
 
 ### 12.4 Strategic concerns
 14. **Market thesis — RESOLVED, reframed (§1.1/§1.3).** Not "games are shallow" but "deep mobile games are bottlenecked by interfaces built for other inputs; touch excels at direct manipulation, so we make the deep interaction the drag gesture." The thesis now *depends on* item 15 below.
-15. **The gear-loop UX is the make-or-break, and is currently unsolved (acknowledged).** Pillar 7 demands the build/equip/test/compare loop be as tactile and friction-free as combat — drag gear in, instantly see its effect on the dice, drag it out. The cumbersome ARPG gear-management loop is precisely what the positioning promises to beat, so a menu-slog here collapses the whole pitch. **This is the highest-leverage unsolved design+UX problem in the project.** (Wants its own design pass — say the word.)
+15. **The gear-loop UX is the make-or-break, and is currently unsolved (acknowledged).** Pillar 7 demands the build/equip/test/compare loop be as tactile and friction-free as combat — drag gear in, instantly see its effect on the dice, drag it out. The cumbersome ARPG gear-management loop is precisely what the positioning promises to beat, so a menu-slog here collapses the whole pitch. **This is the highest-leverage unsolved design+UX problem in the project.** (Wants its own design pass — say the word.) *Update 2026-07-02: §8's crafting run gives this concrete shape — the gear loop is now a 2–3-way component pick per map (drag-native, §8.1) plus one A-vs-B compare at banking, and §8.1's no-inventory corollary deletes the ARPG stash surface outright. Far smaller problem than the ARPG gear-management loop this entry originally feared; still wants its design pass.*
 16. **Differentiation — conceptually RESOLVED, pending validation.** Three distinct, honest axes: (a) the combat *knot* — color-coupled defense is a combat fingerprint no genre leader has; (b) touch-native depth (the drag is the deep act); (c) one-handed / portrait, unlocking usage contexts landscape games can't serve. The "why this not that" has real substance. **Contingent on item 1 (base-loop must actually have legs) and item 15 (one-handed/touch promise must survive into the gear & menu screens)** — same unknowns, different hat. Marketing articulation deferred.
 17. **Theme cohesion — RESOLVED (§2).** Bridged: *manipulating space-time **is** how you raid* (tear a portal, board the ship, pull back). The mechanic, the fantasy, and the art budget collapse into one act, and the symmetric combat lets a single portal-raid animation serve both player and monster attacks. Remaining work is execution-only: vary the animation's *reading* by outcome to beat repetition (also serves as combat feedback).
 
