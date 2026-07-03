@@ -236,17 +236,17 @@ text = "incoming: —"
 fit_content = true
 autowrap_mode = 0
 
-[node name="EnemyPanel" type="PanelContainer" parent="Bands" unique_id=2050237865]
+[node name="MonsterPanel" type="PanelContainer" parent="Bands" unique_id=2050237865]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="EnemyZone" type="Control" parent="Bands/EnemyPanel" unique_id=231200599]
+[node name="MonsterZone" type="Control" parent="Bands/MonsterPanel" unique_id=231200599]
 modulate = Color(1, 1, 1, 0.9843137)
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 
-[node name="ScouterRing" parent="Bands/EnemyPanel/EnemyZone" unique_id=610998314 instance=ExtResource("1_8eonr")]
+[node name="ScouterRing" parent="Bands/MonsterPanel/MonsterZone" unique_id=610998314 instance=ExtResource("1_8eonr")]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
@@ -263,7 +263,28 @@ grow_vertical = 2
 max_value = 14.0
 value = 14.0
 
-[node name="MonsterDock" type="VBoxContainer" parent="Bands/EnemyPanel/EnemyZone" unique_id=360375524]
+[node name="MonsterArt" type="Control" parent="Bands/MonsterPanel/MonsterZone/ScouterRing" unique_id=166781113]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MonsterTexture" type="TextureRect" parent="Bands/MonsterPanel/MonsterZone/ScouterRing/MonsterArt" unique_id=149526838]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 320)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="MonsterDock" type="VBoxContainer" parent="Bands/MonsterPanel/MonsterZone" unique_id=360375524]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -277,7 +298,7 @@ offset_bottom = 260.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HpText" type="RichTextLabel" parent="Bands/EnemyPanel/EnemyZone/MonsterDock" unique_id=955326041]
+[node name="HpText" type="RichTextLabel" parent="Bands/MonsterPanel/MonsterZone/MonsterDock" unique_id=955326041]
 unique_name_in_owner = true
 layout_mode = 2
 bbcode_enabled = true

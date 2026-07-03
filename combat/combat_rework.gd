@@ -39,6 +39,7 @@ var _player : PlayerCharacter     # lean entity; the rework reads its hp (mirror
 @onready var _chip_row : ChipRow = %ChipRow
 @onready var _damage_preview : DamagePreview = %DamagePreview
 @onready var _scouter_ring : RadialBar = %ScouterRing
+@onready var _monster_texture : TextureRect = %MonsterTexture
 @onready var _hp_ring : RadialBar = %HpRing
 @onready var _hp_text : RichTextLabel = %HpText
 @onready var _phase_label : RichTextLabel = %PhaseLabel
@@ -58,6 +59,7 @@ func _ready() -> void:
 	_spawn_monster()
 	_spawn_player()
 	add_child(CombatSfx.new())   # combat hit/miss SFX (replaces the deleted legacy combat_ui.gd audio)
+	_spawn_starfield()           # decorative downward starfield behind everything (ui-spec §7)
 	RunLog.begin_run(_player.hp.max_hp)   # run history logging
 	_log_begin_fight()
 	render()
@@ -246,6 +248,13 @@ func _spawn_monster() -> void:
 	_monster.data = Encounter.next_monster
 	add_child(_monster)
 	_monster.hp.hp_changed.connect(_on_monster_hp_changed)   # live ring drain during resolve
+	_push_monster_texture()   # show this monster's portrait in the scouter
+
+
+# Pushes the current monster's portrait (its MonsterResource.texture) onto the scouter MonsterTexture.
+func _push_monster_texture() -> void:
+	if _monster_texture and _monster and _monster.data:
+		_monster_texture.texture = _monster.data.texture
 
 
 # Spawns the lean PlayerCharacter (HP + state only); the rework reads its hp, mirroring the monster.
@@ -253,6 +262,14 @@ func _spawn_player() -> void:
 	_player = preload("res://character/Player.tscn").instantiate() as PlayerCharacter
 	add_child(_player)
 	_player.hp.hp_changed.connect(_on_player_hp_changed)   # live ring drain during resolve
+
+
+# Spawns the decorative starfield on a back CanvasLayer (layer -1 → renders behind the whole UI).
+func _spawn_starfield() -> void:
+	var bg : CanvasLayer = CanvasLayer.new()
+	bg.layer = -1
+	add_child(bg)
+	bg.add_child(Starfield.new())
 
 
 # On WIN: after a beat, advance the gauntlet and start the next fight (player + HP persist).
