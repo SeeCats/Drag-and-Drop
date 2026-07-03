@@ -7,10 +7,6 @@ const DamageNumberLabel = preload("res://combat/damage_number/damage_number_labe
 @onready var rect: Control = self
 @onready var damage_number: DamageNumberLabel = $DamageNumberLabel
 
-var drag_start_pos : Vector2
-var drag_end_pos : Vector2
-var is_dragging : bool
-
 func _ready() -> void:
 	damage_number.hide()  # template stays hidden; we pop duplicates
 	GlobalSignal.player_attacked.connect(_on_player_attacked)

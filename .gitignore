@@ -4,3 +4,6 @@
 
 # Debug screenshots (F12 autoload, ui-spec §8)
 /screenshots/
+
+# Python bytecode (tools/)
+__pycache__/

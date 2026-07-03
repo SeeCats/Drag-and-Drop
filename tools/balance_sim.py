@@ -59,9 +59,10 @@ BASE_GAUNTLET = [
     ("Alligator", 24, [[1, 3, 2, 0], [3, 1, 2, 0]]),
     ("Ghost",     20, [[2, 5, 1, 0], [2, 2, 4, 1], [5, 2, 1, 0], [2, 2, 4, 0]]),
     ("Alien",     10, [[4, 4, 0, 0], [6, 6, 0, 0]]),
-    # NOTE: slime now has a "breather" round [1,1,4,0] after p1 (narratively the slime
-    # winding up its mult) — telegraphed wind-up + fixes the back-to-back-15 burst variance.
-    ("Slime",     25, [[5, 3, 3, 0], [1, 1, 4, 0], [3, 5, 3, 1], [2, 2, 4, 1], [6, 6, 0, 0]]),
+    # NOTE: slime has a "breather" round [1,1,4,0] after p1 (narratively the slime
+    # winding up its mult) — telegraphed wind-up + fixes the burst variance.
+    # p1 knocked down 5x3 -> 4x3 (user, 2026-07-02, system-testing phase; not sim-priced).
+    ("Slime",     25, [[4, 3, 3, 0], [1, 1, 4, 0], [3, 5, 3, 1], [2, 2, 4, 1], [6, 6, 0, 0]]),
 ]
 START_HP = 20
 

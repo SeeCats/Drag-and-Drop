@@ -51,6 +51,8 @@ func _press() -> void:
 	_grabbed = _hovered_slot()
 	if _grabbed != -1:
 		slots[_grabbed].dice.swapping = true
+		for i in slots.size():
+			slots[i].set_highlight(i != _grabbed)   # shine the two drop targets
 
 # Release: finish a flick (rotate) or a die drag (swap).
 func _release() -> void:
@@ -63,6 +65,8 @@ func _release() -> void:
 		return
 	if _grabbed == -1:
 		return
+	for slot in slots:
+		slot.set_highlight(false)
 	slots[_grabbed].dice.swapping = false
 	var tgt : int = _hovered_slot()
 	if tgt != -1 and tgt != _grabbed:

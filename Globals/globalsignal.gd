@@ -1,36 +1,16 @@
 extends Node
 
+# Global signal bus. The four attack/miss signals are emitted per hit/miss by
+# combat_state._apply_attack for juice only (SFX, damage numbers) — damage is
+# applied directly to Hp, never via these.
 
 @warning_ignore("unused_signal")
-signal turn_ended
-@warning_ignore("unused_signal")
-signal turn_started
-@warning_ignore("unused_signal")
-signal round_started
-@warning_ignore("unused_signal")
-signal round_ended
-@warning_ignore("unused_signal")
 signal updated_roll
-@warning_ignore("unused_signal")
-signal rotated
 @warning_ignore("unused_signal")
 signal player_attacked
 @warning_ignore("unused_signal")
 signal monster_attacked
 @warning_ignore("unused_signal")
-signal player_attack_finished
-@warning_ignore("unused_signal")
 signal player_missed
 @warning_ignore("unused_signal")
 signal monster_missed
-@warning_ignore("unused_signal")
-signal monster_atack_finished
-@warning_ignore("unused_signal")
-signal swap_started(dice: Dice)
-
-@warning_ignore("unused_signal")
-signal announced(announcement: String)
-@warning_ignore("unused_signal")
-signal preview_set(text: String)    # hover hypothetical readout
-@warning_ignore("unused_signal")
-signal preview_clear                # revert preview to committed arrangement

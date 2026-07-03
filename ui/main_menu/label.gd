@@ -1,7 +1,8 @@
 extends Label
 
+# Title label — sets the menu title text.
 
-# Called when the node enters the scene tree for the first time.
+const TITLE := "Proj Drag Drop"
+
 func _ready() -> void:
-	text = CurrentRoll.is_player_winning
-	pass # Replace with function body.
+	text = TITLE

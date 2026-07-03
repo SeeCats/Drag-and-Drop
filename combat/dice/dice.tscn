@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://ch4nevd614kw4"]
 
 [ext_resource type="Script" uid="uid://cutfn74hkvfds" path="res://combat/dice/dice.gd" id="1_ypqjo"]
-[ext_resource type="Texture2D" uid="uid://c31dpwktjois0" path="res://assets/icon/path1.png" id="2_bshgf"]
 [ext_resource type="PackedScene" uid="uid://b2dcube2dprac" path="res://combat/dice/cube/cube_2d.tscn" id="3_11kgc"]
 
 [node name="Dice" type="Control" unique_id=1860795333]
@@ -13,7 +12,6 @@ offset_bottom = -0.020000458
 mouse_filter = 2
 script = ExtResource("1_ypqjo")
 current_roll = 4
-texture = ExtResource("2_bshgf")
 
 [node name="Cube2d" parent="." unique_id=1690143672 instance=ExtResource("3_11kgc")]
 position = Vector2(20, 24.5)
@@ -34,8 +32,3 @@ theme_override_font_sizes/font_size = 24
 text = "4"
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[connection signal="tree_entered" from="." to="." method="_on_tree_entered"]
-[connection signal="tree_exited" from="." to="." method="_on_tree_exited"]
-[connection signal="tree_entered" from="Label" to="." method="_on_label_tree_entered"]
-[connection signal="tree_exited" from="Label" to="." method="_on_label_tree_exited"]

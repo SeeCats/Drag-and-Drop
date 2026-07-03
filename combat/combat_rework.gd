@@ -206,6 +206,23 @@ func request_rotate(direction: int) -> void:
 	_cycle(_elements, direction)
 	_turn_action = {"type": "rotate", "dir": direction}
 	render()
+	_animate_rotate(direction)
+
+
+# Rotate presentation (FLIP): data is already final after render(), so each die flies in
+# from the slot its value came from; the wrapping die (the N-1 column jump) arcs over the
+# row instead of teleporting across it (ui-spec §5). Rest positions are captured before
+# any die goes top_level, or the first launch would corrupt the later source reads.
+func _animate_rotate(direction: int) -> void:
+	var n : int = _slots.size()
+	var step : int = 1 if direction >= 0 else -1
+	var rests : Array[Vector2] = []
+	for s in _slots:
+		rests.append(s.dice.global_position)
+	for i in n:
+		var src : int = (i - step + n) % n
+		var arc : float = _slots[i].dice.size.y * 1.2 if absi(i - src) == n - 1 else 0.0
+		_slots[i].dice.fly_from(rests[src], arc)
 
 
 # Cancel: full reset of this turn's planning back to the round-start hand.
@@ -272,10 +289,10 @@ func _spawn_starfield() -> void:
 	bg.add_child(Starfield.new())
 
 
-# On WIN: after a beat, advance the gauntlet and start the next fight (player + HP persist).
+# On WIN: advance the gauntlet and start the next fight (player + HP persist). Already
+# deferred out of the FSM transition by the call_deferred, so no extra wait needed.
 # Last monster cleared → stay on the victory screen (run-complete flow is a later step).
 func _on_victory() -> void:
-	await get_tree().create_timer(1.0).timeout
 	if Encounter.current_monster_order >= Encounter.monster_list.size() - 1:
 		RunLog.end_run("cleared")   # last monster down — run logged
 		return
