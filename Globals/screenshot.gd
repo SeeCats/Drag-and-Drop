@@ -6,7 +6,12 @@ extends Node
 
 const DIR := "res://screenshots"
 
+# Editor-run games only: exported builds can't write res://, so there the tool
+# removes itself instead of eating F12 and failing the save.
 func _ready() -> void:
+	if not OS.has_feature("editor"):
+		queue_free()
+		return
 	DirAccess.make_dir_recursive_absolute(DIR)
 
 func _input(event: InputEvent) -> void:

@@ -30,11 +30,24 @@ func _on_cancel() -> void:
 	_clear_selection()
 
 
-# Each new planning phase clears the one-move guard + any stale selection.
+# Each new planning phase clears the one-move guard + any stale selection; leaving
+# planning aborts any gesture still in flight (today only commit can do that, but a
+# future effect-driven turn end would otherwise leak a grabbed die).
 func _on_state_changed(_from, to) -> void:
 	if to == CombatState.State.PLAYER_PLANNING:
 		_move_done = false
 		_clear_selection()
+	else:
+		_abort_gesture()
+
+
+# Drops an in-flight gesture: un-grabs the die, clears marks, forgets the press.
+func _abort_gesture() -> void:
+	if _dragging and _pressed != -1:
+		slots[_pressed].dice.swapping = false
+	_dragging = false
+	_pressed = -1
+	_clear_selection()
 
 
 # Routes presses/releases to the gesture handlers; motion past drag_threshold

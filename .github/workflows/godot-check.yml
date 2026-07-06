@@ -1,15 +1,12 @@
 name: Godot script check
 
-# Cold-cache compile gate. The repo ships no .godot/ (it's gitignored), so every
-# CI run starts from a COLD cache — the exact condition that surfaced the
-# `:=`-through-autoload bug on the laptop and that a warm desktop cache hides.
+# Cold-cache compile gate: the repo ships no .godot/ (gitignored), so every CI run
+# imports from scratch and fails on any script parse/compile error.
 #
-# STATUS: untested. This is the vehicle to VALIDATE UI Claude's claim that a
-# headless check catches the autoload-inference bug class. Before trusting it:
-# reintroduce one `var o := CurrentRoll.compute_outcome(...)` line on a branch,
-# push, and confirm THIS workflow goes red. If it stays green, `--import` is
-# warming/resolving the cache before the check and the gate is giving false
-# confidence (see HISTORY 2026-06-11).
+# History: originally built to catch a suspected `:=`-through-autoload inference bug;
+# that suspect was EXONERATED 2026-07-06 (the laptop failure had another cause). The
+# gate stays as a general parse check. STATUS: still untested — to validate, push a
+# branch with any deliberate parse error and confirm this goes red.
 
 on:
   push:

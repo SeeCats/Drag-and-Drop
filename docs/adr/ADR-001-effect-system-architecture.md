@@ -1,6 +1,6 @@
 # ADR-001: Effect system architecture (relics & status effects)
 
-**Status:** Accepted
+**Status:** Superseded by ADR-002 (2026-07-06) — the machinery commitment (event pipeline) is withdrawn pending a relic prototype pass; the options analysis and pattern lineage below remain the reference material. Written pre-rework: the migration map at the bottom names code that no longer exists.
 **Date:** 2026-06-06
 **Deciders:** C (project owner)
 

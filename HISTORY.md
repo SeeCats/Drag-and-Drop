@@ -13,6 +13,21 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 - **anti_type: user call — kept as-is for now.** §6.2 rewrite stays parked.
 - **Open threads:** Code to run the three sims (anti_type policy value; tension-round policies incl. evict-keep; pay-a-keeper EV — specs in the sim-results file). Design: tree topology pass when the user's thought it through; §8.6's open decisions are the next Design work.
 
+## 2026-07-06 (Code Claude + user — ADR-002: resolve ledger committed, effect machinery deferred to protos)
+
+- **ADR-001 honestly redone** (user call — it predates the rework and committed to pipeline machinery before any relic existed): new `docs/adr/ADR-002-resolve-ledger-proto-first.md`, ADR-001 marked Superseded (its analysis/pattern lineage stay as reference).
+- **The one commitment:** resolution builds an explicit per-hit **damage ledger**, purely, shared by FSM + preview; `_apply_attack` becomes verbatim replay. Forced by the owner's stress-test relic ("+1 per odd-damage instance" — inexpressible today, no reified instances) + the preview-exactness pillar (deterministic effects preview exactly for free).
+- **Deferred on evidence:** effect machinery (pipeline vs function list vs hybrid) waits for a 3–5 relic proto pass as bare functions over the ledger (odd-instance / skip-highest / swap-lock / on-hit-shield — spans conditional/transform/gate/reaction); ADR-003 picks from what they force. Mutual-kill stays parked (user: no idea yet what can proc mid-attack); nondeterministic-preview policy decided at the first such relic.
+- ⚑ Cross-lane note: ADR re-write had been flagged Design's lane; done in Code at the owner's direction — Design should skim ADR-002 for the §5.2/§4.3 touchpoints.
+
+## 2026-07-06 (Code Claude — backlog burn-down: RunLog quit-flush, gesture abort guard, `:=` exonerated)
+
+- **RunLog flushes abandoned runs:** `_notification(WM_CLOSE_REQUEST)` appends the in-progress run with its default `"abandoned"` outcome — quit location is balance data. Mobile export note: also flush on `APPLICATION_PAUSED` when that day comes.
+- **TrayInput gesture abort:** leaving PLAYER_PLANNING mid-gesture now un-grabs the die and clears marks (`_abort_gesture`) — unreachable today, one effect-driven turn-end away from a leaked grabbed die.
+- **`Screenshot` autoload self-frees outside the editor** (the "debug-only" claim was previously unenforced).
+- **`:=`-through-autoload EXONERATED (user):** the laptop cold-cache failure had a different cause; CLAUDE.md quirk struck through, CI workflow comment reframed — the cold-import gate stays as a *general* parse check (validation still pending: push one deliberate parse error, confirm red).
+- **User calls:** Design's two §4 sim requests (anti_type value, tension policies) DECLINED for now — they were scoped for a big system change that's off the table; `_apply_attack`'s trailing-miss lull before a lethal hit is deliberate, keep; `beat=0.1s` pacing confirmed good (pacing open-thread closed).
+
 ## 2026-07-06 (Code Claude — input rework: tap-tap swap, drag rotate (user + Design call))
 
 - **Gesture remap** (user decision after a GDD-session talk): **swap = tap two dice** (first tap selects — steady bright Outliner border via `set_selected`; partners pulse; tap same die = deselect, empty space/knob press = deselect; first-tapped die lands on the second slot and carries the reroll gamble, `?` shows there), **rotate = drag a die onto any slot** (row cycles by `(tgt-src) mod n` so the dragged die lands where dropped), **knob = display-only** (flick deleted). Press → drag past `drag_threshold` (12px); below it a release is a tap — dice no longer stick to the cursor on raw press.
@@ -20,6 +35,7 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 - **Run-log schema change:** rotate actions now log `{"from","to"}` instead of `{"dir"}`.
 - ui-spec: §5 input-rework block added on top (flick-dependent bullets + §8 criteria 9–10 flagged for a reconciliation sweep, historical until swept); validation line annotated (flick finding superseded, wrap-arc + deal-on-knob stand); open item 7 resolved by supersession — replacement wave-2 question: do untutored players find tap-tap-swap/drag-rotate, and does drag-rotate fight the drag-swap convention?
 - **Needs playtest:** all six drag pairs (both wraps), tap flows incl. deselects, one-move gate, `?` placement, run_log line shape. GDD §9 may need its own sync (Design's call on wording).
+- **Screenshot autoload guarded:** the "editor/debug builds only" claim was aspirational — nothing enforced it, so an exported build would eat F12 and fail the save. Now self-frees when `OS.has_feature("editor")` is false.
 - **Two playtest bugs fixed same session:** (1) drag-release rotate launched from garbage coords — `swapping = false` flips `top_level` and the die's `global_position` is garbled until the deferred sort, but `request_rotate_to` read positions in the same input event ("src die shoots way up"); the `swapping` setter now caches `_drag_home` at grab and snaps back to it on release, so positions are never in flux. (2) first slot untappable — `is_inside` hover flags missed events (an overlay can eat `mouse_entered`); slot targeting is now a rect hit-test in TrayInput (`_slot_at` vs the Outliner rects, user's suggestion) and `is_inside` is deleted from DiceSlot.
 - Also corrected this file: the four entries below were misdated 2026-07-02 (the sessions ran 2026-07-06; 07-02 was the last playtest-log date).
 

@@ -2,12 +2,22 @@ extends Node
 
 # Run history logger (autoload "RunLog"). The rework controller reports run / fight / round
 # events; end_run() appends one JSON line per completed run to user://run_log.jsonl for later
-# analysis (real play vs balance_sim). Local-only, no upload. Incomplete/abandoned runs (no
-# end_run) are simply never written.
+# analysis (real play vs balance_sim). Local-only, no upload. Abandoned runs are flushed
+# with outcome "abandoned" when the window closes (see _notification).
 
 const PATH = "user://run_log.jsonl"
 
 var _run : Dictionary = {}
+
+
+# Quit mid-run: flush the in-progress run as-is (outcome is still "abandoned") — where
+# players quit IS balance data. Desktop only; a mobile export should also flush on
+# NOTIFICATION_APPLICATION_PAUSED (revisit at export time).
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST and not _run.is_empty():
+		_run["final_hp"] = _final_hp()
+		_append(JSON.stringify(_run))
+		_run = {}
 
 
 # Starts a fresh run record (discards any unfinished one).
