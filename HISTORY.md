@@ -13,7 +13,17 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 - **anti_type: user call — kept as-is for now.** §6.2 rewrite stays parked.
 - **Open threads:** Code to run the three sims (anti_type policy value; tension-round policies incl. evict-keep; pay-a-keeper EV — specs in the sim-results file). Design: tree topology pass when the user's thought it through; §8.6's open decisions are the next Design work.
 
-## 2026-07-02 (Code Claude — rotate animation built + verified (ui-spec §5 wrap debt closed))
+## 2026-07-06 (Code Claude — input rework: tap-tap swap, drag rotate (user + Design call))
+
+- **Gesture remap** (user decision after a GDD-session talk): **swap = tap two dice** (first tap selects — steady bright Outliner border via `set_selected`; partners pulse; tap same die = deselect, empty space/knob press = deselect; first-tapped die lands on the second slot and carries the reroll gamble, `?` shows there), **rotate = drag a die onto any slot** (row cycles by `(tgt-src) mod n` so the dragged die lands where dropped), **knob = display-only** (flick deleted). Press → drag past `drag_threshold` (12px); below it a release is a tap — dice no longer stick to the cursor on raw press.
+- Code: `TrayInput` rewritten as a press/tap/drag state machine; controller `request_rotate(dir)` → `request_rotate_to(src, tgt, drop_global)` (+ `_shift_right` replaces `_cycle`); `_animate_rotate` generalized — wrap = any >1-column jump, and the drop-target's die flies in from the release point (the dragged die visibly settles where put). `Outliner.set_selected` (steady) added beside the pulsing `set_highlight`.
+- **Run-log schema change:** rotate actions now log `{"from","to"}` instead of `{"dir"}`.
+- ui-spec: §5 input-rework block added on top (flick-dependent bullets + §8 criteria 9–10 flagged for a reconciliation sweep, historical until swept); validation line annotated (flick finding superseded, wrap-arc + deal-on-knob stand); open item 7 resolved by supersession — replacement wave-2 question: do untutored players find tap-tap-swap/drag-rotate, and does drag-rotate fight the drag-swap convention?
+- **Needs playtest:** all six drag pairs (both wraps), tap flows incl. deselects, one-move gate, `?` placement, run_log line shape. GDD §9 may need its own sync (Design's call on wording).
+- **Two playtest bugs fixed same session:** (1) drag-release rotate launched from garbage coords — `swapping = false` flips `top_level` and the die's `global_position` is garbled until the deferred sort, but `request_rotate_to` read positions in the same input event ("src die shoots way up"); the `swapping` setter now caches `_drag_home` at grab and snaps back to it on release, so positions are never in flux. (2) first slot untappable — `is_inside` hover flags missed events (an overlay can eat `mouse_entered`); slot targeting is now a rect hit-test in TrayInput (`_slot_at` vs the Outliner rects, user's suggestion) and `is_inside` is deleted from DiceSlot.
+- Also corrected this file: the four entries below were misdated 2026-07-02 (the sessions ran 2026-07-06; 07-02 was the last playtest-log date).
+
+## 2026-07-06 (Code Claude — rotate animation built + verified (ui-spec §5 wrap debt closed))
 
 - **As built:** `Dice.fly_from(from_global, arc_height, dur=0.25)` — FLIP flight as a pure **visual offset** on label+cube (`_flight_offset`, applied every `_process`, one `tween_method` decaying it to exactly zero; parabolic arc term for the wrap). The control never leaves its container. Skips if the die is being dragged; a mid-flight re-launch just kills and re-tweens the offset.
 - `combat_rework._animate_rotate(dir)`: after the data cycles + `render()`, each die flies in from its value's source slot (`(i - step + n) % n`); the wrapper (the N-1 column jump — N-agnostic per the spec's N=4 tripwire) arcs over the row at ~1.2× die height. Rest positions captured before any launch. Truthful motion: values are final before flight starts.
@@ -21,16 +31,16 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 - **User-verified in play:** both directions read correctly and settle clean. Known cosmetic non-issue: editor spams `Invalid assignment ... 'Nil' on 'Label'` (dice.gd:91) after the hot-reload — live `@tool` instances predate the new `_flight_offset` member, so it's Nil on them until the scene/editor reloads; fresh runtime instances are fine.
 - ui-spec §5 debt line rewritten as as-built + changelog entry. Accepted edge (same as swap): Cancel inside the ~0.25s flight snaps values while positions finish flying.
 
-## 2026-07-02 (Code Claude + user — slime p1 knocked to 4×3; sim table synced)
+## 2026-07-06 (Code Claude + user — slime p1 knocked to 4×3; sim table synced)
 
 - User tuned `slime_pattern1.tres` to base 4 / mult 3 while playtesting the system (deliberate: system-validation phase, balance not the focus). `balance_sim.py` `BASE_GAUNTLET` synced to `[4,3,3,0]` — table matches the `.tres` again; **no fresh sim run** (numbers not being cited for decisions right now; the 2026-07-01 committed results describe the old 5×3 opener). Note: the editor resave stripped the explicit `monster_name`/`max_hp` from slime.tres (Godot omits default-equal properties) — behavior unchanged, defaults are identical; not worth fighting the serializer.
 
-## 2026-07-02 (Code Claude — drop-target shine on drag)
+## 2026-07-06 (Code Claude — drop-target shine on drag)
 
 - `DiceSlot.set_highlight(on)`; `TrayInput` shines the two non-grabbed slots on grab, clears all on release. Motion-on-change only, per ui-spec §7. Landed on the **Outliner frame border pulsing** (looping sine tween toward white, 0.2s period to match the grabbed die's halo flicker; `Outliner.set_highlight`, DiceSlot delegates via `get_parent()` — the slot's visible border lives on the wrapping Outliner in CombatRework.tscn, not in DiceSlot.tscn). Two dead ends recorded: modulate-brightening (invisible — 2D modulate clamps at 1.0 and the neon palette's channels are already 0/1; gotcha added to CLAUDE.md) and halo-width bump (visible but shines the *die*, user wants the *slot*).
 - **Deferred by user:** the rotate animation (ui-spec §5 design debt) — built later the same day, see the rotate entry above.
 
-## 2026-07-02 (Code Claude — dice drag fix + dead-code sweep)
+## 2026-07-06 (Code Claude — dice drag fix + dead-code sweep)
 
 - **Fixed the drag-start teleport** (`dice.gd`): the `swapping` setter now snaps `global_position` to the cursor in the same frame it flips `top_level` (before, the die spent a frame at a bogus spot — every drag logged `(39.0, 0.0)`), resets the halo pulse phase, and sets the `?` mask once; removed the per-frame `print` (was ~80% of log volume) and per-frame `fake_roll()`.
 - **Dead-code sweep (grep-verified zero live refs before each delete):** `current_roll.gd` pruned to roll lists + floors + published damage fields + resolver (`base/mult/anti` mirror vars, `initial_roll`s, `round_end()`, `is_player_winning` removed — menu title is a literal in `label.gd` now); `monster.gd` legacy branch deleted (`monster_hit`/`_announce_attack`/`get_reduced_roll`/data-null connects — unreachable since the lean-scene reorg); `globalsignal.gd` cut from 16 signals to the 5 live ones (the `monster_atack_finished` typo dies with it); `character.gd` lost `alive`/`die()` and the unused `state_entered` connect; `dice.gd` lost the unused `texture` export + `roll()`; `cube_2d.gd`'s "Rotation speed" boot print removed; main-menu scripts de-templated.

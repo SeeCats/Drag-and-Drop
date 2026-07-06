@@ -28,6 +28,14 @@ func _ready() -> void:
 	_restyle()
 
 
+# Steady selected state (first tap of a swap): border held bright, no pulse — reads as
+# "chosen" against the pulsing candidate shine. Snaps back to the authored color on clear.
+func set_selected(on: bool) -> void:
+	if _hl_tween and _hl_tween.is_valid():
+		_hl_tween.kill()
+	border_color = _rest_border.lerp(Color.WHITE, 0.7) if on else _rest_border
+
+
 # Drop-target shine: pulses the border toward white and back on a loop — same 0.2s
 # rhythm as the grabbed die's halo flicker — snapping to the authored color on clear.
 # (Color lerp, not modulate — the border is dark, so brightening it actually reads.)

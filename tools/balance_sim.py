@@ -61,7 +61,7 @@ BASE_GAUNTLET = [
     ("Alien",     10, [[4, 4, 0, 0], [6, 6, 0, 0]]),
     # NOTE: slime has a "breather" round [1,1,4,0] after p1 (narratively the slime
     # winding up its mult) — telegraphed wind-up + fixes the burst variance.
-    # p1 knocked down 5x3 -> 4x3 (user, 2026-07-02, system-testing phase; not sim-priced).
+    # p1 knocked down 5x3 -> 4x3 (user, 2026-07-06, system-testing phase; not sim-priced).
     ("Slime",     25, [[4, 3, 3, 0], [1, 1, 4, 0], [3, 5, 3, 1], [2, 2, 4, 1], [6, 6, 0, 0]]),
 ]
 START_HP = 20

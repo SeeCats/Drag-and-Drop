@@ -200,28 +200,34 @@ func request_swap(source_slot: int, target_slot: int) -> void:
 	render()
 
 
-# 3-cycles the dice through the fixed-role slots; +1 forward, -1 back. No reroll, no gamble.
-func request_rotate(direction: int) -> void:
-	_cycle(_values, direction)
-	_cycle(_elements, direction)
-	_turn_action = {"type": "rotate", "dir": direction}
-	render()
-	_animate_rotate(direction)
-
-
-# Rotate presentation (FLIP): data is already final after render(), so each die flies in
-# from the slot its value came from; the wrapping die (the N-1 column jump) arcs over the
-# row instead of teleporting across it (ui-spec §5). Rest positions are captured before
-# any die goes top_level, or the first launch would corrupt the later source reads.
-func _animate_rotate(direction: int) -> void:
-	var n : int = _slots.size()
-	var step : int = 1 if direction >= 0 else -1
+# Drag-rotate: cycles the row so the dragged die (src slot) lands on tgt; every other
+# die shifts along with it. No reroll, no gamble. drop_global = the release point, so
+# the dragged die's value visibly settles from where the player let go.
+func request_rotate_to(src: int, tgt: int, drop_global: Vector2) -> void:
+	var n : int = _values.size()
+	var shift : int = ((tgt - src) % n + n) % n
 	var rests : Array[Vector2] = []
 	for s in _slots:
-		rests.append(s.dice.global_position)
+		rests.append(s.dice.global_position)   # capture before render/flights
+	_shift_right(_values, shift)
+	_shift_right(_elements, shift)
+	_turn_action = {"type": "rotate", "from": src, "to": tgt}
+	render()
+	_animate_rotate(shift, tgt, drop_global, rests)
+
+
+# Rotate presentation (FLIP): values are final after render(), so each die flies in from
+# its value's source slot; a wrap jump (>1 column) arcs over the row instead of teleporting
+# (ui-spec §5). The drop target's die instead settles in from the release point — the
+# dragged die visibly landing where it was put.
+func _animate_rotate(shift: int, tgt: int, drop_global: Vector2, rests: Array[Vector2]) -> void:
+	var n : int = _slots.size()
 	for i in n:
-		var src : int = (i - step + n) % n
-		var arc : float = _slots[i].dice.size.y * 1.2 if absi(i - src) == n - 1 else 0.0
+		if i == tgt:
+			_slots[i].dice.fly_from(drop_global - _slots[i].dice.size / 2, 0.0)
+			continue
+		var src : int = (i - shift + n) % n
+		var arc : float = _slots[i].dice.size.y * 1.2 if absi(i - src) > 1 else 0.0
 		_slots[i].dice.fly_from(rests[src], arc)
 
 
@@ -396,9 +402,7 @@ func _swap(arr: Array, i: int, j: int) -> void:
 	var t = arr[i]; arr[i] = arr[j]; arr[j] = t
 
 
-# Rotates an array one step in place; dir >= 0 moves last to front, else first to end.
-func _cycle(arr: Array, dir: int) -> void:
-	if dir >= 0:
+# Cycles an array k steps right in place (the last k entries wrap to the front).
+func _shift_right(arr: Array, k: int) -> void:
+	for _i in k:
 		arr.push_front(arr.pop_back())
-	else:
-		arr.push_back(arr.pop_front())

@@ -1,82 +1,132 @@
 extends Node
 class_name TrayInput
 
-# Turns tray gestures into controller intents: drag a die between slots -> swap,
-# flick the knob horizontally -> rotate. Reads each DiceSlot.is_inside for targeting.
+# Turns tray gestures into controller intents. Two verbs, two gestures (input rework
+# 2026-07-06; supersedes the knob flick — knob is display-only now):
+#   swap   = tap one die, then tap another (first-tapped lands on the second + rerolls)
+#   rotate = drag a die onto another slot (the row cycles so the dragged die lands there)
 
 @onready var controller : CombatRework = owner as CombatRework
 @onready var slots : Array[DiceSlot] = [%BaseSlot, %MultSlot, %AntiSlot]
-@onready var knob : Control = %KnobWrap
 
-@export var flick_threshold : float = 24.0   # px of horizontal drag before a flick counts
+@export var drag_threshold : float = 12.0   # px of travel before a press becomes a drag
 
-var _grabbed : int = -1
-var _flicking : bool = false
-var _flick_start_x : float = 0.0
-var _move_done : bool = false   # one swap/rotate per turn; reset on Cancel + each new planning phase
+var _pressed : int = -1        # slot under the current press; -1 = none
+var _press_pos : Vector2
+var _dragging : bool = false
+var _selected : int = -1       # first tap of a staged swap; -1 = none
+var _move_done : bool = false  # one swap/rotate per turn; reset on Cancel + each planning phase
 
-# Wires the cancel button and clears the one-move guard at the start of every planning phase.
+
+# Wires the cancel button and the per-planning-phase reset.
 func _ready() -> void:
 	var cancel_button : Button = %CancelButton
 	cancel_button.pressed.connect(_on_cancel)
 	CombatState.state_changed.connect(_on_state_changed)
 
+
 func _on_cancel() -> void:
 	_move_done = false
+	_clear_selection()
 
-# Each new planning phase clears the one-move guard so the player can act again next turn.
+
+# Each new planning phase clears the one-move guard + any stale selection.
 func _on_state_changed(_from, to) -> void:
 	if to == CombatState.State.PLAYER_PLANNING:
 		_move_done = false
+		_clear_selection()
 
-# Routes left mouse press/release to the gesture handlers.
+
+# Routes presses/releases to the gesture handlers; motion past drag_threshold
+# promotes a held press into a drag.
 func _input(event: InputEvent) -> void:
 	if CombatState.current_state != CombatState.State.PLAYER_PLANNING:
-		return   # dice only move during planning
-	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT):
 		return
-	if event.pressed:
-		_press()
-	else:
-		_release()
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_press()
+		else:
+			_release()
+	elif event is InputEventMouseMotion and _pressed != -1 and not _dragging:
+		if _mouse().distance_to(_press_pos) >= drag_threshold:
+			_begin_drag()
 
-# Press: start a knob flick if over the knob, else grab the hovered die.
+
+# Press: remember the slot whose zone contains the press; empty space clears a staged tap.
 func _press() -> void:
 	if _move_done:
 		return
-	if knob.get_global_rect().has_point(knob.get_global_mouse_position()):
-		_flicking = true
-		_flick_start_x = knob.get_global_mouse_position().x
-		return
-	_grabbed = _hovered_slot()
-	if _grabbed != -1:
-		slots[_grabbed].dice.swapping = true
-		for i in slots.size():
-			slots[i].set_highlight(i != _grabbed)   # shine the two drop targets
+	_press_pos = _mouse()
+	_pressed = _slot_at(_press_pos)
+	if _pressed == -1:
+		_clear_selection()
 
-# Release: finish a flick (rotate) or a die drag (swap).
-func _release() -> void:
-	if _flicking:
-		_flicking = false
-		var dx : float = knob.get_global_mouse_position().x - _flick_start_x
-		if absf(dx) >= flick_threshold:
-			controller.request_rotate(1 if dx > 0 else -1)
-			_move_done = true
-		return
-	if _grabbed == -1:
-		return
-	for slot in slots:
-		slot.set_highlight(false)
-	slots[_grabbed].dice.swapping = false
-	var tgt : int = _hovered_slot()
-	if tgt != -1 and tgt != _grabbed:
-		controller.request_swap(_grabbed, tgt)
-		_move_done = true
-	_grabbed = -1
 
-# Index of the currently hovered slot, or -1.
-func _hovered_slot() -> int:
+# Held press moved far enough: it's a drag (rotate gesture). Supersedes a staged tap.
+func _begin_drag() -> void:
+	_dragging = true
+	_clear_selection()
+	slots[_pressed].dice.swapping = true
 	for i in slots.size():
-		if slots[i].is_inside:
+		slots[i].set_highlight(i != _pressed)   # shine the drop targets
+
+
+# Release: finish a drag (rotate onto the hovered slot) or count it as a tap.
+func _release() -> void:
+	if _pressed == -1:
+		return
+	if _dragging:
+		for slot in slots:
+			slot.set_highlight(false)
+		slots[_pressed].dice.swapping = false
+		var tgt : int = _slot_at(_mouse())
+		if tgt != -1 and tgt != _pressed:
+			controller.request_rotate_to(_pressed, tgt, _mouse())
+			_move_done = true
+		_dragging = false
+	else:
+		_tap(_pressed)
+	_pressed = -1
+
+
+# Tap flow: first tap selects (steady border) and shines the valid partners; tapping the
+# selected die deselects; tapping a different die commits the swap intent.
+func _tap(slot: int) -> void:
+	if _selected == -1:
+		_selected = slot
+		slots[slot].set_selected(true)
+		for i in slots.size():
+			if i != slot:
+				slots[i].set_highlight(true)
+	elif _selected == slot:
+		_clear_selection()
+	else:
+		var first : int = _selected
+		_clear_selection()
+		controller.request_swap(first, slot)
+		_move_done = true
+
+
+func _clear_selection() -> void:
+	_selected = -1
+	for slot in slots:
+		slot.set_selected(false)
+		slot.set_highlight(false)
+
+
+# Index of the slot whose framed zone (the wrapping Outliner) contains the point, or -1.
+# Rect hit-test on raw coordinates — hover signals proved unreliable (an overlay control
+# can eat mouse_entered, and TrayInput reads raw _input anyway).
+func _slot_at(point: Vector2) -> int:
+	for i in slots.size():
+		var zone : Control = slots[i].get_parent() as Control
+		if zone == null:
+			zone = slots[i]
+		if zone.get_global_rect().has_point(point):
 			return i
 	return -1
+
+
+# Global mouse position (borrowed from a CanvasItem — plain Nodes don't have one).
+func _mouse() -> Vector2:
+	return slots[0].get_global_mouse_position()

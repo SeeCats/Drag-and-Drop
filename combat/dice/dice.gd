@@ -20,26 +20,29 @@ class_name Dice
 @export var fit_to_control : bool = true   # size the cube to this Control's rect (rework slots); off keeps old UI dice unchanged
 
 
-# Grab/release state. On grab: go top_level and snap to the cursor in the same frame
-# (top_level reinterprets position as global, so without the snap the die spends one
-# frame at a bogus spot), reset the halo pulse, and mask the face with "?".
+# Grab/release state. On grab: cache home, go top_level, and snap to the cursor in the
+# same frame (top_level reinterprets position as global). On release: snap straight back
+# home — leaving the position garbled until the deferred container sort corrupted any
+# read taken in the same input event (the rotate flight launched from garbage coords).
 var swapping : bool:
 	set(new_value):
 		swapping = new_value
-		top_level = new_value
-		cube.rotation_axis = Vector3(1, 1, -1)
 		if swapping:
+			_drag_home = global_position   # capture before leaving the layout
+			top_level = true
 			global_position = get_global_mouse_position() - size / 2
 			swap_time = 0.0
 			fake_roll()
 		else:
+			top_level = false
+			global_position = _drag_home
 			label.text = str(current_roll)
 			cube.halo_width = initial_halo_width
-			cube.rotation_axis = Vector3(1, 1, 1)
 			get_parent().queue_sort()
 var swap_time : float = 0
 var swap_interval : float = 0.2
 var initial_halo_width : float = 12
+var _drag_home : Vector2   # layout position a drag returns to
 @onready var cube : Cube = $Cube2d   # the spinning wireframe cube behind the number
 @onready var label = $Label                 # the number rendered on top of the cube
 
