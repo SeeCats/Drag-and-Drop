@@ -20,11 +20,13 @@ func _notification(what: int) -> void:
 		_run = {}
 
 
-# Starts a fresh run record (discards any unfinished one).
-func begin_run(start_hp: int) -> void:
+# Starts a fresh run record (discards any unfinished one). relics = active relic names,
+# so analysis can segment runs by grant (empty = vanilla).
+func begin_run(start_hp: int, relics: Array = []) -> void:
 	_run = {
 		"ts": Time.get_datetime_string_from_system(),
 		"start_hp": start_hp,
+		"relics": relics,
 		"outcome": "abandoned",   # overwritten by end_run
 		"died_to": null,
 		"final_hp": start_hp,
@@ -57,6 +59,24 @@ func begin_round(start_dice: Array, monster_roll: Array, hp_player: int, hp_mons
 		"deal": 0, "take": 0,
 		"hp_after": {"player": hp_player, "monster": hp_monster},
 	})
+
+
+# Counts a denied swap attempt on the open round (key present only on rounds where it
+# happened — a gate-status was active and the player bounced off it).
+func record_swap_denied() -> void:
+	var r = _current_round()
+	if r == null:
+		return
+	r["swap_denied"] = r.get("swap_denied", 0) + 1
+
+
+# Records HP healed during the open round (sparse key — effects only; lets analysis
+# reconstruct deal/take despite mid-round HP gains).
+func record_heal(amount: int) -> void:
+	var r = _current_round()
+	if r == null:
+		return
+	r["healed"] = r.get("healed", 0) + amount
 
 
 # Records the player's move + post-move dice for the open round.
@@ -134,3 +154,4 @@ func _append(line: String) -> void:
 		return
 	f.store_line(line)
 	f.close()
+	print("json saved")

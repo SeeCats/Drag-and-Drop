@@ -105,7 +105,9 @@ func _on_turn_resolving() -> void:
 
 func _on_player_attack() -> void:
 	await get_tree().create_timer(beat).timeout
-	CurrentRoll.player_damage = _outcome.player.per_hit      # published for the damage-number zone
+	# Published once per attack for the damage-number zone — valid while ledger entries
+	# are uniform; when effects vary them, publishing moves into the replay loop.
+	CurrentRoll.player_damage = _outcome.player.per_hit
 	CurrentRoll.player_blocked = _outcome.player.blocked
 	await _apply_attack(Combatants.monster, _outcome.player, GlobalSignal.player_attacked, GlobalSignal.player_missed)
 	_advance(State.MONSTER_ATTACK)   # death (either side) caught in _advance
@@ -137,19 +139,20 @@ func _is_dead(combatant: Character) -> bool:
 	return is_instance_valid(combatant) and combatant.hp and combatant.hp.current_hp <= 0
 
 
-# Applies one resolved side (per_hit / hits / misses from compute_outcome) to a target,
-# staggered. Damage goes straight to the owner's Hp; the per-hit signals are emitted for
-# juice only. Bails the instant the target is dead so a kill doesn't play out as over-kill.
+# Replays one resolved side's damage LEDGER on the target, staggered (ADR-002:
+# application is a verbatim replayer — effects only ever touch ledger construction in
+# the resolver). Misses first, then one hit per ledger entry; the per-hit signals are
+# juice only. Bails the instant the target is dead (truncated replay = clamp semantics).
 func _apply_attack(target: Character, side: Dictionary, hit_signal: Signal, miss_signal: Signal) -> void:
 	if not is_instance_valid(target) or not target.hp:
 		return
 	for i in side.misses:
 		miss_signal.emit()
 		await get_tree().create_timer(CurrentRoll.attack_stagger).timeout
-	for i in side.hits:
+	for amount in side.ledger:
 		if _is_dead(target):
 			break
-		target.hp.take_damage(side.per_hit)
+		target.hp.take_damage(amount)
 		hit_signal.emit()
 		await get_tree().create_timer(CurrentRoll.attack_stagger).timeout
 

@@ -49,11 +49,22 @@ func compute_outcome(player_roll: Array, monster_roll: Array) -> Dictionary:
 	p[m_at] = max(p[m_at] - m[RollIndex.ANTI], current_min_list[m_at])
 	return { "player": _side(p, player_roll), "monster": _side(m, monster_roll) }
 
+# Builds one side's outcome around its damage LEDGER (ADR-002): the ordered list of
+# damage instances this attack will apply. Entries are uniform (base repeated mult
+# times) until effects exist to vary them; total derives from the ledger, and
+# per_hit/hits stay as derived fields for the existing readers.
 func _side(reduced: Array, initial: Array) -> Dictionary:
+	var ledger : Array[int] = []
+	for _i in reduced[RollIndex.MULT]:
+		ledger.append(reduced[RollIndex.BASE])
+	var total : int = 0
+	for amount in ledger:
+		total += amount
 	return {
+		"ledger": ledger,
 		"per_hit": reduced[RollIndex.BASE],
-		"hits": reduced[RollIndex.MULT],
-		"total": reduced[RollIndex.BASE] * reduced[RollIndex.MULT],
+		"hits": ledger.size(),
+		"total": total,
 		"blocked": initial[RollIndex.BASE] - reduced[RollIndex.BASE],
 		"misses": initial[RollIndex.MULT] - reduced[RollIndex.MULT],
 	}

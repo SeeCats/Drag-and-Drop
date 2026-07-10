@@ -106,6 +106,9 @@ func _release() -> void:
 # selected die deselects; tapping a different die commits the swap intent.
 func _tap(slot: int) -> void:
 	if _selected == -1:
+		if not controller.can_swap():
+			controller.notify_swap_denied()   # gated verb: owner decides, owner narrates
+			return
 		_selected = slot
 		slots[slot].set_selected(true)
 		for i in slots.size():

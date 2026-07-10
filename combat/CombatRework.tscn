@@ -195,6 +195,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ylo7x")
+relic_rotate_heal = true
 
 [node name="Bands" type="VBoxContainer" parent="." unique_id=1462368933]
 layout_mode = 1

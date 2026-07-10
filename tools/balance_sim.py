@@ -91,11 +91,13 @@ def resolve(pr, mr, mhp, php, relic=None):
             pr[0] = min(pr[0], 6); pr[1] = min(pr[1], 6); pr[2] = min(pr[2], 6)
     mr[pr[3]] = max(mr[pr[3]] - pr[2], MMIN[pr[3]])   # player anti -> monster factor
     pr[mr[3]] = max(pr[mr[3]] - mr[2], PMIN[mr[3]])   # monster anti -> player factor
-    pdmg = pr[0] * pr[1]
+    # Damage LEDGER (ADR-002, mirrors CurrentRoll._side): per-hit instances, uniform
+    # until effects vary them. Totals derive from the ledger, not base*mult.
+    pdmg = sum([pr[0]] * pr[1])
     mh = mhp - pdmg
     if mh <= 0:
         return mh, php, True, pdmg, 0                 # kill -> no counter
-    mdmg = mr[0] * mr[1]
+    mdmg = sum([mr[0]] * mr[1])
     return mh, php - mdmg, False, pdmg, mdmg
 
 

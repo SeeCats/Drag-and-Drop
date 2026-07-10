@@ -60,7 +60,7 @@ func _ready() -> void:
 	_spawn_player()
 	add_child(CombatSfx.new())   # combat hit/miss SFX (replaces the deleted legacy combat_ui.gd audio)
 	_spawn_starfield()           # decorative downward starfield behind everything (ui-spec §7)
-	RunLog.begin_run(_player.hp.max_hp)   # run history logging
+	RunLog.begin_run(_player.hp.max_hp, _active_relics())   # run history logging
 	_log_begin_fight()
 	render()
 	_sync_rings_exact()   # baseline so rings show real HP before the first planning preview
@@ -158,6 +158,8 @@ func _push_phase() -> void:
 
 
 func _on_state_changed(from, to) -> void:
+	if from == CombatState.State.PLAYER_PLANNING and _swap_lock_rounds > 0:
+		_swap_lock_rounds -= 1   # one locked planning phase spent (status duration tick)
 	if to == CombatState.State.PLAYER_PLANNING:
 		roll_dice()          # fresh hand each round (values reroll; elements persist), then snapshot it
 		_snapshot()          # cancel restores THIS round's rolled hand
@@ -255,18 +257,79 @@ func commit() -> void:
 	render()
 	CurrentRoll.current_roll_list = CurrentRoll.get_roll_from_dice(_values, _elements)   # publish the committed roll for the FSM
 	RunLog.record_action(_turn_action, _dice_snapshot())
+	_fire_rotate_heal()   # reaction proto — on COMMIT, not on staging, so Cancel can't farm it
 	CombatState.end_player_turn()
+
+
+# Reaction proto: a committed rotate heals relic_rotate_heal_amount. Logs the ACTUAL
+# healed amount (a near-full heal clamps at max_hp), so the run log stays reconstructible.
+func _fire_rotate_heal() -> void:
+	if not relic_rotate_heal or _turn_action.get("type") != "rotate":
+		return
+	if not _player or not _player.hp:
+		return
+	var before : int = _player.hp.current_hp
+	_player.hp.current_hp += relic_rotate_heal_amount
+	var healed : int = _player.hp.current_hp - before
+	if healed > 0:
+		RunLog.record_heal(healed)
+
+
+# --- relic protos (ADR-002: bare functions + debug grants until ADR-003 picks machinery) ---
+@export var relic_skip_highest : bool = false   # "the current highest die skips its reroll"
+@export var debug_swap_lock : int = 0           # status proto: swap denied for N rounds at each fight start
+@export var relic_rotate_heal : bool = false    # reaction proto: committing a rotate heals (amount below)
+@export var relic_rotate_heal_amount : int = 10 # big on purpose — exercises the max-HP clamp + the actual-delta logging
+
+var _swap_lock_rounds : int = 0   # planning phases left that deny swap (ticks down as rounds resolve)
+
+
+# The gate: input asks, the owner decides — effects veto here, never in TrayInput.
+func can_swap() -> bool:
+	return _swap_lock_rounds <= 0
+
+
+# Denial feedback for a gated swap. Proto: console print + a run-log flag; the real
+# "how does a denied verb read" UX is an open ui-spec question (see proto findings).
+func notify_swap_denied() -> void:
+	print("swap denied")
+	RunLog.record_swap_denied()
+
+
+# Names of the active relic/status grants, for the run log.
+func _active_relics() -> Array:
+	var out : Array = []
+	if relic_skip_highest:
+		out.append("skip_highest")
+	if debug_swap_lock > 0:
+		out.append("swap_lock_%d" % debug_swap_lock)
+	if relic_rotate_heal:
+		out.append("rotate_heal")
+	return out
+
+
+# The relic's target, chosen at the moment of use (live values, not precomputed).
+# First slot wins ties.
+func _skip_highest_slot() -> int:
+	var best : int = 0
+	for i in range(1, _values.size()):
+		if _values[i] > _values[best]:
+			best = i
+	return best
 
 
 # --- helpers ---------------------------------------------------------------
 func roll_dice() -> void:
+	var skip : int = _skip_highest_slot() if relic_skip_highest else -1
 	for i in _values.size():
-		_values[i] = randi_range(1, 6)
+		if i != skip:
+			_values[i] = randi_range(1, 6)
 	_reset_pending()
 
 
 # Spawns the lean Monster, fed by the current MonsterResource (set before it enters the tree).
 func _spawn_monster() -> void:
+	_swap_lock_rounds = debug_swap_lock   # status proto: each fight opens swap-locked for N rounds
 	_monster = preload("res://character/monster/Monster.tscn").instantiate() as Monster
 	_monster.data = Encounter.next_monster
 	add_child(_monster)
