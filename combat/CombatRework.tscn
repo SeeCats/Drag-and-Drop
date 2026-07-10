@@ -3,17 +3,21 @@
 [ext_resource type="PackedScene" uid="uid://di2ir08il7fcf" path="res://combat/radial_bar/RadialBar.tscn" id="1_8eonr"]
 [ext_resource type="Script" uid="uid://bxgydfafx6o1x" path="res://combat/combat_rework.gd" id="1_ylo7x"]
 [ext_resource type="Script" uid="uid://5tarbequlibu" path="res://combat/widgets/rich_label.gd" id="2_0ytkr"]
+[ext_resource type="Script" uid="uid://cmntfc7j3ubfi" path="res://combat/effects/effect.gd" id="2_ascgm"]
 [ext_resource type="Script" uid="uid://730xawgm0m6g" path="res://combat/widgets/outliner.gd" id="3_cn02j"]
 [ext_resource type="Script" uid="uid://dwvvqm0pbl8fl" path="res://combat/widgets/circle_button.gd" id="3_f2lms"]
+[ext_resource type="Resource" path="res://combat/effects/relics/reroll_lowest.tres" id="3_f7s33"]
 [ext_resource type="Script" uid="uid://4mhka2atb3xy" path="res://combat/radial_bar/radial_bar.gd" id="4_4wg2g"]
 [ext_resource type="Script" uid="uid://m4g0s4vwvyj3" path="res://combat/widgets/chip_row.gd" id="4_8glxk"]
+[ext_resource type="Resource" path="res://combat/effects/relics/reroll_blue.tres" id="4_ncwe6"]
 [ext_resource type="PackedScene" uid="uid://dgraytjy1nxlv" path="res://combat/dice_slot/DiceSlot.tscn" id="4_ylo7x"]
+[ext_resource type="Resource" uid="uid://b74f4pdewxvn1" path="res://combat/effects/relics/green_strike.tres" id="5_fbo14"]
 [ext_resource type="Script" uid="uid://bj4ljy0a3q1p4" path="res://combat/widgets/chip.gd" id="5_v2mva"]
 [ext_resource type="Script" uid="uid://7qs3w28qnihh" path="res://combat/widgets/damage_preview.gd" id="10_v2mva"]
 [ext_resource type="Script" uid="uid://c2cvh465urfgn" path="res://combat/tray_input/tray_input.gd" id="11_eb4aj"]
 [ext_resource type="PackedScene" uid="uid://1x3l20sts0i8" path="res://combat/damage_number/damage_number_zone.tscn" id="12_tieji"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_l187b"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f7s33"]
 content_margin_left = 10.0
 content_margin_top = 10.0
 content_margin_right = 10.0
@@ -29,7 +33,7 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iolef"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ncwe6"]
 content_margin_left = 10.0
 content_margin_top = 10.0
 content_margin_right = 10.0
@@ -45,7 +49,7 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qxi7d"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fbo14"]
 content_margin_left = 10.0
 content_margin_top = 10.0
 content_margin_right = 10.0
@@ -61,7 +65,7 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ascgm"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0gi20"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -73,7 +77,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f7s33"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7n7tv"]
 bg_color = Color(0.1, 0.1, 0.1, 0)
 border_width_left = 2
 border_width_top = 2
@@ -85,7 +89,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ncwe6"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s4lrp"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -97,7 +101,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fbo14"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_up0nt"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -109,7 +113,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0gi20"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qkwux"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -127,7 +131,7 @@ corner_radius_top_right = 48
 corner_radius_bottom_right = 48
 corner_radius_bottom_left = 48
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7n7tv"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wsj5b"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -139,7 +143,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s4lrp"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ki11w"]
 bg_color = Color(0.1, 0.1, 0.1, 0)
 border_width_left = 2
 border_width_top = 2
@@ -151,7 +155,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_up0nt"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vx3ox"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -163,7 +167,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qkwux"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_276j2"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -175,7 +179,7 @@ corner_radius_top_right = 31
 corner_radius_bottom_right = 31
 corner_radius_bottom_left = 31
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wsj5b"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ex5yr"]
 bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
@@ -195,7 +199,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ylo7x")
-relic_rotate_heal = true
+debug_effects = Array[ExtResource("2_ascgm")]([ExtResource("3_f7s33"), ExtResource("4_ncwe6"), ExtResource("5_fbo14")])
+effect_trace = true
+debug_state_readout = true
 
 [node name="Bands" type="VBoxContainer" parent="." unique_id=1462368933]
 layout_mode = 1
@@ -396,7 +402,7 @@ theme_override_constants/separation = 10
 [node name="BaseOutliner" type="PanelContainer" parent="Bands/Tray/Traypad/TrayColumn/DiceRow" unique_id=2043259744]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_l187b")
+theme_override_styles/panel = SubResource("StyleBoxFlat_f7s33")
 script = ExtResource("3_cn02j")
 
 [node name="BaseSlot" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/BaseOutliner" unique_id=1986076020 instance=ExtResource("4_ylo7x")]
@@ -406,7 +412,7 @@ layout_mode = 2
 [node name="MultOutliner" type="PanelContainer" parent="Bands/Tray/Traypad/TrayColumn/DiceRow" unique_id=387670042]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_iolef")
+theme_override_styles/panel = SubResource("StyleBoxFlat_ncwe6")
 script = ExtResource("3_cn02j")
 
 [node name="MultSlot" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/MultOutliner" unique_id=721407254 instance=ExtResource("4_ylo7x")]
@@ -418,7 +424,7 @@ element = 1
 [node name="AntiOutliner" type="PanelContainer" parent="Bands/Tray/Traypad/TrayColumn/DiceRow" unique_id=420776260]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_qxi7d")
+theme_override_styles/panel = SubResource("StyleBoxFlat_fbo14")
 script = ExtResource("3_cn02j")
 
 [node name="AntiSlot" parent="Bands/Tray/Traypad/TrayColumn/DiceRow/AntiOutliner" unique_id=373100492 instance=ExtResource("4_ylo7x")]
@@ -439,11 +445,11 @@ layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.8117647, 0.5411765, 0.5411765, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_ascgm")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_f7s33")
-theme_override_styles/hover = SubResource("StyleBoxFlat_ncwe6")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_fbo14")
-theme_override_styles/focus = SubResource("StyleBoxFlat_0gi20")
+theme_override_styles/normal = SubResource("StyleBoxFlat_0gi20")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_7n7tv")
+theme_override_styles/hover = SubResource("StyleBoxFlat_s4lrp")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_up0nt")
+theme_override_styles/focus = SubResource("StyleBoxFlat_qkwux")
 text = "X"
 script = ExtResource("3_f2lms")
 border_color = Color(0.58706105, 0.23319083, 0.33860078, 1)
@@ -509,11 +515,11 @@ layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.24313726, 0.41568628, 0.32156864, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_7n7tv")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_s4lrp")
-theme_override_styles/hover = SubResource("StyleBoxFlat_up0nt")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_qkwux")
-theme_override_styles/focus = SubResource("StyleBoxFlat_wsj5b")
+theme_override_styles/normal = SubResource("StyleBoxFlat_wsj5b")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ki11w")
+theme_override_styles/hover = SubResource("StyleBoxFlat_vx3ox")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_276j2")
+theme_override_styles/focus = SubResource("StyleBoxFlat_ex5yr")
 text = "✓"
 script = ExtResource("3_f2lms")
 

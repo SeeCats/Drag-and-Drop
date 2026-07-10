@@ -1,0 +1,11 @@
+[gd_resource type="Resource" format=3 uid="uid://cdot586dfbpha"]
+
+[ext_resource type="Script" uid="uid://cg67100l3ml2e" path="res://combat/effects/relics/action_clock_blast.gd" id="1_fx"]
+
+[resource]
+script = ExtResource("1_fx")
+damage = 12
+cooldown = 5
+current_cooldown = 5
+id = "surge"
+triggers = 16

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://combat/effects/relics/action_clock_blast.gd" id="1_fx"]
+
+[resource]
+script = ExtResource("1_fx")
+id = "swap_blast"
+triggers = 16
+damage = 10
+cooldown = 10
+current_cooldown = 10
+clock_action = "swap"

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://combat/effects/relics/reroll_lowest.gd" id="1_fx"]
+
+[resource]
+script = ExtResource("1_fx")
+id = "reroll_lowest"
+triggers = 2

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" format=3 uid="uid://b74f4pdewxvn1"]
+
+[ext_resource type="Script" uid="uid://bnpv2elsxks3f" path="res://combat/effects/relics/elemental_reroll_strike.gd" id="1_fx"]
+
+[resource]
+script = ExtResource("1_fx")
+id = "green_strike"
+triggers = 4
+condition_element = 1
+condition_include_base = true

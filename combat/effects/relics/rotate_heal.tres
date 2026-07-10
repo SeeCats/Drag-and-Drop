@@ -1,0 +1,9 @@
+[gd_resource type="Resource" format=3 uid="uid://bidnj8mnryp6f"]
+
+[ext_resource type="Script" uid="uid://dw3upbshba1yx" path="res://combat/effects/relics/heal_on_action.gd" id="1_fx"]
+
+[resource]
+script = ExtResource("1_fx")
+id = "rotate_heal"
+triggers = 16
+condition_action = "rotate"

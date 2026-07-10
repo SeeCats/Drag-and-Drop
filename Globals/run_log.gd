@@ -61,22 +61,16 @@ func begin_round(start_dice: Array, monster_roll: Array, hp_player: int, hp_mons
 	})
 
 
-# Counts a denied swap attempt on the open round (key present only on rounds where it
-# happened — a gate-status was active and the player bounced off it).
-func record_swap_denied() -> void:
+# Appends one effect-system event entry to the open round (dispatcher-owned logging,
+# ADR-003 — supersedes the hand-wired sparse keys of the proto era). Entry shape:
+# {trigger, acted:[{relic,trigger}], optional delta_*_hp / rerolled / denied}.
+func record_event(entry: Dictionary) -> void:
 	var r = _current_round()
 	if r == null:
 		return
-	r["swap_denied"] = r.get("swap_denied", 0) + 1
-
-
-# Records HP healed during the open round (sparse key — effects only; lets analysis
-# reconstruct deal/take despite mid-round HP gains).
-func record_heal(amount: int) -> void:
-	var r = _current_round()
-	if r == null:
-		return
-	r["healed"] = r.get("healed", 0) + amount
+	if not r.has("events"):
+		r["events"] = []
+	r["events"].append(entry)
 
 
 # Records the player's move + post-move dice for the open round.

@@ -53,7 +53,9 @@ func _ready() -> void:
 	CombatState.state_changed.connect(_on_state_changed)
 	_cancel_button.pressed.connect(cancel)
 	_confirm_button.pressed.connect(commit)
-	roll_dice()      # controller owns rolling now (rework dice don't self-roll)
+	for e in debug_effects:
+		add_effect(e)   # debug grants — must precede the first seam roll (planning entry)
+	roll_dice(true)  # boot roll: faces for the pre-FSM render only; the seam does not run
 	_snapshot()
 	Encounter.current_monster_order = 0   # fresh run starts at the first monster
 	_spawn_monster()
@@ -88,10 +90,36 @@ func _push_dice() -> void:
 		_slots[i].set_element(_elements[i])
 
 
-# DEAL: a single number when exact, "lo~hi" when a swap gamble is staged.
+# DEAL: a single number when exact, "lo~hi" when a swap gamble is staged. Deterministic
+# commit-reactions (a staged rotate's heal, a ready commit-blast) preview on the sub line.
 func _push_deal(r: Dictionary) -> void:
 	_damage_preview.value = _range_str(r.deal[0], r.deal[1])
-	_damage_preview.sub = "exact" if r.deal[0] == r.deal[1] else "gamble"
+	var sub : String = "exact" if r.deal[0] == r.deal[1] else "gamble"
+	var ev : CommitEvent = _preview_commit()
+	if _player and _player.hp:
+		if ev.hp_delta > 0:
+			var heal : int = clampi(ev.hp_delta, 0, _player.hp.max_hp - _player.hp.current_hp)
+			if heal > 0:
+				sub += " · +%d hp" % heal
+		elif ev.hp_delta < 0:
+			sub += " · -%d hp" % mini(-ev.hp_delta, _player.hp.current_hp)   # a staged detonation warns exactly
+	if ev.monster_damage > 0:
+		sub += " · +%d dmg" % ev.monster_damage
+	_damage_preview.sub = sub
+
+
+# Dry-dispatches the commit seam for the staged action and returns the event so callers
+# read any accumulator without applying (ADR-003: effects only mutate the event, so
+# preview is exact for free). Trace suppressed — this runs every render.
+func _preview_commit() -> CommitEvent:
+	var ev := CommitEvent.new()
+	ev.trigger = Effect.Trigger.COMMIT
+	ev.action = _turn_action
+	ev.values = _values
+	ev.elements = _elements
+	ev.dry = true   # dry-dispatch law: stateful effects must not gain/spend/tick from a preview
+	_dispatch(ev, false)
+	return ev
 
 
 # Slot subs from the resolved ranges: per-hit, hit count, defense ("?" if anti pending).
@@ -152,20 +180,31 @@ func _on_player_hp_changed(current: int, _maximum: int) -> void:
 	_hp_ring.tween_to(current)
 
 
-# Updates the phase label from the FSM state + current fight number.
+# Updates the phase label from the FSM state + current fight number. With the debug
+# readout on, appends each effect's live state ("surge:2 swap_doom:7 lock(1)") — the
+# stopgap until the relic dock (glow/wobble telegraph) is specced.
 func _push_phase() -> void:
-	_phase_label.text = "%s · fight %d" % [_phase_word(CombatState.current_state), Encounter.current_monster_order + 1]
+	var text : String = "%s · fight %d" % [_phase_word(CombatState.current_state), Encounter.current_monster_order + 1]
+	if debug_state_readout:
+		for e in current_effect_list:
+			var s : String = e.state_readout()
+			text += "  %s%s%s" % [e.id, ":" + s if s != "" else "", "(%d)" % e.duration if e.duration > 0 else ""]
+	_phase_label.text = text
 
 
 func _on_state_changed(from, to) -> void:
-	if from == CombatState.State.PLAYER_PLANNING and _swap_lock_rounds > 0:
-		_swap_lock_rounds -= 1   # one locked planning phase spent (status duration tick)
+	if from == CombatState.State.PLAYER_PLANNING:
+		_tick_statuses()     # status durations are FSM-clocked: one planning phase spent
 	if to == CombatState.State.PLAYER_PLANNING:
+		move_done = false
 		roll_dice()          # fresh hand each round (values reroll; elements persist), then snapshot it
 		_snapshot()          # cancel restores THIS round's rolled hand
 		_turn_action = {"type": "pass"}   # default; a swap/rotate overwrites it
 		RunLog.begin_round(_dice_snapshot(), CurrentRoll.current_monster_roll_list.duplicate(),
 			_player.hp.current_hp, _monster.hp.current_hp)
+		for entry in _pending_round_events:
+			RunLog.record_event(entry)   # roll-seam events fired before the round opened
+		_pending_round_events.clear()
 	elif to == CombatState.State.TURN_RESOLVING:
 		_sync_rings_exact()   # snap rings off the preview to live HP; per-hit tweens drain from here
 	elif to == CombatState.State.ROUND_START:
@@ -199,6 +238,7 @@ func request_swap(source_slot: int, target_slot: int) -> void:
 	_swap(_elements, source_slot, target_slot)
 	_pending[target_slot] = true
 	_turn_action = {"type": "swap", "from": source_slot, "to": target_slot}
+	move_done = true
 	render()
 
 
@@ -214,6 +254,7 @@ func request_rotate_to(src: int, tgt: int, drop_global: Vector2) -> void:
 	_shift_right(_values, shift)
 	_shift_right(_elements, shift)
 	_turn_action = {"type": "rotate", "from": src, "to": tgt}
+	move_done = true
 	render()
 	_animate_rotate(shift, tgt, drop_global, rests)
 
@@ -241,6 +282,7 @@ func cancel() -> void:
 	_values = _snapshot_values.duplicate()
 	_elements = _snapshot_elements.duplicate()
 	_turn_action = {"type": "pass"}   # cancelled → back to no move for the log
+	move_done = false
 	render()
 
 
@@ -255,81 +297,185 @@ func commit() -> void:
 		_turn_action["rerolled"] = _values[_turn_action["to"]]   # the gamble reveal
 	_reset_pending()
 	render()
-	CurrentRoll.current_roll_list = CurrentRoll.get_roll_from_dice(_values, _elements)   # publish the committed roll for the FSM
+	CurrentRoll.current_roll_list = _project(_values, _elements, true)   # publish through the projection seam
 	RunLog.record_action(_turn_action, _dice_snapshot())
-	_fire_rotate_heal()   # reaction proto — on COMMIT, not on staging, so Cancel can't farm it
+	_fire_commit_event()   # reactions fire on COMMIT, not staging, so Cancel can't farm them
 	CombatState.end_player_turn()
 
 
-# Reaction proto: a committed rotate heals relic_rotate_heal_amount. Logs the ACTUAL
-# healed amount (a near-full heal clamps at max_hp), so the run log stays reconstructible.
-func _fire_rotate_heal() -> void:
-	if not relic_rotate_heal or _turn_action.get("type") != "rotate":
+# The commit seam: dispatch, apply the accumulators (clamped by Hp), auto-log actual deltas.
+# Commit blasts hit the monster here (pre-resolution); a kill is caught by the FSM's
+# _advance at the next boundary, same as round-start chip damage.
+func _fire_commit_event() -> void:
+	var ev := CommitEvent.new()
+	ev.trigger = Effect.Trigger.COMMIT
+	ev.action = _turn_action
+	ev.values = _values
+	ev.elements = _elements
+	_dispatch(ev)
+	if ev.acted.is_empty():
 		return
-	if not _player or not _player.hp:
-		return
-	var before : int = _player.hp.current_hp
-	_player.hp.current_hp += relic_rotate_heal_amount
-	var healed : int = _player.hp.current_hp - before
-	if healed > 0:
-		RunLog.record_heal(healed)
+	var entry : Dictionary = {"trigger": "COMMIT", "acted": ev.acted}
+	if ev.hp_delta != 0 and _player and _player.hp:
+		var before : int = _player.hp.current_hp
+		_player.hp.current_hp += ev.hp_delta
+		entry["delta_player_hp"] = _player.hp.current_hp - before
+	if ev.monster_damage > 0 and _monster and _monster.hp:
+		var m_before : int = _monster.hp.current_hp
+		_monster.hp.take_damage(ev.monster_damage)
+		entry["delta_monster_hp"] = _monster.hp.current_hp - m_before
+	RunLog.record_event(entry)
 
 
-# --- relic protos (ADR-002: bare functions + debug grants until ADR-003 picks machinery) ---
-@export var relic_skip_highest : bool = false   # "the current highest die skips its reroll"
-@export var debug_swap_lock : int = 0           # status proto: swap denied for N rounds at each fight start
-@export var relic_rotate_heal : bool = false    # reaction proto: committing a rotate heals (amount below)
-@export var relic_rotate_heal_amount : int = 10 # big on purpose — exercises the max-HP clamp + the actual-delta logging
+# --- effect system (ADR-003: event dispatch, event-side judgment) ----------
+@export var debug_effects : Array[Effect] = []   # drag relic/status .tres here (debug grants until a reward flow exists)
+@export var effect_trace : bool = false          # console forensics: prints every dispatch's match/skip story
+@export var debug_state_readout : bool = false   # phase label shows each effect's live state (charges/cooldowns) — playtest aid until the relic dock exists
 
-var _swap_lock_rounds : int = 0   # planning phases left that deny swap (ticks down as rounds resolve)
+var current_effect_list : Array[Effect] = []     # acquisition order = application order
+var move_done : bool = false                     # one swap/rotate per turn (owner-side; TrayInput asks)
+var _pending_round_events : Array = []           # seam events fired before begin_round; flushed after it
 
 
-# The gate: input asks, the owner decides — effects veto here, never in TrayInput.
+# Duplicates the resource in — per-instance runtime state (duration, cooldowns, charges)
+# is EXPORTED state by project convention: the .tres value is the authored start, and the
+# duplicate gives each instance its own copy (the shared resource is never mutated).
+func add_effect(e: Effect) -> void:
+	current_effect_list.append(e.duplicate())
+
+
+# The one dispatch loop (ADR-003): acquisition order; the EVENT judges; effects mutate the
+# event; the calling seam applies results. `acted` records only effects that genuinely DID
+# something (effect() returned true) — matched-but-idle (cooldowns, empty targets) traces
+# as such and stays out of the log.
+func _dispatch(event: GameEvent, trace: bool = true) -> GameEvent:
+	for e in current_effect_list:
+		var verdict : String
+		if event.matches(e):
+			if e.effect(event):
+				event.acted.append({"relic": e.id, "trigger": Effect.Trigger.keys()[event.trigger]})
+				verdict = "ACTED"
+			else:
+				verdict = "matched, idle"
+		else:
+			verdict = _skip_reason(event, e)
+		if effect_trace and trace:
+			print("[FX %s] %s -> %s" % [Effect.Trigger.keys()[event.trigger], e.id, verdict])
+	return event
+
+
+# Trace detail for a non-match: name the reason (the BG3 lesson — silence about non-matches
+# is what makes event systems hell to debug).
+func _skip_reason(event: GameEvent, e: Effect) -> String:
+	if (e.triggers & (1 << event.trigger)) == 0:
+		return "skip (listens to %s)" % _trigger_names(e.triggers)
+	return "skip (condition failed)"
+
+
+# "COMMIT+PROJECT_ROLL"-style readout of a triggers bitmask, for the trace.
+func _trigger_names(mask: int) -> String:
+	var names : Array = []
+	for i in Effect.Trigger.size():
+		if mask & (1 << i):
+			names.append(Effect.Trigger.keys()[i])
+	return "+".join(names) if names.size() > 0 else "nothing"
+
+
+# Dice → roll through the projection seam: pure get_roll_from_dice, then a PROJECT_ROLL
+# dispatch that may modify the roll (e.g. resonance spending charges into MULT). ALWAYS
+# dry — this runs inside every preview trial, so effects read state but never change it.
+# log=true (the commit publish only): a modified roll is recorded so the validator can
+# reconstruct deal/take it could no longer derive from the dice alone.
+func _project(values: Array, elements: Array, log: bool = false) -> Array:
+	var roll : Array = CurrentRoll.get_roll_from_dice(values, elements)
+	var ev := ProjectRollEvent.new()
+	ev.trigger = Effect.Trigger.PROJECT_ROLL
+	ev.values.assign(values)
+	ev.elements = elements
+	ev.roll = roll
+	_dispatch(ev, log)   # trace the publish; preview trials would spam
+	if log and not ev.acted.is_empty():
+		RunLog.record_event({"trigger": "PROJECT_ROLL", "acted": ev.acted, "roll": roll.duplicate()})
+	return roll
+
+
+# Status durations tick when a planning phase ends; expired statuses self-remove.
+func _tick_statuses() -> void:
+	for e in current_effect_list.duplicate():
+		if e.duration > 0:
+			e.duration -= 1
+			if e.duration == 0:
+				current_effect_list.erase(e)
+
+
+# The swap gate (MoveEvent dispatch): input asks, the owner decides, effects veto.
 func can_swap() -> bool:
-	return _swap_lock_rounds <= 0
+	var ev := MoveEvent.new()
+	ev.trigger = Effect.Trigger.MOVE_GATE
+	ev.verb = "swap"
+	_dispatch(ev)
+	if not ev.allowed:
+		print("swap denied")
+		RunLog.record_event({"trigger": "MOVE_GATE", "denied": "swap", "acted": ev.acted})
+	return ev.allowed
 
 
-# Denial feedback for a gated swap. Proto: console print + a run-log flag; the real
-# "how does a denied verb read" UX is an open ui-spec question (see proto findings).
-func notify_swap_denied() -> void:
-	print("swap denied")
-	RunLog.record_swap_denied()
-
-
-# Names of the active relic/status grants, for the run log.
+# Active effect ids (statuses tagged with remaining duration), for the run log.
 func _active_relics() -> Array:
 	var out : Array = []
-	if relic_skip_highest:
-		out.append("skip_highest")
-	if debug_swap_lock > 0:
-		out.append("swap_lock_%d" % debug_swap_lock)
-	if relic_rotate_heal:
-		out.append("rotate_heal")
+	for e in current_effect_list:
+		out.append(e.id if e.duration == 0 else "%s_%d" % [e.id, e.duration])
 	return out
 
 
-# The relic's target, chosen at the moment of use (live values, not precomputed).
-# First slot wins ties.
-func _skip_highest_slot() -> int:
-	var best : int = 0
-	for i in range(1, _values.size()):
-		if _values[i] > _values[best]:
-			best = i
-	return best
-
-
 # --- helpers ---------------------------------------------------------------
-func roll_dice() -> void:
-	var skip : int = _skip_highest_slot() if relic_skip_highest else -1
-	for i in _values.size():
-		if i != skip:
+# Planning-entry roll = the reroll seam (ADR-003): PRE_ROLL mask → base roll → POST_ROLL
+# ops → REROLLED reactions → seam applies accumulators. Base-roll instances enter the
+# record tagged source "base"; effect ops tag "op" — reactions declare which count
+# (condition_include_base). plain = values only, NO seam: the _ready boot roll (dice need
+# faces before the FSM starts, no monster exists, and the planning-entry roll replaces it).
+func roll_dice(plain: bool = false) -> void:
+	if plain:
+		for i in _values.size():
 			_values[i] = randi_range(1, 6)
+		_reset_pending()
+		return
+	var ev := RollEvent.new()
+	ev.values = _values
+	ev.elements = _elements
+	for _i in _values.size():
+		ev.base_mask.append(true)
+	ev.trigger = Effect.Trigger.PRE_ROLL
+	_dispatch(ev)
+	for i in _values.size():
+		if ev.base_mask[i]:
+			ev.reroll_slot(i, "base")
+	ev.trigger = Effect.Trigger.POST_ROLL
+	_dispatch(ev)
+	ev.trigger = Effect.Trigger.REROLLED
+	_dispatch(ev)
+	_apply_roll_reactions(ev)
 	_reset_pending()
+
+
+# Applies the roll seam's accumulators. Round-start chip damage goes straight to the
+# monster's Hp — the FSM's _advance catches a kill at the next boundary (death is already
+# decoupled from attacks). Events are buffered: begin_round hasn't opened the round yet.
+func _apply_roll_reactions(ev: RollEvent) -> void:
+	if ev.acted.is_empty():
+		return
+	var entry : Dictionary = {"trigger": "ROLL", "acted": ev.acted, "rerolled": ev.rerolled.duplicate(true)}
+	if ev.monster_damage > 0 and _monster and _monster.hp:
+		var before : int = _monster.hp.current_hp
+		_monster.hp.take_damage(ev.monster_damage)
+		entry["delta_monster_hp"] = _monster.hp.current_hp - before
+		if _monster.hp.current_hp <= 0:
+			CombatState.check_boundary.call_deferred()   # chip-kill between boundaries: don't leave a dead round waiting for a commit
+	_pending_round_events.append(entry)
 
 
 # Spawns the lean Monster, fed by the current MonsterResource (set before it enters the tree).
 func _spawn_monster() -> void:
-	_swap_lock_rounds = debug_swap_lock   # status proto: each fight opens swap-locked for N rounds
 	_monster = preload("res://character/monster/Monster.tscn").instantiate() as Monster
 	_monster.data = Encounter.next_monster
 	add_child(_monster)
@@ -400,7 +546,7 @@ func _resolve() -> Dictionary:
 		var vals : Array = _values.duplicate()
 		if slot != -1:
 			vals[slot] = v
-		var roll : Array = CurrentRoll.get_roll_from_dice(vals, _elements)
+		var roll : Array = _project(vals, _elements)   # projection seam: previews see roll-modifying effects
 		var o : Dictionary = CurrentRoll.compute_outcome(roll, monster_roll)
 		deal.append(o.player.total)
 		take.append(o.monster.total)

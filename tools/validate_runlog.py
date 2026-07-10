@@ -51,10 +51,25 @@ def rotate_shift(action):
 def check_round(rd, problems, where):
     vals = [d[0] for d in rd["after"]]
     els = [E[d[1]] for d in rd["after"]]
-    raw_deal, raw_take = resolve([vals[0], vals[1], vals[2], els[2]], rd["monster_roll"])
+    # PROJECT_ROLL effects can modify the published roll beyond what the dice imply
+    # (e.g. resonance's mult boost) — the seam logs the final roll; prefer it.
+    pr = next((e["roll"] for e in rd.get("events", [])
+               if e.get("trigger") == "PROJECT_ROLL" and "roll" in e), None)
+    if pr is None:
+        pr = [vals[0], vals[1], vals[2], els[2]]
+    raw_deal, raw_take = resolve(pr, rd["monster_roll"])
     m_died = rd["hp_after"]["monster"] == 0
     p_died = rd["hp_after"]["player"] == 0
-    healed = rd.get("healed", 0)  # mid-round HP gains (effects) offset the apparent take
+    # Mid-round HP gains offset the apparent take: era-2 sparse "healed" key, or era-3
+    # dispatcher events (COMMIT deltas land between hp_before and hp_after). Commit-time
+    # monster damage (blasts) likewise inflates the apparent deal beyond the resolver's.
+    healed = rd.get("healed", 0)
+    deal_bonus = 0
+    for ev in rd.get("events", []):
+        if ev.get("trigger") == "COMMIT":
+            healed += ev.get("delta_player_hp", 0)
+            deal_bonus += -ev.get("delta_monster_hp", 0)
+    raw_deal += deal_bonus
 
     if m_died:
         if raw_deal < rd["deal"]:
@@ -92,8 +107,15 @@ def check_run(idx, run, problems):
         prev = None
         for j, rd in enumerate(f["rounds"]):
             where = f"{where_f} rd{j}"
-            if prev is not None and rd["hp_before"] != prev:
-                problems.append(f"{where}: hp_before != previous hp_after")
+            if prev is not None:
+                # Era-3 ROLL events (round-start reroll procs) land BETWEEN the previous
+                # round's hp_after and this round's hp_before — fold their deltas in.
+                exp_m = prev["monster"] + sum(e.get("delta_monster_hp", 0)
+                                              for e in rd.get("events", []) if e.get("trigger") == "ROLL")
+                exp_p = prev["player"] + sum(e.get("delta_player_hp", 0)
+                                             for e in rd.get("events", []) if e.get("trigger") == "ROLL")
+                if rd["hp_before"] != {"player": exp_p, "monster": exp_m}:
+                    problems.append(f"{where}: hp_before != previous hp_after (+ round-start event deltas)")
             check_round(rd, problems, where)
             prev = rd["hp_after"]
         if f["rounds"]:

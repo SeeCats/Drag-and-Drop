@@ -15,27 +15,21 @@ var _pressed : int = -1        # slot under the current press; -1 = none
 var _press_pos : Vector2
 var _dragging : bool = false
 var _selected : int = -1       # first tap of a staged swap; -1 = none
-var _move_done : bool = false  # one swap/rotate per turn; reset on Cancel + each planning phase
 
 
-# Wires the cancel button and the per-planning-phase reset.
+# Wires the cancel button (selection clear) and the per-planning-phase reset.
+# The one-move-per-turn rule migrated to the controller (`move_done`) — input only asks.
 func _ready() -> void:
 	var cancel_button : Button = %CancelButton
-	cancel_button.pressed.connect(_on_cancel)
+	cancel_button.pressed.connect(_clear_selection)
 	CombatState.state_changed.connect(_on_state_changed)
 
 
-func _on_cancel() -> void:
-	_move_done = false
-	_clear_selection()
-
-
-# Each new planning phase clears the one-move guard + any stale selection; leaving
-# planning aborts any gesture still in flight (today only commit can do that, but a
-# future effect-driven turn end would otherwise leak a grabbed die).
+# Each new planning phase clears any stale selection; leaving planning aborts any gesture
+# still in flight (today only commit can do that, but a future effect-driven turn end
+# would otherwise leak a grabbed die).
 func _on_state_changed(_from, to) -> void:
 	if to == CombatState.State.PLAYER_PLANNING:
-		_move_done = false
 		_clear_selection()
 	else:
 		_abort_gesture()
@@ -67,7 +61,7 @@ func _input(event: InputEvent) -> void:
 
 # Press: remember the slot whose zone contains the press; empty space clears a staged tap.
 func _press() -> void:
-	if _move_done:
+	if controller.move_done:
 		return
 	_press_pos = _mouse()
 	_pressed = _slot_at(_press_pos)
@@ -95,7 +89,6 @@ func _release() -> void:
 		var tgt : int = _slot_at(_mouse())
 		if tgt != -1 and tgt != _pressed:
 			controller.request_rotate_to(_pressed, tgt, _mouse())
-			_move_done = true
 		_dragging = false
 	else:
 		_tap(_pressed)
@@ -106,8 +99,7 @@ func _release() -> void:
 # selected die deselects; tapping a different die commits the swap intent.
 func _tap(slot: int) -> void:
 	if _selected == -1:
-		if not controller.can_swap():
-			controller.notify_swap_denied()   # gated verb: owner decides, owner narrates
+		if not controller.can_swap():   # gate dispatch; the owner narrates + logs denials
 			return
 		_selected = slot
 		slots[slot].set_selected(true)
@@ -120,7 +112,6 @@ func _tap(slot: int) -> void:
 		var first : int = _selected
 		_clear_selection()
 		controller.request_swap(first, slot)
-		_move_done = true
 
 
 func _clear_selection() -> void:

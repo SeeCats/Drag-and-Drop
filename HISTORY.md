@@ -13,6 +13,73 @@ A running log of work and decisions. Newest entries on top. Keep each session en
 - **anti_type: user call — kept as-is for now.** §6.2 rewrite stays parked.
 - **Open threads:** Code to run the three sims (anti_type policy value; tension-round policies incl. evict-keep; pay-a-keeper EV — specs in the sim-results file). Design: tree topology pass when the user's thought it through; §8.6's open decisions are the next Design work.
 
+## 2026-07-10 (user sign-off) — **effect system confirmed working as intended after testing.**
+Field-verified across the day: all five triggers, both cooldown clocks, charges, statuses, self-damage, chip-kills (boundary poke), include-base rerolls, clamps both directions, dispatcher logging + trace, three schema eras validating. Test values still live (Alien 4hp, green include-base ON, swap_doom 6/6/6) — flagged, not for shipping. Next queue: debug console, relic dock (glow/wobble telegraph), PRE_COMMIT phase if cross-relic clocks graduate.
+
+## 2026-07-10 (Code Claude + user — Alien HP 10→4 (chip-kill test target); sim table synced)
+
+- `alien.tres` max_hp → 4 (user: easy chip-kill target for boundary-fix testing) + `balance_sim.py` `BASE_GAUNTLET` synced same-session with a not-sim-priced comment. Test-phase value — restore/re-price when balance work resumes.
+
+## 2026-07-10 (Code Claude + user — chip-kill boundary gap fixed (user-found with include-base strikes))
+
+- **Bug (user):** a round-start chip-kill (green_strike with base rolls counting) left the game "stuck" — monster at 0, no next spawn. Root cause: not a spawn bug — commit-kills happen AT a boundary (commit flows into TURN_RESOLVING's `_advance`), but round-start kills happen BETWEEN boundaries; the FSM sat in PLANNING waiting for a commit against a corpse (run 48's Ghost case had quietly required the user's pass-commit — the gap existed, include-base just made it glaring).
+- **Fix:** `CombatState.check_boundary()` (public: `_advance(current_state)` — both-alive = same-state no-op) + the roll seam calls it `call_deferred` when its damage kills. Deferred = same re-entrancy rule as `_on_victory`. WIN now fires within a beat of a chip-kill; the dead round never reaches the player. Round record is already open (begin_round precedes the deferred check), so logging/validation shapes are unchanged.
+
+## 2026-07-10 (Code Claude + user — stress-trio field test; boot roll sealed; base-roll rerolls authorable)
+
+- **Stress trio verified in play** (run 48, cleared at 3): lowest→blue double-reroll composed in acquisition order (the ADR stress-case question, answered in data); green_strike clamped actuals (-4/-4/-2); **first field chip-kill at round start** (Ghost opened a round at 0 monster HP — boundary gate converted it cleanly).
+- **Artifact found + fixed:** round 1 logged TWO ROLL events — the `_ready()` boot roll was running the full seam (ops + reactions, against a not-yet-spawned monster). `roll_dice(plain := true)` now: boot roll = faces only, no dispatch, no log; the planning-entry roll is the only seam roll. Closes the findings' "first-roll semantics" question.
+- **Base-roll-counts-as-reroll is now authorable** (user's original green_strike intent — knowingly OP at damage 4, but a numbers problem not a reasons problem): record entries carry `source` ("base"/"op"), reactions declare `condition_include_base` (new base-Effect condition, default false = op-only, today's behavior). Emergent counterplay: skip_highest's kept die produces NO base instance — keep-effects suppress include-base strikes mechanically.
+- Run-log note: ROLL events' `rerolled` arrays now include base-roll entries (source-tagged) whenever any effect acted that round — bigger but analysis can segment.
+
+## 2026-07-10 (user note-to-self, logged by Code) — **build a debug cheat console sooner or later.**
+Proc-testing relics currently means playing whole runs hoping to reach the condition before attrition kills you (twice today: died at 8 and 7 swaps hunting a 10-swap detonation). Wanted verbs so far: set/deal HP, grant/remove effects mid-run, set an effect's state (cooldown/charges), pick the monster. The `debug_state_readout`/`effect_trace` exports are the read half; the console is the missing write half.
+
+## 2026-07-10 (Code Claude + user — swap_doom debuff, negative-delta preview, debug state readout)
+
+- **`swap_doom.gd`/`.tres`** (user design: "at 10 swaps you take 10 dmg"): the verb-priced BOMB — swap stays the gamble verb, this counts the gambles; rotate/pass are shields, so the debuff is bad relative-to-build (convertible-curse economy). Detonation at commit; death caught at the next FSM boundary. Both new-surge cycles verified in play beforehand (runs 40–41: fires every 5th commit, cross-fight, deal accounting clean under kill-clamps).
+- **Negative `hp_delta` previews now** (`· -N hp` on the DEAL sub, clamped to current HP): a staged detonation warns exactly — pillar upheld; hidden-dread would need an explicit Design exception.
+- **Debug state readout** (`@export debug_state_readout`): phase label appends each effect's live state via new `Effect.state_readout()` hook (clock templates → cooldown, resonance → charges; statuses auto-append `(duration)`). Playtest stopgap: the REAL answer is the user's — relic icons glowing red/wobbling as urgency telegraphs (ui-spec §7-compatible: motion on imminent change) — parked until the relic-dock placement is specced (user: "not now").
+
+## 2026-07-10 (Code Claude + user — surge simplified to a periodic blast; one clock template)
+
+- User call: surge's reroll-conditioned proc never converts solo ("ready" waited forever for fuel) — reshaped to **fire automatically when the clock hits 0, reset, repeat**. `action_clock_blast` generalized (`clock_action = ""` → every commit ticks); `surge.tres` re-pointed to it (COMMIT-only now, `triggers = 16`; 12 dmg / every 5 commits / starts at 5). Fires every 5th commit forever; the 5th commit's DEAL sub previews `· +12 dmg`.
+- `cooldown_strike.gd` is now unreferenced (the reroll-conditioned proc+cooldown shape, user-tuned) — kept for reference; delete when tired of it.
+- Also: "json saved isn't printed on lose" investigated — it IS printed and saved (runs 34/36 died + logged); it just prints one line ABOVE the FSM's "LOSE" (state_changed fires before the enter handler). Data also confirmed the fixed surge tick floor: exactly 5 ticks then silence in both death runs.
+
+## 2026-07-10 (Code Claude + user — authored-start convention unified: runtime state as exports; on_apply removed)
+
+- **Convention settled (user's pattern wins):** effect runtime state (`current_cooldown`, charges…) is an **@export** — the `.tres` value IS the authored start, `duplicate()` isolates per instance. `on_apply` lifecycle hook removed same-day it was added (no user left). Both cooldown templates aligned (`current_cooldown`); `cooldown_strike`'s order-fragile `= cooldown` default → literal 0.
+- **Caught live: the mismatched-key disease** — user's hand-edited `surge.tres` had `current_cd = 5` vs export `current_cooldown` → silently ignored on load (same failure class as slime.tres p1). Fixed; gotcha added to CLAUDE.md (prefer inspector edits).
+- **Field data (runs 28–30):** abandoned-run quit-flush confirmed working (two `"abandoned"` lines); surge ticked 9/9 rounds and never fired — (a) solo grant has no reroll source (proc needs effect-rerolls; pair with reroll_blue), (b) the run predated the tick's 0-floor guard. Expected next run: ≤cooldown tick entries, then idle.
+
+## 2026-07-10 (Code Claude + user — swap_blast: verb-clocked commit blast + on_apply lifecycle)
+
+- **`action_clock_blast.gd` + `swap_blast.tres`** (user spec: 10-swap cooldown, 10 damage at commit, STARTS uncharged at cd 10): the verb-clock design axis realized — swap commits tick it, the 10th fires the blast into the same commit, then recharges. Single COMMIT trigger carries both clock and proc; dry previews simulate tick+proc without touching state, so a ready blast shows `· +10 dmg` on the DEAL sub before you commit.
+- **System additions it forced:** `Effect.on_apply()` lifecycle hook (ADR-001's missing bit — `add_effect` calls it post-duplicate so runtime state can start from authored exports; `_init` can't read Resource exports reliably) — this is the "starting cd = 10" test working; `CommitEvent.monster_damage` accumulator + seam apply/log (`delta_monster_hp` on COMMIT events; a commit-blast kill is caught by `_advance` at the next boundary like chip damage); `_preview_commit_hp` → `_preview_commit` (returns the event; DEAL sub now previews heals AND blasts); validator folds COMMIT monster deltas into expected deal.
+
+## 2026-07-10 (Code Claude + user — acted-honesty (`effect()`→bool) + cooldown template; charge carryover ruled intended)
+
+- **`effect()` returns bool** — dispatcher records `acted` + traces ACTED only when an effect genuinely did something; matched-but-idle traces as "matched, idle" and stays out of the log. All 8 templates updated; kills resonance's every-round log noise for free (seams already keyed logging on `acted`).
+- **`cooldown_strike.gd` + `surge.tres`** (proc REROLLED when effect-rerolls happened, +12; clock COMMIT, 3 ticks): cooldowns = state + a chosen clock, no new machinery. Findings entry 5 records the owner's design insight — clock choice prices the verbs (swap-clock = reload verb, pass never ticks) — plus boundaries (never clock MOVE_GATE; no negation conditions yet).
+- **Owner ruling:** resonance's cross-fight charge carryover is INTENDED (run-scale bank-vs-push, gives filler fights a job; verified: banked 3 charges turned Slime's opener 10→16). Balance lever = pricing the gain (monster pressure), never killing carryover. Per-fight reset idea dead; FIGHT_START unbuilt.
+
+## 2026-07-10 (Code Claude + user — resonance charge relic: triggers→bitmask, projection seam, dry law)
+
+- **User-designed relic** (rules: +1 charge per home-slot die at commit, cap 3; all-off-home → MULT += charges, always spend): `relics/resonance_charges.gd` + `resonance.tres` (`triggers = 48` = COMMIT|PROJECT_ROLL). First stateful (per-instance `charges` on the duplicated resource — the duration pattern generalized) and first multi-moment effect.
+- **System upgrades it forced:** `Effect.trigger` (single enum) → `triggers` `@export_flags` bitmask (all 7 `.tres` migrated; `matches()` bit-tests); new **PROJECT_ROLL seam** — controller `_project()` wraps `get_roll_from_dice` for BOTH the commit publish and every `_resolve` preview trial, so roll-modifying effects are preview-exact by construction (`ProjectRollEvent` is always-dry by `_init`); **dry-dispatch law mechanized** (`GameEvent.dry` — previews set it; stateful effects guard: an unguarded charge relic would farm charges from every render's preview dispatch); `CommitEvent` now carries the hand. Publish-time PROJECT_ROLL events log the final roll; `validate_runlog.py` prefers it over dice-derived rolls (boosted mult isn't derivable from dice).
+- Also this session: user corrected the "lucky rerolls inexpressible" claim (findings updated — expressible as an order-dependent POST_ROLL record post-processor; three named edges); reroll_blue identified as a convertible curse (findings + Design flag).
+- **Playtest checklist for resonance:** DEAL visibly jumps when staging into all-off-home; charges don't drift while idling in planning (dry law working); spend turn logs `PROJECT_ROLL` event with the boosted roll; validator ALL CLEAN.
+
+## 2026-07-07 (Code Claude — effect system BUILT (ADR-003 rev 3, branch: effect system))
+
+- **Scaffold:** `combat/effects/` — `Effect` Resource (trigger enum PRE_ROLL/POST_ROLL/REROLLED/MOVE_GATE/COMMIT, typed conditions, duration) + `GameEvent` RefCounted base + `RollEvent`/`MoveEvent`/`CommitEvent`; controller `_dispatch` loop (acquisition order, event judges, trace prints match/skip WITH reason — forensics shipped in the same commit per the ADR).
+- **Seams:** roll (mask → base roll → ops → reactions → seam applies chip damage + buffers events past `begin_round`), move gate (`can_swap` dispatch; `move_done` migrated off TrayInput — input only asks now), commit (`_fire_commit_event`; dry re-dispatch powers the DEAL-sub heal preview — deterministic reactions preview exactly, closing the user's heal-preview note in its proto form).
+- **Migrations:** the three protos are now `.tres` on template scripts (`skip_highest`, `gate_verb`→swap_lock, `heal_on_action`→rotate_heal) + the stress trio authored (`reroll_lowest`, `reroll_element_slot`→reroll_blue, `elemental_reroll_strike`→green_strike). All old proto code deleted (exports, `_fire_rotate_heal`, `_swap_lock_rounds`, `notify_swap_denied`, `record_heal`/`record_swap_denied`). Grants = `@export debug_effects` array.
+- **Run-log era 3:** dispatcher-owned `"events"` per round; `validate_runlog.py` folds ROLL deltas into HP-chain checks, COMMIT deltas into take.
+- **Behavior changes to note in playtest:** swap_lock is now granted at RUN start (duration 2 planning phases, global) — the per-fight reapply debug behavior is gone until a real status source (monster) exists; a green_strike chip-kill at round start is detected at the next FSM boundary (by design, death decoupled). **User: open each `relics/*.tres` once in-editor** (hand-authored by script path; editor resave binds uids — the slime.tres lesson applies).
+- **Verify:** stress trio granted together → trace shows PRE_ROLL skip / POST_ROLL double-reroll composition in acquisition order; `validate_runlog.py` clean on a run with all six grants.
+
 ## 2026-07-07 (Code Claude + user — ADR-003 rev 3: event-side judgment, forensics-first)
 
 - Rev 2's dispatch-by-method-override superseded by the **user's dispatch model: the EVENT judges** — relics declare trigger (enum) + conditions (typed exported fields, NO string DSL) + `effect(event)` payload; the seam's dispatch loop matches declarations in acquisition order. Simple relics become script-less `.tres`; declared triggers are enumerable (proc UI, declarative sim mirror, auto-logging). Events = `RefCounted` per seam (pros/cons argued in-session; two lifetime laws: never store events, effects never back-ref them).

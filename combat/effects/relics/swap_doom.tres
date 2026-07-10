@@ -1,0 +1,11 @@
+[gd_resource type="Resource" format=3 uid="uid://cefgmnq6tpl2w"]
+
+[ext_resource type="Script" uid="uid://cpd85k0p7ns3q" path="res://combat/effects/relics/swap_doom.gd" id="1_fx"]
+
+[resource]
+script = ExtResource("1_fx")
+damage = 6
+cooldown = 6
+current_cooldown = 6
+id = "swap_doom"
+triggers = 16

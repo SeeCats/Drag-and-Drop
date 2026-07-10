@@ -121,6 +121,14 @@ func _on_monster_attack() -> void:
 	_advance(State.ROUND_START)   # death (either side) caught in _advance
 
 
+# Re-runs the death gate for the CURRENT state — for damage applied outside the normal
+# state flow (round-start chip procs killing during the transition into planning). Both
+# alive → transition_to(current) is a no-op (same-state guard). Call DEFERRED from seams,
+# never mid-transition (same re-entrancy rule as the controller's _on_victory).
+func check_boundary() -> void:
+	_advance(current_state)
+
+
 # Single transition gate. Reads HP from the live combatants so death is detected from
 # ANY state (round-start DoT, mid-attack kill, or a plain attack) and routed the same way.
 # Player is checked first, so a mutual kill (both at 0) resolves to LOSE — the tie

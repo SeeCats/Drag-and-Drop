@@ -1,0 +1,8 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://combat/effects/relics/skip_highest.gd" id="1_fx"]
+
+[resource]
+script = ExtResource("1_fx")
+id = "skip_highest"
+triggers = 1

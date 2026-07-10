@@ -10,5 +10,5 @@
 script = ExtResource("1_mres")
 monster_name = "Alien"
 texture = ExtResource("5_vbet1")
-max_hp = 10
+max_hp = 4
 pattern_list = Array[ExtResource("2_ptn")]([ExtResource("3_p1"), ExtResource("4_p2")])
