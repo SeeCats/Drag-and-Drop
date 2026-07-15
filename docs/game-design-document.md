@@ -549,28 +549,38 @@ The item under construction is bankable at intermediate stages. At any map bound
 
 Baseline run stays ~6 rooms (§1.4); structural rooms bend it (first-pass bounds 4–9).
 
-### 8.5 Modifier architecture (working frame — topology open)
-An item = a base + **two mods (prefix, suffix)**. Each mod is a **walked path through a tree**, so the item's whole state is readable as geometry — which *is* this section's visible-construction mechanism: each crafting room lights one step.
+### 8.5 Gear, beads, and the preset tree (canonical 2026-07-15 — supersedes the 07-02 specialty-tree draft; see design-history note in §8.6)
 
-Three attributes, three geometric jobs, no overlap:
-- **Specialty — the tree's shape.** An item-level distribution transform: **unlocks** branches, **blocks** branches (identity through exclusion — what this item is forbidden from becoming), **weights** offers. Added **mid-run, every run**, stackable (composition: blocks win, weights multiply; stack cap first-pass 2). **Prospective-only:** a specialty transforms the *pool*, never mods already taken — existing mods are grandfathered (rendered as a kept mod on a withered branch: the item's past visibly diverging from its future). Timing is therefore the run's core strategic gradient — an early specialty captures most of the run's offers and locks you in; a late one is safe and nearly worthless.
-- **Rarity — width budget.** How many branches a mod may hold simultaneously (count model; *which* branches exist is specialty's job, so the two axes never fight over one role).
-- **Tier — depth.** How far along each branch; pure magnitude. Depth discipline per §5.3: offense trees run short, self-capping trees (anti / HP-adjacent) may run long.
+**Core objects.** A **node ("bead")** is a named effect from a specialty catalog (first drafted catalog: crit — `docs/crit-tree-draft.md`). Notation: `Name≤m` = an owned bead with **max-charge ceiling m**; `Name@c` = that bead slotted at **chosen charge c ≤ m**. A **gear piece grants at most two beads** ("two dimensions"); a bead's ceiling is the gear's quality axis. Gear persists (§1.4). *(Open: whether gear also carries one conventional effect-mod — a "soul slot" — beside its beads.)*
 
-**Doctrine: rarity changes the question (how many clauses a mod asks); tier changes the number.** Excitement lives in rarity, tier stays boring and sim-watched — the inverse of the usual loot-game instinct, per §5.3's measured lesson that scaling numbers is what guts tension.
+**The preset (plan).** Between runs — couch-mode, no time pressure — the player strings owned beads in **any order** at chosen charges. The plan persists as knowledge; **activation is run-scoped**. In-run, **each cleared room advances the string by one room of charge**; a bead lights when its charge is paid, so arrival = prefix sum. Charge is one player-facing number doing four jobs: cost, power scaling, awakening time, and (via ceilings) the gear chase.
 
-**Safety architecture — two block layers, two jobs.** Specialty blocks are *identity*: composable, and legally sequenced around (taking a mod *before* the specialty that would block it is mastery texture — the item is its history). The *balance quarantine* lives below: a **global mutual-exclusion graph on the mods themselves, enforced on the item**, un-bypassable by any specialty stack or ordering. Corollary authoring rules: multiplier clauses never share a tree, and **topology is a pricing instrument** — the distance between two branches is the cost of combining them.
+**Laws (all load-bearing):**
+- **Free order** — the player composes their own power curve (early spike vs late ramp); the tuple *is* the curve.
+- **Vesting floor** — beads at charge ≥3 cannot light before ~room 4 (first-pass), regardless of composition. Guaranteed power is priced in schedule; banked gear being the real floor is why cheap early keystones must be impossible.
+- **Discovery-gating** — only nodes encountered at least once (any run's offers) are plannable; unmet nodes render as silhouettes. First contact is always discovery; the plan guarantees only *re*-acquisition.
+- **Collision-skip** — a preset node acquired mid-run via offers is skipped by the string; everything after arrives earlier. Luck pays in tempo.
+- **Stacking law** — copies of a node stack in **frequency/coverage, never magnitude**; charge scales one instance. Every node is authored *at the stack* (simmed at 1/3/6 copies) and per-node charge curves are sim-gated (§5.3 discipline: nothing goes multiplicative).
+- **Clock laws** — copies of clocked effects **auto-stagger** (phases distributed; "more often, never together"); ripe clocks **auto-fire** (no holding — banking a *resource* is economy, banking a *timing* is staging). Proc-vs-clock is a trial-count function: short fights want clocks, long fights want procs.
+- **Closed verb set** — no new inputs, ever; all effect agency routes through existing gestures (e.g. mark contagion is "aiming" spelled in swap). Verb-reactions fire on **commit, never staging** (the rotate_heal law), with staged consequences ghost-previewed.
+- **Exclusion graph** — mod-level mutual exclusions enforced on the item, un-bypassable by any sequencing.
+- **Legendary cap** — catalogs run common/magic/rare/keystone; **legendary/relational effects never enter the tree** (offer-and-route-only chase).
 
-**The four crafting verbs** (what rooms and shops carry): **transform** (add/alter specialty) · **widen** (rarity +1) · **deepen** (tier-up) · **re-walk** (reroll a path). All resolve as pick-1-of-3-or-decline (§8.1).
+**Progression = plan-space.** Ceilings bound charges, so the viable-schedule space grows with the stash — better gear buys *bolder compositions*, not bigger numbers (§4.4 horizontal-lean). The binding constraint migrates from poverty (few beads, short strings) to schedule (rooms bind; you can never awaken everything). Planning never trivializes, structurally. The endgame chase is assembly ("six `Keystone≤5` beads"), not inflation — duplicates are the chase, never dead loot.
 
-**Perfection = lit area.** Wide × deep on both mods — rarity×tier compound with no extra mechanism; this is §8.6's asymptote. Mod pricing inherits §5.3's measured table (+N anti common; +N base and dice-shape rare; +all capstone). Every mod is data on a resource (§5.3 decision 3). Anti-patterns (banked 2026-07-02): conditions satisfiable by free re-sorting (the base×mult symmetry law — key conditions to colors, monster state, or roll outcomes instead), percentages on single-digit integers, heal/regen unpriced against §7.4, and any blind-roll crafting outcome (§8.1).
+**Crafting verbs, re-derived:** **deepen** = raise a bead's ceiling · **widen** = add a gear's second bead · plus conventional offers per §8.1 (all pick-1-of-3-or-decline). Items still start blank (base carries a trivial implicit only); attempts-are-rooms; undo = opportunity cost. Anti-patterns carry over from 07-02 (conditions satisfiable by free re-sorting; unpriced heal/regen; blind-roll crafting) — with one repeal: *percentages are now legal where trial counts support them* (see regime note).
 
-### 8.6 Open decisions
-1. **Tree topology & sizes** — depth / branch factor per specialty. The load-bearing homework: perfection-curve steepness = tier-ladder length × tree size, and it must be simmed before content is authored (§7.8).
-2. **Sealed banking (lean: yes).** Extraction seals the item; re-entry crafting would deflate §8.3's bank-or-push tension and should exist, if ever, only steeply priced.
-3. **Live under-construction item** — equipped and active mid-run? Feel says yes (you feel it grow, the stake stays visible); cost is UI plus a moving mid-run balance target.
-4. **Boon/relic scoping** — leaning run-scoped (currency already is); deliberately still fuzzy (§12.2.9b).
-5. **Residual numbers** — offers per room, specialty stack cap, re-walk/widen/deepen costs, floor bounds. All first-pass above.
+**Regime & epoch note.** Combat is moving to a lengthier, costlier fight regime. The **rooms↔rounds exchange rate is an undeclared load-bearing constant** (§8.6.1) — every number above is first-pass **epoch-2**, and all epoch-1 sim tables (the short-fight gauntlet: §5.3, §7.7 baselines, the 07-02 run-log analyses) are historical. Per §5.3's own precedent: don't mix the tables.
+
+### 8.6 Open decisions (updated 2026-07-15)
+1. **Rooms↔rounds exchange rate** — target rounds per fight. Gates every numeric decision in §8.5 and the crit catalog; declare before any tuning sim.
+2. **Gear's second slot** — beads-only, or bead + one conventional effect-mod ("soul slot," where legendary/relational effects would live).
+3. **Specialty transforms' new home** — the unlock/block/weight machinery from the 07-02 draft now targets *node catalogs and offer pools*, not item mod-pools; scope it when the second catalog is drafted.
+4. **Crit-tree rulings** (see `docs/crit-tree-draft.md`): mark persistence scope (fight-scoped lean vs the resonance carryover precedent); apply-twice semantics pin; Constellation's residual scarcity.
+5. **Sealed banking (lean: yes)** and **live under-construction item (lean: yes)** — carried from 07-02.
+6. **Boon/relic scoping** — deliberately still fuzzy (§12.2.9b).
+
+*Design history (retired this sprint, kept for the trail): the room-tax recovery model (punished ambition in certain-cost currency — §7.5 violation); the keystone-terminal law (superseded: charge cost + vesting floor price certainty better); the tier=rarity=cost unification and the lattice/blank-transit model (superseded by the bead-bag + charge model — the jobs survived, the scaffolding didn't).*
 
 ---
 
